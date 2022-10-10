@@ -10,7 +10,7 @@ var g = gin.Default()
 func GinInit() {
 
 	g.LoadHTMLGlob("view/templates/*")
-
+	g.Static("/static", "view/static")
 	RouterInit(g)
 	ApiInit(g)
 

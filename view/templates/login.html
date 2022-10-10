@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="/static/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="/static/css/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <style>
+        html, body {
+            margin: 1px 1px 1px 1px;
+            padding: 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <v-app>
+        <v-main>
+            <v-container
+                    class="fill-height"
+                    fluid
+            >
+                <v-row
+                        align="center"
+                        justify="center"
+                >
+                    <v-col
+                            cols="12"
+                            sm="8"
+                            md="4"
+                    >
+                        <v-card class="elevation-12">
+                            <v-toolbar
+                                    color="primary"
+                                    dark
+                                    flat
+                            >
+                                <v-toolbar-title>登录</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn
+                                                icon
+                                                large
+                                                v-on="on"
+                                        >
+                                            <v-icon>mdi-code-tags</v-icon>
+                                        </v-btn>
+                                    </template>
+                                </v-tooltip>
+                            </v-toolbar>
+                            <v-card-text>
+                                <v-form>
+                                    <v-text-field
+                                            label="email"
+                                            name="email"
+                                            v-model="form.email"
+                                            :rules="rules.emailRules"
+                                            prepend-icon="mdi-email"
+                                            type="text"
+                                    >
+                                        <template #append>
+                                            <v-btn icon small color="primary" v-show="!sendCodeStatus.status"
+                                                   :loading="sendCodeStatus.loading" @click.stop="sendCode">
+                                                <v-icon>mdi-send</v-icon>
+                                            </v-btn>
+                                            <v-btn icon small color="success" v-if="sendCodeStatus.status">
+                                                <v-icon>${sendCodeStatus.second}</v-icon>
+                                            </v-btn>
+
+                                        </template>
+                                    </v-text-field>
+
+                                    <v-text-field
+                                            label="验证码"
+                                            name="code"
+                                            v-model="form.code"
+                                            :rules="rules.codeRules"
+                                            prepend-icon="mdi-lock"
+                                            type="password"
+                                    ></v-text-field>
+                                </v-form>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="primary">登录</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </v-container>
+        </v-main>
+    </v-app>
+</div>
+
+<script src="/static/js/vue.js"></script>
+<script src="/static/js/vuetify.js"></script>
+<script src="/static/js/axios.min.js"></script>
+<script src="/static/js/config.js"></script>
+
+<script>
+
+    new Vue({
+        el: '#app',
+        delimiters: ['${', '}'],
+        vuetify: new Vuetify(),
+        data() {
+            return {
+                form: {
+                    email: "",
+                    code: ""
+                },
+                sendCodeStatus: {
+                    loading: false,
+                    status: false,
+                    second: 60,
+                    timer: null
+                },
+                rules: {
+                    emailRules: [
+                        v => !!v || 'email不能为空！',
+                        v => /.+@.+/.test(v) || 'email格式不正确！',
+                    ],
+                    codeRules: [
+                        v => !!v || '验证码不能为空',
+                        v => v.length === 6 || '验证码格式不正确',
+                    ],
+                }
+            }
+        },
+        watch: {
+            'sendCodeStatus.status'(next, _) {
+                if (next) {
+                    this.sendCodeStatus.timer = setInterval(function () {
+                        if (this.second === 0) {
+                            clearInterval(this.sendCodeStatus.timer)
+                            this.sendCodeStatus = {
+                                status: false,
+                                timer: null,
+                                second: 60
+                            }
+                        }
+                        this.second--
+                    }, 1000)
+                }
+            },
+
+        },
+        methods: {
+            sendCode() {
+                this.sendCodeStatus.loading = true
+                this.$request("/login/send_code","post",{a:1})
+            }
+        }
+    })
+</script>
+</body>
+</html>
