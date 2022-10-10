@@ -7,9 +7,15 @@ import (
 
 func ToIndex(c *gin.Context) {
 
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title": "ms主页",
-	})
+	if true {
+		c.HTML(http.StatusOK, "login.html", gin.H{
+			"title": "ms主页",
+		})
+	} else {
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"title": "ms主页",
+		})
+	}
 
 }
 
