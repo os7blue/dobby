@@ -5,7 +5,10 @@ import (
 	"net/http"
 )
 
-func ToIndex(c *gin.Context) {
+type indexRouter struct {
+}
+
+func (r *indexRouter) ToIndex(c *gin.Context) {
 
 	if true {
 		c.HTML(http.StatusOK, "login.html", gin.H{
@@ -19,6 +22,6 @@ func ToIndex(c *gin.Context) {
 
 }
 
-func ToLogin(c *gin.Context) {
+func (r *indexRouter) ToLogin(c *gin.Context) {
 
 }

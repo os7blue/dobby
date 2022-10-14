@@ -4,7 +4,11 @@ import "message-push/config"
 
 func main() {
 
-	config.DbInit()
-	config.GinInit()
+	//config option init ->  sort must first
+	defer config.OptionInit()
+	//db connection init
+	defer config.DbInit()
+	//website and api init
+	defer config.GinInit()
 
 }
