@@ -3,7 +3,12 @@ package common
 var cache = map[string]any{}
 var cacheTime = map[string]int64{}
 
-func SetLocalCacheItem(key string, value any) {
+var LocalCache = new(localCache)
+
+type localCache struct {
+}
+
+func (l *localCache) SetLocalCacheItem(key string, value any) {
 
 	cache[key] = value
 
@@ -13,7 +18,7 @@ func SetLocalCacheItem(key string, value any) {
 SetLocalCacheItemWithTimeOut
 outTime: time out -> ms
 */
-func SetLocalCacheItemWithTimeOut(key string, outTime uint, value any) {
+func (l *localCache) SetLocalCacheItemWithTimeOut(key string, outTime uint, value any) {
 
 	cache[key] = value
 

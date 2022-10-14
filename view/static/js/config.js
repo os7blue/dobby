@@ -1,12 +1,12 @@
 //插件形式封装一些工具
-const p = {};
+const yd = {};
 const axiosInstance = axios.create({
     timeout: 10000,
     headers: {
         'Content-Type':'application/json'
     }
 });
-p.install = function (Vue, options) {
+yd.install = function (Vue, options) {
 
     Vue.prototype.$request = function (url,method,param) {
 
@@ -16,7 +16,11 @@ p.install = function (Vue, options) {
                     axiosInstance.get(url,param).then(res => {
                         resolve(res.data);
                     }).catch(err =>{
-
+                        this.$q.loading.hide();
+                        this.$q.dialog({
+                            message: '网络错误，请检查后重试',
+                            ok:{color:'red'}
+                        })
                         reject(err.data)
                     });
                 })
@@ -26,7 +30,12 @@ p.install = function (Vue, options) {
                     axiosInstance.post(url,param).then(res => {
                         resolve(res.data);
                     }).catch(err =>{
+                        this.$q.loading.hide();
 
+                        this.$q.dialog({
+                            message: '网络错误，请检查后重试',
+                            ok:{color:'red'}
+                        })
                         reject(err.data)
                     });
                 })
@@ -38,4 +47,4 @@ p.install = function (Vue, options) {
     }
 }
 
-Vue.use(p);
+Vue.use(yd);
