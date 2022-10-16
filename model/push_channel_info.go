@@ -12,8 +12,8 @@ type PushChannelInfo struct {
 	CreateTime uint
 }
 
-func (m *PushChannelInfo) create() {
+func (m *PushChannelInfo) create(info PushChannelInfo) {
 
-	config.DB.Create(&PushChannelInfo{})
+	config.DB.Create(info)
 
 }
