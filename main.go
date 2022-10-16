@@ -1,14 +1,19 @@
 package main
 
-import "message-push/config"
+import (
+	"message-push/bootstrap"
+	"message-push/config"
+)
 
 func main() {
 
 	//config option init ->  sort must first
-	defer config.OptionInit()
+	bootstrap.OptionInit()
+	//local cache init
+	bootstrap.CacheInit()
 	//db connection init
-	defer config.DbInit()
+	config.DbInit()
 	//website and api init
-	defer config.GinInit()
+	config.GinInit()
 
 }

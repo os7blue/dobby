@@ -24,10 +24,11 @@ yd.install = function (Vue, options) {
                         reject(err.data)
                     });
                 })
+
             default:
 
                 return new Promise((resolve, reject) => {
-                    axiosInstance.post(url,param).then(res => {
+                    axiosInstance.post(url,JSON.stringify(param)).then(res => {
                         resolve(res.data);
                     }).catch(err =>{
                         this.$q.loading.hide();

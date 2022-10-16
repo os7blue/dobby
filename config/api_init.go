@@ -7,6 +7,6 @@ import (
 
 func ApiInit(g *gin.Engine) {
 
-	g.POST("/login/send_code", api.Apis.LoginApi.SendCode)
+	g.POST("/login/send_code", api.Apis.AuthApi.SendCode)
 
 }
