@@ -17,6 +17,12 @@ type Result struct {
 	Count int    `json:"count"`
 }
 
+func (r *r) Custom(c *gin.Context, result Result) {
+
+	c.JSON(http.StatusOK, &result)
+
+}
+
 func (r *r) Success(c *gin.Context) {
 	c.JSON(http.StatusOK, &Result{
 		Code: 1,
