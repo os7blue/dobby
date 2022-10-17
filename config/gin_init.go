@@ -2,13 +2,13 @@ package config
 
 import (
 	"fmt"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"log"
 	"message-push/bootstrap"
 	"message-push/common"
+	"net/http"
 	"runtime/debug"
+	"strings"
 )
 
 var G = gin.Default()
@@ -18,7 +18,7 @@ func GinInit() {
 	G.LoadHTMLGlob("view/templates/*")
 	G.Static("/static", "view/static")
 	G.Use(Recover)
-	G.Use(sessionStore())
+	G.Use(authCheck())
 
 	RouterInit(G)
 	ApiInit(G)
@@ -30,12 +30,53 @@ func GinInit() {
 	}
 }
 
-// 使用session中间件
-func sessionStore() gin.HandlerFunc {
-	//以cookie作为session的储存引擎
-	store := cookie.NewStore([]byte("nicai"))
-	// 设置session中间件，session的名字也是cookie的名字
-	return sessions.Sessions("sys", store)
+func authCheck() gin.HandlerFunc {
+
+	return func(c *gin.Context) {
+		uri := c.Request.RequestURI
+		uris := strings.Split(uri, "/")
+		if uris[0] == "admin" {
+
+			u, err := c.Cookie("u")
+			if err != nil {
+				noAuthRedirect(c)
+			}
+
+			v, exist := bootstrap.LocalCache.Get(u)
+			if !exist {
+				noAuthRedirect(c)
+			}
+
+			refreshAuth(c, u, v.(string))
+
+		}
+	}
+
+}
+
+func refreshAuth(c *gin.Context, u string, v string) {
+	c.SetCookie(
+		"u",
+		u,
+		86400,
+		"*",
+		"*",
+		false,
+		true,
+	)
+	bootstrap.LocalCache.Set(fmt.Sprintf("auth-%s", u), v, 86400)
+
+}
+
+func noAuthRedirect(c *gin.Context) {
+	method := c.Request.Method
+	if strings.ToLower(method) == "get" {
+		c.Redirect(http.StatusOK, "/login")
+	} else {
+		common.R.Custom(c, common.Result{
+			Code: 401,
+		})
+	}
 }
 
 // Recover gin全局err的处理

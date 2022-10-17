@@ -23,6 +23,7 @@ require (
 	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/golang-module/carbon/v2 v2.1.9 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect

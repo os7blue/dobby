@@ -7,6 +7,7 @@ import (
 
 func RouterInit(g *gin.Engine) {
 
+	g.Group("")
 	g.GET("/", router.Routers.IndexRouter.ToIndex)
 
 	g.GET("/login", router.Routers.IndexRouter.ToLogin)
