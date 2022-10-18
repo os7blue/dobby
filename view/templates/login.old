@@ -1,113 +1,104 @@
 <!DOCTYPE html>
 <html>
+<!--
+  WARNING! Make sure that you match all Quasar related
+  tags to the same version! (Below it's "@1.20.2")
+-->
+
 <head>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
-    <link href="/static/css/materialdesignicons.min.css" rel="stylesheet">
-    <link href="/static/css/vuetify.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
+          type="text/css">
+    <link href="/static/css/quasar.min.css" rel="stylesheet" type="text/css">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <style>
-        html, body {
-            margin: 1px 1px 1px 1px;
-            padding: 0;
-            text-align: center;
-        }
-    </style>
+
 </head>
-<body>
-<div id="app">
-    <v-app>
-        <v-main>
-            <v-container
-                    class="fill-height"
-                    fluid
+
+<body class="full-width row justify-center content-center items-center">
+
+<div id="q-app">
+
+    <div class="full-width row justify-center content-center items-center">
+
+        <div class="col-md-6 col-xs-10 form-box">
+
+            <q-form
+                    @submit="login"
+                    class="q-gutter-md"
             >
-                <v-row
-                        align="center"
-                        justify="center"
-                >
-                    <v-col
-                            cols="12"
-                            sm="8"
-                            md="4"
-                    >
-                        <v-card class="elevation-12">
-                            <v-toolbar
-                                    color="primary"
-                                    dark
-                                    flat
-                            >
-                                <v-toolbar-title>登录</v-toolbar-title>
-                                <v-spacer></v-spacer>
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn
-                                                icon
-                                                large
-                                                v-on="on"
-                                        >
-                                            <v-icon>mdi-code-tags</v-icon>
-                                        </v-btn>
-                                    </template>
-                                </v-tooltip>
-                            </v-toolbar>
-                            <v-card-text>
-                                <v-form>
-                                    <v-text-field
-                                            label="email"
-                                            name="email"
-                                            v-model="form.email"
-                                            :rules="rules.emailRules"
-                                            prepend-icon="mdi-email"
-                                            type="text"
-                                    >
-                                        <template #append>
-                                            <v-btn icon small color="primary" v-show="!sendCodeStatus.status"
-                                                   :loading="sendCodeStatus.loading" @click.stop="sendCode">
-                                                <v-icon>mdi-send</v-icon>
-                                            </v-btn>
-                                            <v-btn icon small color="success" v-if="sendCodeStatus.status">
-                                                <v-icon>${sendCodeStatus.second}</v-icon>
-                                            </v-btn>
+                <q-input
+                        filled
+                        square
+                        v-model="loginForm.email"
+                        label="email"
+                        type="email"
+                        lazy-rules
+                        label-color="blue"
+                        :rules='[
+                        val => val && val.length > 0 || "email不能为空",
+                        val => /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(val)||"email格式不正确",
 
-                                        </template>
-                                    </v-text-field>
+                        ]'>
+                    <template v-slot:prepend>
+                        &nbsp;<q-icon color="blue" name="mail"></q-icon>
+                    </template>
 
-                                    <v-text-field
-                                            label="验证码"
-                                            name="code"
-                                            v-model="form.code"
-                                            :rules="rules.codeRules"
-                                            prepend-icon="mdi-lock"
-                                            type="password"
-                                    ></v-text-field>
-                                </v-form>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="primary">登录</v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-col>
-                </v-row>
-            </v-container>
-        </v-main>
-    </v-app>
+                </q-input>
+
+                <q-input
+                        filled
+                        square
+                        v-model="loginForm.code"
+                        label-color="blue"
+                        label="验证码"
+                        type="text"
+                        lazy-rules
+                        :rules='[
+          val => val && val.length===6 || "验证码格式不正确",
+        ]'>
+                    <template v-slot:prepend>
+                        &nbsp;<q-icon color="blue" name="code"></q-icon>
+                    </template>
+                    <template v-slot:append>
+                        <q-btn round dense color="blue" :loading="sendCodeStatus.loading" @click="sendCode"
+                               v-show="!sendCodeStatus.status" flat icon="send" @click.stop></q-btn>
+                        <q-btn color="blue" v-if="sendCodeStatus.status" disabled>${sendCodeStatus.second}</q-btn>
+                    </template>
+                </q-input>
+
+
+                <div>
+                    <q-btn label="登录" type="submit" color="primary"></q-btn>
+                </div>
+            </q-form>
+
+        </div>
+        <div>
+
+        </div>
+    </div>
 </div>
 
-<script src="/static/js/vue.js"></script>
-<script src="/static/js/vuetify.js"></script>
+
+<script src="/static/js/vue.min.js"></script>
+<script src="/static/js/quasar.umd.min.js"></script>
+<script src="/static/js/zh-hans.umd.min.js"></script>
 <script src="/static/js/axios.min.js"></script>
 <script src="/static/js/config.js"></script>
 
-<script>
 
+<script>
+    Quasar.lang.set(Quasar.lang.zhHans)
+
+    /*
+      Example kicking off the UI. Obviously, adapt this to your specific needs.
+      Assumes you have a <div id="q-app"></div> in your <body> above
+     */
     new Vue({
-        el: '#app',
+        el: '#q-app',
         delimiters: ['${', '}'],
-        vuetify: new Vuetify(),
         data() {
             return {
-                form: {
+                loginForm: {
                     email: "",
                     code: ""
                 },
@@ -116,16 +107,6 @@
                     status: false,
                     second: 60,
                     timer: null
-                },
-                rules: {
-                    emailRules: [
-                        v => !!v || 'email不能为空！',
-                        v => /.+@.+/.test(v) || 'email格式不正确！',
-                    ],
-                    codeRules: [
-                        v => !!v || '验证码不能为空',
-                        v => v.length === 6 || '验证码格式不正确',
-                    ],
                 }
             }
         },
@@ -148,12 +129,98 @@
 
         },
         methods: {
+            login() {
+                this.$request.post("/login/login", {...this.form}).then(res => {
+                    if (res.code == 1) {
+
+                        this.$q.notify({
+                            color: 'success',
+                            message: "登录成功",
+                            position: 'center'
+                        })
+                    } else {
+
+                        this.$q.notify({
+                            color: 'red',
+                            message: "登录失败",
+                            position: 'center'
+                        })
+                    }
+                }).catch((res) => {
+                    this.$q.notify({
+                        color: 'red',
+                        message: "网络错误，请检查后重试",
+                        position: 'center'
+                    })
+                })
+            },
             sendCode() {
-                this.sendCodeStatus.loading = true
-                this.$request("/login/send_code","post",{a:1})
+                let bool = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.loginForm.email)
+
+                if (!bool) {
+                    this.$q.notify({
+                        color: 'red',
+                        message: "请输入正确的email",
+                        position: 'center'
+                    })
+
+                    return false;
+                }
+
+                this.$request.post("/login/send_code", {email: this.form.email}).then(res => {
+                    if (res.code == 1) {
+
+                        this.$q.notify({
+                            color: 'success',
+                            message: "验证码发送成功，有效期五分钟",
+                            position: 'center'
+                        })
+                        this.sendCodeStatus.status = true
+                    } else {
+
+                        this.$q.notify({
+                            color: 'red',
+                            message: "验证码发送失败",
+                            position: 'center'
+                        })
+                    }
+                }).catch((res) => {
+                    this.$q.notify({
+                        color: 'red',
+                        message: "网络错误，请检查后重试",
+                        position: 'center'
+                    })
+                })
+
+
             }
         }
+        // ...etc
     })
 </script>
 </body>
+
+<style>
+
+    html, body {
+
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        background: url("/static/img/3.png") no-repeat center center;
+
+
+        /* 让背景图基于容器大小伸缩 */
+        background-size: cover;
+
+
+    }
+
+    .form-box {
+        background-color: #f4f4f4;
+        padding: 36px 36px 36px 36px;
+    }
+
+
+</style>
 </html>
