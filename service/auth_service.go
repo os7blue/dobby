@@ -23,3 +23,31 @@ func (a *authService) SendCode(email string) error {
 
 	return nil
 }
+
+func (a *authService) Login(email string, code string) bool {
+
+	emails := bootstrap.Option.Email.Admin
+	emails = append(emails, bootstrap.Option.Email.Username)
+
+	for _, e := range emails {
+
+		if e == email {
+
+			key := fmt.Sprintf("code-%s", email)
+			c, exist := bootstrap.LocalCache.Get(key)
+			if !exist {
+				return exist
+			}
+
+			if c.(string) == code {
+				bootstrap.LocalCache.Del(key)
+				return true
+			}
+
+		}
+
+	}
+
+	return false
+
+}
