@@ -1,27 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="full-box">
 <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/static/css/index.css" />
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" href="/static/css/index.css"/>
+    <link rel="stylesheet" href="/static/css/global.css">
     <script src="/static/js/vue.js"></script>
-    <script src="/static/js/index.js"></script>
+    <script src="/static/js/layui-vue.js"></script>
+    <script src="/static/js/axios.min.js"></script>
+    <script src="/static/js/config.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
 
 </head>
-<body>
-<div id="app">
-    <lay-button type="primary">123123</lay-button>
+<body class="full-box">
+<div id="app" class="full-box">
+
+
+    <lay-panel shadow="hover" class="form-box layui-anim layui-anim-fadein">
+
+
+        <lay-form :model="loginForm" ref="lf" required initValidate>
+            <lay-form-item label="邮箱地址" prop="email" :rules="{type : 'email',message:'邮箱地址不正确'}">
+                <lay-input v-model="loginForm.email" prefix-icon="layui-icon-email" size="lg"></lay-input>
+            </lay-form-item>
+            <lay-form-item label="验证码" prop="code" :rules="{  type :  'string',min : 6,max : 6,message:'验证码格式错误'}">
+                <lay-input v-model="loginForm.code" prefix-icon="layui-icon-fonts-code" size="lg">
+                    <template v-slot:suffix>
+                        <lay-ripple type="out" trigger="always" v-show="!sendCodeStatus.status">
+                            <lay-button type="primary" @click="sendCode">
+                                <lay-icon type="layui-icon-release"></lay-icon>
+                            </lay-button>
+                        </lay-ripple>
+                        <lay-ripple type="out" trigger="always" v-if="sendCodeStatus.status">
+                            <lay-button type="warm" disabled="true">${sendCodeStatus.second}</lay-button>
+                        </lay-ripple>
+                    </template>
+                </lay-input>
+            </lay-form-item>
+            <lay-ripple>
+                <lay-button type="warm" @click="login">登录</lay-button>
+
+
+            </lay-ripple>
+        </lay-form>
+
+
+    </lay-panel>
+
+
 </div>
 <script>
     const App = {
+        compilerOptions: {
+            delimiters: ['${', '}'],
+            comments: true
+        },
         data() {
             return {
-                message: "Hello World"
+                loginForm: {
+                    email: "",
+                    code: ""
+                },
+                sendCodeStatus: {
+                    loading: false,
+                    status: false,
+                    second: 60,
+                    timer: null
+                }
             };
         },
+        created() {
+        },
+        watch: {
+            'sendCodeStatus.status'(next, _) {
+                if (next) {
+                    this.sendCodeStatus.timer = setInterval(function () {
+                        if (this.second === 0) {
+                            clearInterval(this.sendCodeStatus.timer)
+                            this.sendCodeStatus = {
+                                status: false,
+                                timer: null,
+                                second: 60
+                            }
+                        }
+                        this.second--
+                    }, 1000)
+                }
+            },
+
+        },
+        methods: {
+            login() {
+
+                this.$refs.lf.validate((isValidate, model, errors) => {
+                    if (!isValidate){
+                        return false
+                    }else {
+                        this.$request.post("/login/login", {...this.loginForm}).then(res => {
+                            if (res.code == 1) {
+
+                                LayuiVue.layer.msg("登录成功", { icon : 1, time: 1000})
+                            } else {
+                                LayuiVue.layer.msg(`${res.msg},登录失败`, { icon : 2, time: 1000})
+
+                            }
+                        }).catch((res) => {
+                            LayuiVue.layer.msg("网络错误，请稍后再试", { icon : 2, time: 1000})
+                        })
+
+                    }
+
+
+
+                })
+
+
+            },
+            sendCode() {
+                let bool = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.loginForm.email)
+
+                if (!bool) {
+                    LayuiVue.layer.msg("邮箱格式不正确", { icon : 2, time: 1000})
+
+                    return false;
+                }
+
+                this.$request.post("/login/send_code", {email: this.loginForm.email}).then(res => {
+                    if (res.code == 1) {
+
+                        LayuiVue.layer.msg("验证码发送成功", { icon : 1, time: 1000})
+
+                        this.sendCodeStatus.status = true
+                    } else {
+
+                        LayuiVue.layer.msg(`${res.msg},验证码发送失败`, { icon : 2, time: 1000})
+
+                    }
+                }).catch((res) => {
+                    LayuiVue.layer.msg("网络错误，请稍后再试", { icon : 2, time: 1000})
+
+                })
+
+
+            }
+        }
     };
     const app = Vue.createApp(App);
     app.use(LayuiVue);
+    app.use(http)
     app.mount("#app");
 </script>
+
+<style>
+    html, body, #app {
+
+
+        background: url("/static/img/3.png");
+        /* 背景图垂直、水平均居中 */
+        background-position: center center;
+        /* 背景图不平铺 */
+        background-repeat: no-repeat;
+        /* 当内容高度大于图片高度时，背景图像的位置相对于viewport固定 */
+        background-attachment: fixed;
+        /* 让背景图基于容器大小伸缩 */
+        background-size: cover;
+        /* 设置背景颜色，背景图加载过程中会显示背景色 */
+        background-color: #c8b7ee;
+
+    }
+
+    .form-box {
+        border: 0;
+        min-width: 30%;
+        max-width: 80%;
+        text-align: center;
+        background: #b1d5c8;
+
+    }
+
+
+</style>
 </body>
 </html>
