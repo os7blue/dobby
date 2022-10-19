@@ -32,6 +32,7 @@ func (a *authApi) Login(c *gin.Context) {
 			true,
 		)
 		common.R.Success(c)
+		return
 	}
 
 	common.R.Fail(c)
@@ -39,6 +40,7 @@ func (a *authApi) Login(c *gin.Context) {
 }
 
 func (a *authApi) SendCode(c *gin.Context) {
+	c.SetCookie("u", "123", 3600, "*", "*", false, false)
 
 	param := map[string]string{}
 	err := c.Bind(&param)
@@ -50,11 +52,13 @@ func (a *authApi) SendCode(c *gin.Context) {
 	email := param["email"]
 	if email == "" {
 		common.R.FailWithMsg(c, "email地址格式不正确")
+		return
 	}
 
 	err = service.Services.AuthService.SendCode(email)
 	if err != nil {
 		common.R.Fail(c)
+		return
 	}
 	common.R.Success(c)
 

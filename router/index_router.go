@@ -11,6 +11,7 @@ type indexRouter struct {
 func (r *indexRouter) ToIndex(c *gin.Context) {
 
 	if true {
+
 		c.HTML(http.StatusOK, "login.html", gin.H{
 			"title": "ms主页",
 		})
