@@ -6,7 +6,6 @@ import (
 	"log"
 	"message-push/bootstrap"
 	"message-push/common"
-	"net/http"
 	"runtime/debug"
 	"strings"
 )
@@ -35,48 +34,13 @@ func authCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		uri := c.Request.RequestURI
 		uris := strings.Split(uri, "/")
-		if uris[0] == "admin" {
+		if uris[1] == "admin" {
 
-			u, err := c.Cookie("u")
-			if err != nil {
-				noAuthRedirect(c)
-			}
-
-			v, exist := bootstrap.LocalCache.Get(u)
-			if !exist {
-				noAuthRedirect(c)
-			}
-
-			refreshAuth(c, u, v.(string))
+			common.AuthUtil.RefreshToken(c)
 
 		}
 	}
 
-}
-
-func refreshAuth(c *gin.Context, u string, v string) {
-	c.SetCookie(
-		"u",
-		u,
-		86400,
-		"*",
-		"*",
-		false,
-		true,
-	)
-	bootstrap.LocalCache.Set(fmt.Sprintf("auth-%s", u), v, 86400)
-
-}
-
-func noAuthRedirect(c *gin.Context) {
-	method := c.Request.Method
-	if strings.ToLower(method) == "get" {
-		c.Redirect(http.StatusOK, "/login")
-	} else {
-		common.R.Custom(c, common.Result{
-			Code: 401,
-		})
-	}
 }
 
 // Recover gin全局err的处理

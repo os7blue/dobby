@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"message-push/common"
 	"message-push/service"
 )
@@ -21,16 +20,7 @@ func (a *authApi) Login(c *gin.Context) {
 	bl := service.Services.AuthService.Login(param["email"], param["code"])
 
 	if bl {
-		uid := uuid.New()
-		c.SetCookie(
-			"u",
-			uid.String(),
-			86400,
-			"*",
-			"*",
-			false,
-			true,
-		)
+		common.AuthUtil.SetToken(c, param["email"])
 		common.R.Success(c)
 		return
 	}
@@ -40,7 +30,6 @@ func (a *authApi) Login(c *gin.Context) {
 }
 
 func (a *authApi) SendCode(c *gin.Context) {
-	c.SetCookie("u", "123", 3600, "*", "*", false, false)
 
 	param := map[string]string{}
 	err := c.Bind(&param)
