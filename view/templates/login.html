@@ -100,7 +100,9 @@
                         this.$request.post("/login/login", {...this.loginForm}).then(res => {
                             if (res.code == 1) {
 
-                                LayuiVue.layer.msg("登录成功", { icon : 1, time: 1000})
+                                LayuiVue.layer.msg("登录成功", { icon : 1, time: 1000,})
+                                window.location.href="/admin"
+
                             } else {
                                 LayuiVue.layer.msg(`${res.msg},登录失败`, { icon : 2, time: 1000})
 
