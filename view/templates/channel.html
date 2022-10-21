@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="full-box">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <link rel="stylesheet" href="/static/css/index.css"/>
@@ -13,11 +13,12 @@
 
 
 </head>
-<body class="full-box">
-<div id="app" class="full-box" style="background: red">
+<body>
+<div id="app" style="padding: 10px 10px 10px 10px">
+    <lay-field title="通道管理"></lay-field>
+    <lay-table :columns="columns" :data-source="ds" id="id"></lay-table>
 
 
-  通道
 
 
 </div>
@@ -29,7 +30,35 @@
     },
     data() {
       return {
+        ds:[
 
+        ],
+        columns:[
+          {
+            title:"id",
+            width:"200px",
+            key:"id",
+            align: "center"
+          },
+          {
+            title:"通道名",
+            width:"200px",
+            key:"name",
+            align: "center"
+          },
+          {
+            title:"状态",
+            width:"200px",
+            key:"status",
+            align: "center"
+          },
+          {
+            title:"创建时间",
+            width:"200px",
+            key:"createTime",
+            align: "center"
+          }
+        ]
       };
     },
     created() {

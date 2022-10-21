@@ -8,7 +8,7 @@ import (
 
 var LocalCache *ristretto.Cache
 
-func CacheInit() {
+func cacheInit() {
 	cache, err := ristretto.NewCache(&ristretto.Config{
 		NumCounters: 1e7,     // number of keys to track frequency of (10M).
 		MaxCost:     1 << 30, // maximum cost of cache (1GB).

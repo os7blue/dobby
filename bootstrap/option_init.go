@@ -33,7 +33,7 @@ type option struct {
 
 var Option *option
 
-func OptionInit() {
+func optionInit() {
 
 	cfg, err := ini.Load("dev.ini")
 	if err != nil {

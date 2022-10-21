@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"message-push/bootstrap"
 	"message-push/common"
-	"message-push/common/sender"
+	"message-push/service/sender"
 )
 
 type authService struct {

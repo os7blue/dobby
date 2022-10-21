@@ -1,4 +1,4 @@
-package common
+package model
 
 type ServiceError struct {
 	Msg string
