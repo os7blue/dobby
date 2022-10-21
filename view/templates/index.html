@@ -17,10 +17,10 @@
 <div id="app">
 
 
-    <lay-layout class="example" style="width: 100%;height: 100%">
+    <lay-layout class="example" style="width: 100%;height: 100%" >
         <lay-header>
-            <lay-menu>
-                <lay-menu-item id="1"><router-link to="/">通道管理</router-link></lay-menu-item>
+            <lay-menu v-model:selected-key="select" @change-selected-key="changeContent">
+                <lay-menu-item id="1">通道管理</lay-menu-item>
                 <lay-menu-item id="2">日志</lay-menu-item>
                 <lay-menu-item id="3">站点设置</lay-menu-item>
 
@@ -29,7 +29,7 @@
         <lay-layout>
             <lay-body>
 
-                <iframe :src="" width="100%" height="100%" seamless="seamless"></iframe>
+                <iframe :src="src" width="100%" height="100%"></iframe>
 
             </lay-body>
         </lay-layout>
@@ -45,13 +45,32 @@
         },
         data() {
             return {
-
+                select:"1",
+                src:"/admin/channel"
             };
         },
+
         created() {
         },
         methods: {
+            changeContent(id){
 
+                switch (id){
+                    case "1":
+                        this.src="/admin/channel"
+
+                        break
+                    case "2":
+                        this.src="/admin/log"
+                        break
+                    case "3":
+                        this.src="/admin/setting"
+                        break
+                    default:
+                        this.src="/admin/channel"
+                }
+
+            },
         }
     };
     const app = Vue.createApp(App);
@@ -65,27 +84,7 @@
         width: 100%;
         height: 100%;
     }
-    .example .layui-footer,
-    .example .layui-header {
-        line-height: 60px;
-        text-align: center;
-        background: #87ca9a;
-        color: white;
-    }
-    .example .layui-side {
-        display: flex;
-        background: #77c38c;
-        align-items: center;
-        justify-content: center;
-        color: white;
-    }
-    .example .layui-body {
-        display: flex;
-        background: #5FB878;
-        align-items: center;
-        justify-content: center;
-        color: white;
-    }
+
 
 </style>
 </body>

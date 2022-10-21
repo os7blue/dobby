@@ -20,7 +20,6 @@ func (a *authApi) Login(c *gin.Context) {
 	bl := service.Services.AuthService.Login(param["email"], param["code"])
 
 	if bl {
-		common.AuthUtil.SetToken(c, param["email"])
 		common.R.Success(c)
 		return
 	}

@@ -1,11 +1,11 @@
-package config
+package bootstrap
 
 import (
 	"github.com/gin-gonic/gin"
 	"message-push/api"
 )
 
-func ApiInit(g *gin.Engine) {
+func apiInit(g *gin.Engine) {
 
 	g.POST("/login/send_code", api.Apis.AuthApi.SendCode)
 	g.POST("/login/login", api.Apis.AuthApi.Login)
