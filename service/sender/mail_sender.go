@@ -2,7 +2,7 @@ package sender
 
 import (
 	"github.com/jordan-wright/email"
-	"message-push/bootstrap"
+	"message-push/common"
 	"net/smtp"
 )
 
@@ -11,7 +11,7 @@ type mailSender struct {
 
 func (m *mailSender) Send(to []string, title string, content string) error {
 
-	ec := bootstrap.Option.Email
+	ec := common.Option.Email
 	e := email.NewEmail()
 	e.From = ec.Username
 	e.To = to

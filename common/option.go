@@ -1,4 +1,4 @@
-package bootstrap
+package common
 
 import (
 	"fmt"
@@ -33,7 +33,7 @@ type option struct {
 
 var Option *option
 
-func optionInit() {
+func init() {
 
 	cfg, err := ini.Load("dev.ini")
 	if err != nil {
