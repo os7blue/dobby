@@ -3,8 +3,8 @@ package bootstrap
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log"
+	"message-push/common"
 	"message-push/model"
 	"net/http"
 	"runtime/debug"
@@ -23,8 +23,8 @@ func ginInit() {
 	routerInit(G)
 	apiInit(G)
 
-	fmt.Println(Option.Web.Port)
-	err := G.Run(fmt.Sprintf("%s:%s", Option.Web.Addr, Option.Web.Port))
+	fmt.Println(common.Option.Web.Port)
+	err := G.Run(fmt.Sprintf("%s:%s", common.Option.Web.Addr, common.Option.Web.Port))
 	if err != nil {
 		fmt.Println("gin init failed")
 	}
@@ -76,54 +76,6 @@ func errorToString(r interface{}) string {
 	}
 }
 
-func Check(c *gin.Context) bool {
-
-	u, err := c.Cookie("u")
-	if err != nil {
-		return false
-	}
-
-	_, exist := LocalCache.Get(fmt.Sprintf("auth-%s", u))
-
-	return exist
-
-}
-
-func GetTokenValue(c *gin.Context) (interface{}, bool) {
-
-	u, err := c.Cookie("u")
-	if err != nil {
-		return nil, false
-	}
-
-	v, exist := LocalCache.Get(fmt.Sprintf("auth-%s", u))
-	if !exist {
-		return nil, false
-	}
-
-	return v, true
-
-}
-
-// SetToken config token info after login success
-func SetToken(c *gin.Context, tokenData any) {
-
-	// set cookie
-	uid := uuid.New()
-	c.SetCookie(
-		"u",
-		uid.String(),
-		7200,
-		"",
-		"",
-		false,
-		true,
-	)
-	// save token info to local cache
-	LocalCache.Set(fmt.Sprintf("auth-%s", uid), tokenData, 7200)
-
-}
-
 func noAuthRedirect(c *gin.Context) {
 	method := c.Request.Method
 	c.SetCookie(
@@ -153,7 +105,7 @@ func RefreshToken(c *gin.Context) {
 		return
 	}
 
-	v, exist := LocalCache.Get(fmt.Sprintf("auth-%s", u))
+	v, exist := common.LocalCache.Get(fmt.Sprintf("auth-%s", u))
 	if !exist {
 		noAuthRedirect(c)
 		return
@@ -167,6 +119,6 @@ func RefreshToken(c *gin.Context) {
 		false,
 		true,
 	)
-	LocalCache.Set(fmt.Sprintf("auth-%s", u), v, 7200)
+	common.LocalCache.Set(fmt.Sprintf("auth-%s", u), v, 7200)
 
 }

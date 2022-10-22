@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"message-push/bootstrap"
 	"message-push/common"
 	"message-push/service/sender"
 )
@@ -19,28 +18,28 @@ func (a *authService) SendCode(email string) error {
 		return err
 	}
 
-	bootstrap.LocalCache.Set(fmt.Sprintf("code-%s", email), code, 18000)
+	common.LocalCache.Set(fmt.Sprintf("code-%s", email), code, 18000)
 
 	return nil
 }
 
 func (a *authService) Login(email string, code string) bool {
 
-	emails := bootstrap.Option.Email.Admin
-	emails = append(emails, bootstrap.Option.Email.Username)
+	emails := common.Option.Email.Admin
+	emails = append(emails, common.Option.Email.Username)
 
 	for _, e := range emails {
 
 		if e == email {
 
 			key := fmt.Sprintf("code-%s", email)
-			c, exist := bootstrap.LocalCache.Get(key)
+			c, exist := common.LocalCache.Get(key)
 			if !exist {
 				return exist
 			}
 
 			if c.(string) == code {
-				bootstrap.LocalCache.Del(key)
+				common.LocalCache.Del(key)
 				return true
 			}
 
