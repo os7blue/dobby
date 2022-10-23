@@ -71,6 +71,10 @@
             };
         },
         created() {
+
+            if (self !== top) {
+                window.location.href="/"
+            }
         },
         watch: {
             'sendCodeStatus.status'(next, _) {

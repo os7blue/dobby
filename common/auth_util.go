@@ -3,7 +3,6 @@ package common
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 var AuthUtil = new(authUtil)
@@ -41,20 +40,16 @@ func (a *authUtil) GetTokenValue(c *gin.Context) (interface{}, bool) {
 }
 
 // SetToken config token info after login success
-func (a *authUtil) SetToken(c *gin.Context, tokenData any) {
+func (a *authUtil) SetToken(c *gin.Context, code string) {
 
-	// set cookie
-	uid := uuid.New()
 	c.SetCookie(
 		"u",
-		uid.String(),
+		code,
 		7200,
 		"",
 		"",
 		false,
 		true,
 	)
-	// save token info to local cache
-	LocalCache.Set(fmt.Sprintf("auth-%s", uid), tokenData, 7200)
 
 }

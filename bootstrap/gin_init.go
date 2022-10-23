@@ -33,6 +33,7 @@ func ginInit() {
 func authCheck() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+		setTestToken(c)
 		uri := c.Request.RequestURI
 		uris := strings.Split(uri, "/")
 		if uris[1] == "admin" {
@@ -94,6 +95,21 @@ func noAuthRedirect(c *gin.Context) {
 			Code: 401,
 		})
 	}
+}
+
+func setTestToken(c *gin.Context) {
+
+	c.SetCookie(
+		"u",
+		"test",
+		7200,
+		"",
+		"",
+		false,
+		true,
+	)
+	common.LocalCache.Set(fmt.Sprintf("auth-%s", "test"), "123", 7200)
+
 }
 
 // RefreshToken refresh token of every request

@@ -2,7 +2,10 @@ package common
 
 import (
 	"fmt"
+	"github.com/dgraph-io/ristretto"
 	"gopkg.in/ini.v1"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"os"
 )
 
@@ -51,5 +54,40 @@ func init() {
 	}
 
 	Option = op
+
+}
+
+var DB *gorm.DB
+
+func init() {
+	db, err := gorm.Open(sqlite.Open(Option.DB.Url))
+	if err != nil {
+		fmt.Println("datasource init failed")
+		os.Exit(1)
+	}
+
+	if err != nil {
+		fmt.Println("datasource init failed")
+		os.Exit(1)
+	}
+	DB = db
+
+}
+
+var LocalCache *ristretto.Cache
+
+func init() {
+	cache, err := ristretto.NewCache(&ristretto.Config{
+		NumCounters: 1e7,     // number of keys to track frequency of (10M).
+		MaxCost:     1 << 30, // maximum cost of cache (1GB).
+		BufferItems: 64,      // number of keys per Get buffer.
+	})
+
+	if err != nil {
+		fmt.Println("local cache init failed")
+		os.Exit(1)
+	}
+
+	LocalCache = cache
 
 }

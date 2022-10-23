@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"message-push/common"
+	"message-push/model"
 	"message-push/service"
 )
 
@@ -10,42 +11,37 @@ type authApi struct {
 }
 
 func (a *authApi) Login(c *gin.Context) {
-	param := map[string]string{}
-	err := c.Bind(&param)
+	var loginVm model.LoginValidator
+	err := c.ShouldBindJSON(&loginVm)
 	if err != nil {
-		common.R.FailWithMsg(c, "参数有误")
+		common.R.FailWithMsg(c, err.Error())
 		return
 	}
 
-	bl := service.Services.AuthService.Login(param["email"], param["code"])
+	tokenCode, err := service.Services.AuthService.Login(loginVm.Email, loginVm.Code)
 
-	if bl {
-		common.R.Success(c)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
 		return
 	}
 
-	common.R.Fail(c)
-
+	common.AuthUtil.SetToken(c, tokenCode)
+	common.R.Success(c)
 }
 
 func (a *authApi) SendCode(c *gin.Context) {
 
-	param := map[string]string{}
-	err := c.Bind(&param)
+	var codeVm model.SendCodeValidator
+	err := c.ShouldBindJSON(&codeVm)
+
 	if err != nil {
-		common.R.FailWithMsg(c, "参数有误")
+		common.R.FailWithMsg(c, err.Error())
 		return
 	}
 
-	email := param["email"]
-	if email == "" {
-		common.R.FailWithMsg(c, "email地址格式不正确")
-		return
-	}
-
-	err = service.Services.AuthService.SendCode(email)
+	err = service.Services.AuthService.SendCode(codeVm.Email)
 	if err != nil {
-		common.R.Fail(c)
+		common.R.FailWithMsg(c, err.Error())
 		return
 	}
 	common.R.Success(c)

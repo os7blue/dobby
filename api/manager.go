@@ -3,5 +3,6 @@ package api
 var Apis = new(apiGroup)
 
 type apiGroup struct {
-	AuthApi authApi
+	AuthApi        authApi
+	ChannelInfoApi channelInfoApi
 }

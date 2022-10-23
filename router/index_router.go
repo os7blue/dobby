@@ -21,7 +21,3 @@ func (r *indexRouter) ToIndex(c *gin.Context) {
 	}
 
 }
-
-func (r *indexRouter) ToLogin(c *gin.Context) {
-
-}
