@@ -1,7 +1,7 @@
 package model
 
 type OperationLog struct {
-	Id         uint   `gorm:"primaryKey;autoIncrement" json:"id"`
+	ID         uint   `gorm:"primaryKey;autoIncrement" json:"id"`
 	Content    string `gorm:"not null" json:"content"`
-	CreateTime uint   `gorm:"not null;autoCreateTime=milli" json:"createTime"`
+	CreateTime int64  `gorm:"not null;autoCreateTime=milli" json:"createTime"`
 }

@@ -8,7 +8,6 @@ import (
 func routerInit(g *gin.Engine) {
 
 	g.GET("/", router.Routers.IndexRouter.ToIndex)
-	g.GET("/login", router.Routers.IndexRouter.ToLogin)
 	g.GET("/admin", router.Routers.AdminRouter.ToIndex)
 	g.GET("/admin/channel", router.Routers.AdminRouter.ToChannel)
 	g.GET("/admin/log", router.Routers.AdminRouter.ToLog)
