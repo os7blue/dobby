@@ -15,8 +15,10 @@ var G = gin.Default()
 
 func ginInit() {
 
+	G.Delims("{[{", "}]}")
 	G.LoadHTMLGlob("view/templates/*")
 	G.Static("/static", "view/static")
+
 	G.Use(Recover)
 	G.Use(authCheck())
 
@@ -33,6 +35,7 @@ func ginInit() {
 func authCheck() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+		//test login token
 		setTestToken(c)
 		uri := c.Request.RequestURI
 		uris := strings.Split(uri, "/")

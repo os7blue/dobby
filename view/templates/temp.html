@@ -23,10 +23,7 @@
 </div>
 <script>
     const App = {
-        compilerOptions: {
-            delimiters: ['${', '}'],
-            comments: true
-        },
+
         data() {
             return {
 
@@ -41,6 +38,7 @@
     const app = Vue.createApp(App);
     app.use(LayuiVue);
     app.use(http)
+    app.use(util)
     app.mount("#app");
 </script>
 

@@ -28,18 +28,18 @@
                 <lay-input v-model="loginForm.code" prefix-icon="layui-icon-fonts-code" size="lg">
                     <template v-slot:suffix>
                         <lay-ripple type="out" trigger="always" v-show="!sendCodeStatus.status">
-                            <lay-button type="primary" @click="sendCode">
+                            <lay-button type="primary" @click="sendCode" :loading="sendCodeStatus.loading" :disabled="sendCodeStatus.loading" >
                                 <lay-icon type="layui-icon-release"></lay-icon>
                             </lay-button>
                         </lay-ripple>
-                        <lay-ripple type="out" trigger="always" v-if="sendCodeStatus.status">
-                            <lay-button type="warm" disabled="true">${sendCodeStatus.second}</lay-button>
+                        <lay-ripple type="out" trigger="always"  v-if="sendCodeStatus.status">
+                            <lay-button type="warm" disabled="true">{{sendCodeStatus.second}}</lay-button>
                         </lay-ripple>
                     </template>
                 </lay-input>
             </lay-form-item>
             <lay-ripple>
-                <lay-button type="warm" @click="login">登录</lay-button>
+                <lay-button type="warm" @click="login" :loading="loginLoading" :disabled="loginLoading">登录</lay-button>
 
 
             </lay-ripple>
@@ -52,12 +52,10 @@
 </div>
 <script>
     const App = {
-        compilerOptions: {
-            delimiters: ['${', '}'],
-            comments: true
-        },
+
         data() {
             return {
+                loginLoading:false,
                 loginForm: {
                     email: "",
                     code: ""
@@ -72,24 +70,31 @@
         },
         created() {
 
+
             if (self !== top) {
                 window.location.href="/"
             }
         },
         watch: {
             'sendCodeStatus.status'(next, _) {
+                //监听验证码发送倒计时变化
                 if (next) {
-                    this.sendCodeStatus.timer = setInterval(function () {
-                        if (this.second === 0) {
-                            clearInterval(this.sendCodeStatus.timer)
-                            this.sendCodeStatus = {
-                                status: false,
-                                timer: null,
-                                second: 60
+
+                    this.sendCodeStatus.timer=setInterval(()=>{
+
+                        if (this.sendCodeStatus.second===0){
+                            this.sendCodeStatus.status=false
+                            this.sendCodeStatus.second=60
+                            if (this.sendCodeStatus.timer!=null){
+                                clearInterval(this.sendCodeStatus.timer)
                             }
                         }
-                        this.second--
-                    }, 1000)
+
+                        this.sendCodeStatus.second--;
+
+
+                    },1000)
+
                 }
             },
 
@@ -101,6 +106,9 @@
                     if (!isValidate){
                         return false
                     }else {
+
+                        this.loginLoading=true
+
                         this.$request.post("/login/login", {...this.loginForm}).then(res => {
                             if (res.code == 1) {
 
@@ -113,6 +121,8 @@
                             }
                         }).catch((res) => {
                             LayuiVue.layer.msg("网络错误，请稍后再试", { icon : 2, time: 1000})
+                        }).finally(()=>{
+                            this.loginLoading=false
                         })
 
                     }
@@ -132,6 +142,8 @@
                     return false;
                 }
 
+                this.sendCodeStatus.loading=true
+
                 this.$request.post("/login/send_code", {email: this.loginForm.email}).then(res => {
                     if (res.code == 1) {
 
@@ -146,6 +158,9 @@
                 }).catch((res) => {
                     LayuiVue.layer.msg("网络错误，请稍后再试", { icon : 2, time: 1000})
 
+                }).finally(()=>{
+                    this.sendCodeStatus.loading=false
+
                 })
 
 
@@ -155,6 +170,7 @@
     const app = Vue.createApp(App);
     app.use(LayuiVue);
     app.use(http)
+    app.use(util)
     app.mount("#app");
 </script>
 

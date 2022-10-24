@@ -33,7 +33,7 @@ func (r *r) SuccessWithData(c *gin.Context, data any) {
 
 }
 
-func (r *r) SuccessWithDataCount(c *gin.Context, data any, count int) {
+func (r *r) SuccessWithDataCount(c *gin.Context, data any, count int64) {
 	c.JSON(http.StatusOK, &model.Result{
 		Code:  1,
 		Msg:   "success",

@@ -8,8 +8,8 @@ import (
 func dbInit() {
 
 	err := common.DB.AutoMigrate(
-		&model.PushChannelInfo{},
-		&model.PushChannelLine{},
+		&model.ChannelInfo{},
+		&model.ChannelLine{},
 	)
 	if err != nil {
 		return

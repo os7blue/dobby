@@ -1,6 +1,6 @@
 package model
 
-type PushChannelLine struct {
+type ChannelLine struct {
 	ID          uint `gorm:"primaryKey;autoIncrement" json:"id"`
 	InfoId      uint `gorm:"not null" json:"infoId"`
 	ChannelType int  `gorm:"not null;size:1;" json:"channelType"`

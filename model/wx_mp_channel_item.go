@@ -1,6 +1,6 @@
 package model
 
-type WxMpPushChannelItem struct {
+type WxMpChannelItem struct {
 	ID         uint
 	AppId      string
 	AppSecret  string

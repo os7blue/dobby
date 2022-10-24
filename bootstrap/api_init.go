@@ -13,6 +13,9 @@ func apiInit(g *gin.Engine) {
 
 	//channel
 	channelGroup := g.Group("/admin/channel")
-	channelGroup.POST("/channel_info/create", api.Apis.ChannelInfoApi.Create)
+	//channel info
+	channelInfoGroup := channelGroup.Group("/channel_info")
+	channelInfoGroup.POST("/create", api.Apis.ChannelInfoApi.Create)
+	channelInfoGroup.POST("/load", api.Apis.ChannelInfoApi.Load)
 
 }
