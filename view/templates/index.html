@@ -39,10 +39,7 @@
 </div>
 <script>
     const App = {
-        compilerOptions: {
-            delimiters: ['${', '}'],
-            comments: true
-        },
+
         data() {
             return {
                 select:"1",
@@ -76,6 +73,7 @@
     const app = Vue.createApp(App);
     app.use(LayuiVue);
     app.use(http)
+    app.use(util)
     app.mount("#app");
 </script>
 
