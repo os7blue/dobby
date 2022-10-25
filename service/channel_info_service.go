@@ -55,3 +55,7 @@ func (s *channelInfoService) CreateOne(name string) error {
 
 	return nil
 }
+
+func (s *channelInfoService) Update(m model.ChannelInfo) {
+
+}
