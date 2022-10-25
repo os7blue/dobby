@@ -48,3 +48,22 @@ func (i *channelInfoApi) Load(c *gin.Context) {
 	common.R.SuccessWithDataCount(c, result, count)
 
 }
+
+func (i *channelInfoApi) Update(c *gin.Context) {
+
+	var updateVm model.ChannelInfoUpdateValidator
+	err := c.ShouldBindJSON(&updateVm)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
+	var info model.ChannelInfo
+	err = common.StructConvert[model.ChannelInfoUpdateValidator, model.ChannelInfo](updateVm, &info)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+	service.Services.ChannelInfoService.Update(info)
+
+}

@@ -3,8 +3,9 @@ package model
 //item -> line -> info
 
 type ChannelInfo struct {
-	ID         uint   `gorm:"primaryKey;autoIncrement" json:"id"`
-	Name       string `gorm:"not null;size:20;unique" json:"name"`
+	ID   uint   `gorm:"primaryKey;autoIncrement" json:"id"`
+	Name string `gorm:"not null;size:20;unique" json:"name"`
+	//status code , enable is 10 , disabled is 0
 	Status     int    `gorm:"not null;size:2" json:"status"`
 	Key        string `gorm:"not null;unique" json:"key"`
 	CreateTime int64  `gorm:"not null;autoCreateTime:milli" json:"createTime"`

@@ -26,7 +26,8 @@
                    :loading="infoTableOption.loading" @change="changeInfoTable" id="id">
 
             <template v-slot:status="{ data }">
-                <lay-switch v-model="data.status" onswitch-text="启用" :onswitch-value="10" unswitch-text="禁用" :unswitch-value="0" @click="changeInfoStatus(data)"></lay-switch>
+                <lay-switch v-model="data.status" onswitch-text="启用" :onswitch-value="10" unswitch-text="禁用"
+                            :unswitch-value="0" @click="changeInfoStatus(data)"></lay-switch>
             </template>
 
         </lay-table>
@@ -84,13 +85,13 @@
                         {
                             title: "状态",
                             width: "200px",
-                            customSlot:'status',
+                            customSlot: 'status',
                             key: "status",
                             align: "center"
                         },
                         {
                             title: "创建时间",
-                            customSlot:'createTime',
+                            customSlot: 'createTime',
                             width: "200px",
                             key: "createTime",
                             align: "center"
@@ -127,14 +128,24 @@
 
         },
         methods: {
-            changeInfoStatus(data){
-                let index = this.$util.getArrayItemIndex(this.infoTableOption.data,data,"id")
+            changeInfoStatus(data) {
+                let index = this.$util.getArrayItemIndex(this.infoTableOption.data, data, "id")
                 console.log(index)
             },
             changeInfoTable(data) {
                 this.infoTableOption.page.current = data.current
                 this.infoTableOption.page.limit = data.limit
 
+                this.loadInfoPage()
+            },
+            loadInfoPageBegin() {
+                this.infoTableOption.page = {
+                    total: 0,
+                    limit: 10,
+                    current: 1,
+                    showRefresh: true,
+                }
+                this.infoTableOption.searchValue={}
                 this.loadInfoPage()
             },
             loadInfoPage() {
@@ -176,6 +187,9 @@
                             if (res.code === 1) {
 
                                 LayuiVue.layer.msg("创建推送通道成功", {icon: 1, time: 1000,})
+                                this.action.openInfoCreate = false
+                                this.loadInfoPageBegin()
+
 
                             } else {
                                 LayuiVue.layer.msg(`${res.msg},创建推送通道失败`, {icon: 2, time: 1000})
