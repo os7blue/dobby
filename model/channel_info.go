@@ -17,10 +17,10 @@ type ChannelInfoCreateValidator struct {
 
 type ChannelInfoUpdateValidator struct {
 	ID     uint   `json:"id" binding:"required"`
-	Name   string `json:"name" binding:"min=2,max=20"`
+	Name   string `json:"name" binding:"omitempty,min=2,max=20"`
 	Status int    `json:"status"`
 }
 
 type ChannelInfoSearchValidator struct {
-	Name string `json:"name"`
+	Name string `json:"name" binding:"omitempty"`
 }

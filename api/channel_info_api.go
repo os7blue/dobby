@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"message-push/common"
 	"message-push/model"
 	"message-push/service"
@@ -52,18 +53,50 @@ func (i *channelInfoApi) Load(c *gin.Context) {
 func (i *channelInfoApi) Update(c *gin.Context) {
 
 	var updateVm model.ChannelInfoUpdateValidator
+	err := c.ShouldBindBodyWith(&updateVm, binding.JSON)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
+	paramMap := make(map[string]any) //注意该结构接受的内容
+	err = c.ShouldBindBodyWith(&paramMap, binding.JSON)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
+	//var info model.ChannelInfo
+	//err = common.StructConvert[model.ChannelInfoUpdateValidator, model.ChannelInfo](updateVm, &info)
+	//if err != nil {
+	//	common.R.FailWithMsg(c, err.Error())
+	//	return
+	//}
+	err = service.Services.ChannelInfoService.Update(paramMap)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
+	common.R.Success(c)
+
+}
+
+func (i *channelInfoApi) Delete(c *gin.Context) {
+
+	var updateVm model.ChannelInfoUpdateValidator
 	err := c.ShouldBindJSON(&updateVm)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
 
-	var info model.ChannelInfo
-	err = common.StructConvert[model.ChannelInfoUpdateValidator, model.ChannelInfo](updateVm, &info)
+	err = service.Services.ChannelInfoService.Delete(updateVm.ID)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-	service.Services.ChannelInfoService.Update(info)
+
+	common.R.Success(c)
 
 }

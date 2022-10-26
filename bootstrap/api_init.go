@@ -18,5 +18,6 @@ func apiInit(g *gin.Engine) {
 	channelInfoGroup.POST("/create", api.Apis.ChannelInfoApi.Create)
 	channelInfoGroup.POST("/load", api.Apis.ChannelInfoApi.Load)
 	channelInfoGroup.POST("/update", api.Apis.ChannelInfoApi.Update)
+	channelInfoGroup.POST("/del", api.Apis.ChannelInfoApi.Delete)
 
 }
