@@ -5,10 +5,7 @@ const (
 
 	WxWork = 2
 
-	DD = 3
-
-	Fs = 4
+	Webhook = 3
 
 	Email = 5
 )
-

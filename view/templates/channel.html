@@ -17,7 +17,7 @@
 <div id="app" style="padding: 10px 10px 10px 10px">
     <lay-field title="通道管理"></lay-field>
 
-    <lay-space direction="vertical">
+    <lay-space direction="vertical" :fill="true">
         <lay-space>
             <lay-button type="primary" @click="this.action.openInfoCreate=true">添加通道</lay-button>
 
@@ -27,7 +27,40 @@
 
             <template v-slot:status="{ data }">
                 <lay-switch v-model="data.status" onswitch-text="启用" :onswitch-value="10" unswitch-text="禁用"
-                            :unswitch-value="0" @click="changeInfoStatus(data)"></lay-switch>
+                            :unswitch-value="0" @change="changeInfoStatus(data)"></lay-switch>
+                {{data.status}}
+            </template>
+            <template v-slot:operator="{data}">
+                <lay-button size="xs" type="warm" @click="deleteInfo(data)">查看key</lay-button>
+                <lay-button size="xs" type="warm" @click="deleteInfo(data)">编辑</lay-button>
+                <lay-button size="xs" type="danger" @click="deleteInfo(data)">重置key</lay-button>
+                <lay-button size="xs" type="danger" @click="deleteInfo(data)">删除</lay-button>
+
+            </template>
+
+            <template v-slot:expand="{ data }">
+                <div class="card-container">
+                    <lay-card title="标题">
+                        内容
+                    </lay-card>
+                    <lay-card title="标题">
+                        内容
+                    </lay-card>
+                    <lay-card title="标题">
+                        内容
+                    </lay-card>
+                    <lay-card title="标题">
+                        内容
+                    </lay-card>
+                    <lay-card title="标题">
+                        内容
+                    </lay-card>
+                    <lay-card title="标题">
+                        内容
+                    </lay-card>
+
+
+                </div>
             </template>
 
         </lay-table>
@@ -95,6 +128,13 @@
                             width: "200px",
                             key: "createTime",
                             align: "center"
+                        }, {
+                            title: "操作",
+                            width: "150px",
+                            fixed: "right",
+                            align: "center",
+                            customSlot: "operator",
+                            key: "operator"
                         }
                     ],
                     page: {
@@ -128,9 +168,88 @@
 
         },
         methods: {
+            deleteInfo(data) {
+                let index = LayuiVue.layer.confirm(`确认删除通道《${data.name}》吗？`, {
+                    icon: 3,
+                    title: false,
+                    yes: () => {
+
+                        let loadIndex = LayuiVue.layer.msg(`正在删除通道《${data.name}》`, {
+                            icon: 16,
+                            time: 0,
+                            shade: true
+                        })
+                        this.$request.post("/admin/channel/channel_info/del", {id: data.id}).then(res => {
+                            if (res.code === 1) {
+
+                                this.loadInfoPage()
+
+                                LayuiVue.layer.close(index)
+                                LayuiVue.layer.msg(`${res.msg},删除通道《${data.name}》成功`, {icon: 1, time: 1000})
+
+
+                            } else {
+                                LayuiVue.layer.msg(`${res.msg},删除通道《${data.name}》失败`, {icon: 2, time: 1000})
+
+                            }
+                        }).catch((res) => {
+                            LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
+                        }).finally(() => {
+
+                            LayuiVue.layer.close(loadIndex)
+
+                        })
+
+                    }
+                })
+            },
             changeInfoStatus(data) {
+
+                let lastStatus = data.status
                 let index = this.$util.getArrayItemIndex(this.infoTableOption.data, data, "id")
-                console.log(index)
+
+
+                //判断当前值是否为禁用
+                let ifDisabled = data.status === 0
+
+
+                let loadIndex = LayuiVue.layer.msg(`正在${ifDisabled ? '启用' : '禁用'}通道《${data.name}》`, {
+                    icon: 16,
+                    time: 0,
+                    shade: true
+                })
+                this.$request.post("/admin/channel/channel_info/update",
+                    {
+                        id: data.id,
+                        status: ifDisabled ? 10 : 0
+                    }
+                ).then(res => {
+                    if (res.code === 1) {
+
+
+                        LayuiVue.layer.msg(`${res.msg},${ifDisabled ? '启用' : '禁用'}通道《${data.name}》成功`, {
+                            icon: 1,
+                            time: 1000
+                        })
+
+
+                    } else {
+                        this.infoTableOption.data[index].status = lastStatus
+                        LayuiVue.layer.msg(`${res.msg},${ifDisabled ? '启用' : '禁用'}通道《${data.name}》失败`, {
+                            icon: 2,
+                            time: 1000
+                        })
+
+                    }
+                }).catch((res) => {
+                    LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
+                    this.infoTableOption.data[index].status = lastStatus
+                }).finally(() => {
+                    LayuiVue.layer.close(loadIndex)
+
+                })
+
+
             },
             changeInfoTable(data) {
                 this.infoTableOption.page.current = data.current
@@ -145,7 +264,7 @@
                     current: 1,
                     showRefresh: true,
                 }
-                this.infoTableOption.searchValue={}
+                this.infoTableOption.searchValue = {}
                 this.loadInfoPage()
             },
             loadInfoPage() {

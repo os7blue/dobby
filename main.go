@@ -6,5 +6,7 @@ import (
 
 func main() {
 
+	//system base service init
 	bootstrap.Start()
+
 }

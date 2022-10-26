@@ -56,6 +56,24 @@ func (s *channelInfoService) CreateOne(name string) error {
 	return nil
 }
 
-func (s *channelInfoService) Update(m model.ChannelInfo) {
+func (s *channelInfoService) Update(m map[string]any) error {
 
+	if m["id"] == nil {
+		return errors.New("id不能为空")
+	}
+
+	err := common.DB.Model(&model.ChannelInfo{}).Where("id=?", m["id"]).Updates(m)
+	if err.Error != nil {
+		return errors.New("修改失败")
+	}
+	return nil
+}
+
+func (s *channelInfoService) Delete(id uint) error {
+
+	err := common.DB.Delete(&model.ChannelInfo{}, id)
+	if err.Error != nil {
+		return errors.New("删除失败")
+	}
+	return nil
 }
