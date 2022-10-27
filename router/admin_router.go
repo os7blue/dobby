@@ -19,15 +19,7 @@ func (r *adminRouter) ToIndex(c *gin.Context) {
 func (r *adminRouter) ToChannel(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "channel.html", gin.H{
-		"title": "channel",
-	})
-
-}
-
-func (r *adminRouter) ToSetting(c *gin.Context) {
-
-	c.HTML(http.StatusOK, "setting.html", gin.H{
-		"title": "setting",
+		"title": "通道管理",
 	})
 
 }
