@@ -17,8 +17,6 @@
 <div id="app" style="padding: 10px 10px 10px 10px">
     <lay-field title="通道方案管理"></lay-field>
 
-    <demo ></demo>
-
     <lay-space direction="vertical" :fill="true">
         <lay-space>
             <lay-button type="primary" @click="this.action.openInfoCreate=true">添加通道方案</lay-button>
@@ -78,6 +76,10 @@
                 <lay-form-item label="通道方案名称" prop="name" :rules="{min:2,max:20,message:'通道方案名称为5至20字'}">
                     <lay-input v-model="infoCreateForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
                 </lay-form-item>
+                <lay-form-item label="通道方案名称" >
+                    <lay-tag-input v-model="infoCreateForm.data1" v-model:input-value="infoCreateForm.data2" @change="demo" allow-clear ></lay-tag-input>
+                </lay-form-item>
+
 
                 <lay-ripple>
                     <lay-button type="warm" @click="submitInfoCreate">创建</lay-button>
@@ -93,12 +95,18 @@
 
 
 <script type="module">
+    import channelcard from "/static/module/channelcard.js"
 
     const App = {
+        components: {
+            channelcard
+        },
         data() {
             return {
                 infoCreateForm: {
                     name: "",
+                    data1:[],
+                    data2:""
 
                 },
                 action: {
@@ -172,6 +180,9 @@
 
         },
         methods: {
+            demo(){
+              console.log(this.infoCreateForm)
+            },
             deleteInfo(data) {
                 let index = LayuiVue.layer.confirm(`确认删除通道方案《${data.name}》吗？`, {
                     icon: 3,
