@@ -5,8 +5,32 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"math/rand"
+	"regexp"
+	"strings"
 	"time"
 )
+
+// CheckJsonUtil min: min item num;	max:max item num;	regx:item content regx rule
+func CheckJsonUtil(max int, regx string, data string) error {
+	dataArr := strings.Split(data, ",")
+
+	if len(dataArr) == 0 {
+		return errors.New("不可为空")
+	}
+
+	if len(dataArr) > max {
+		return errors.New(fmt.Sprintf("最多%d条数据", max))
+	}
+
+	for _, v := range dataArr {
+		b, err := regexp.Match(regx, []byte(v))
+		if err != nil || !b {
+			return errors.New(fmt.Sprintf("内容： %s 格式不正确", v))
+		}
+	}
+
+	return nil
+}
 
 func StructConvert[F any, T any](from F, to *T) error {
 
