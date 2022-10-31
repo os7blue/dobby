@@ -1,8 +1,11 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
+	"github.com/pkg/errors"
 	"message-push/common"
 	"message-push/model"
 	"message-push/service"
@@ -21,6 +24,12 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 		return
 	}
 
+	err = checkOption(createVm.ChannelType, createVm.OptionJsonStr)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
 	err = service.Services.ChannelInfoService.CreateOne(createVm.Name)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
@@ -29,6 +38,28 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 
 	common.R.Success(c)
 
+}
+
+func checkOption(channelType int, jsonStr string) error {
+
+	validate := validator.New()
+	switch channelType {
+	case 1:
+		hook := model.WebhookChannel{}
+		err := json.Unmarshal([]byte(jsonStr), &hook)
+		if err != nil {
+			return errors.New("通道设置项格式错误")
+		}
+		err = validate.Struct(hook)
+		if err != nil {
+			return err
+		}
+
+		break
+
+	}
+
+	return nil
 }
 
 func (i *channelInfoApi) Load(c *gin.Context) {

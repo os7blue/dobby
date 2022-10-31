@@ -14,10 +14,23 @@ type ChannelInfo struct {
 	OptionJsonStr string `gorm:"not null" json:"optionJsonStr"`
 }
 
+type ChannelInfoView[T any] struct {
+	ID   uint   ` json:"id"`
+	Name string ` json:"name"`
+	//status code , enable is 10 , disabled is 20
+	Status        int    `json:"status"`
+	Key           string `json:"key"`
+	CreateTime    int64  `json:"createTime"`
+	WhiteList     string `json:"whiteList"`
+	ChannelType   int    `json:"channelType"`
+	ChannelOption T      `json:"channelOption"`
+}
+
 type ChannelInfoCreateValidator struct {
-	Name        string `json:"name" binding:"required,min=2,max=20"`
-	WhiteList   string `json:"whiteList"`
-	ChannelType int    `gorm:"not null" json:"channelType"`
+	Name          string `json:"name" binding:"required,min=2,max=20"`
+	WhiteList     string `json:"whiteList"`
+	ChannelType   int    `json:"channelType" bind:"min"`
+	OptionJsonStr string `json:"optionJsonStr"`
 }
 
 type ChannelInfoUpdateValidator struct {

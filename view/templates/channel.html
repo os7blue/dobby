@@ -343,6 +343,18 @@
                 }
 
             },
+            getOptionValue(type){
+
+                switch (type){
+                    case 1:
+                        return this.webhookForm
+                    case 2:
+                        return "eif"
+                    case 3:
+                        return "wif"
+                }
+
+            },
             submitInfoCreate() {
 
                 this.$refs.icf.validate((isValidate, model, errors) => {
@@ -351,11 +363,13 @@
                     }
                 })
 
-                this.$refs[this.getFormRefsName(this.infoCreateForm.channelType)].validate((isValidate, model, errors) => {
+                let type = this.infoCreateForm.channelType
+                this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
                     if (!isValidate) {
                         return false
                     }else {
-                        this.$request.post("/admin/channel/channel_info/create", {...this.infoCreateForm}).then(res => {
+                        let option = this.getOptionValue(type)
+                        this.$request.post("/admin/channel/channel_info/create", {...this.infoCreateForm,optionJsonStr:JSON.stringify(option)}).then(res => {
                             if (res.code === 1) {
 
                                 LayuiVue.layer.msg("创建推送通道成功", {icon: 1, time: 1000,})
