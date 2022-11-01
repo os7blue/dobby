@@ -9,7 +9,7 @@ type ChannelInfo struct {
 	Status        int    `gorm:"not null;size:2" json:"status"`
 	Key           string `gorm:"not null;unique" json:"key"`
 	CreateTime    int64  `gorm:"not null;autoCreateTime:milli" json:"createTime"`
-	WhiteList     string `json:"whiteList"`
+	WhiteListStr  string `json:"whiteListStr"`
 	ChannelType   int    `gorm:"not null" json:"channelType"`
 	OptionJsonStr string `gorm:"not null" json:"optionJsonStr"`
 }
@@ -21,24 +21,24 @@ type ChannelInfoView[T any] struct {
 	Status        int    `json:"status"`
 	Key           string `json:"key"`
 	CreateTime    int64  `json:"createTime"`
-	WhiteList     string `json:"whiteList"`
+	WhiteListStr  string `json:"whiteListStr"`
 	ChannelType   int    `json:"channelType"`
 	ChannelOption T      `json:"channelOption"`
 }
 
 type ChannelInfoCreateValidator struct {
 	Name          string `json:"name" binding:"required,min=2,max=20"`
-	WhiteList     string `json:"whiteList"`
+	WhiteListStr  string `json:"whiteListStr"`
 	ChannelType   int    `json:"channelType" bind:"min"`
 	OptionJsonStr string `json:"optionJsonStr"`
 }
 
 type ChannelInfoUpdateValidator struct {
-	ID          uint   `json:"id" binding:"required"`
-	Name        string `json:"name" binding:"omitempty,min=2,max=20"`
-	WhiteList   string `json:"whiteList"`
-	ChannelType int    `json:"channelType"`
-	Status      int    `json:"status"`
+	ID           uint   `json:"id" binding:"required"`
+	Name         string `json:"name" binding:"omitempty,min=2,max=20"`
+	WhiteListStr string `json:"whiteListStr"`
+	ChannelType  int    `json:"channelType"`
+	Status       int    `json:"status"`
 }
 
 type ChannelInfoSearchValidator struct {
