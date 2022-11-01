@@ -13,7 +13,7 @@ type authService struct {
 
 func (a *authService) SendCode(email string) error {
 
-	code := common.RandCodeString(6)
+	code := common.GlobalUtil.RandCodeString(6)
 
 	emails := common.Option.Email.Admin
 	emails = append(emails, common.Option.Email.Username)

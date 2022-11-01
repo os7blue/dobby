@@ -7,7 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 	"message-push/common"
-	"message-push/model"
+	model "message-push/model"
 	"message-push/service"
 )
 
@@ -23,6 +23,16 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
+	err = common.GlobalUtil.CheckArrStr(
+		0,
+		0,
+		common.IpV4Regx,
+		createVm.WhiteListStr,
+	)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
 
 	err = checkOption(createVm.ChannelType, createVm.OptionJsonStr)
 	if err != nil {
@@ -30,7 +40,9 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 		return
 	}
 
-	err = service.Services.ChannelInfoService.CreateOne(createVm.Name)
+	var info = model.ChannelInfo{}
+	err = common.StructConvert[model.ChannelInfoCreateValidator, model.ChannelInfo](createVm, &info)
+	err = service.Services.ChannelInfoService.CreateOne(info)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return

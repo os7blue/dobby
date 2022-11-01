@@ -34,20 +34,18 @@ func (s *channelInfoService) LoadPage(page int, limit int, channelInfo model.Cha
 	return results, count, nil
 }
 
-func (s *channelInfoService) CreateOne(name string) error {
+func (s *channelInfoService) CreateOne(info model.ChannelInfo) error {
 
 	var count int64
-	common.DB.Model(&model.ChannelInfo{}).Where("name=?", name).Count(&count)
+	common.DB.Model(&model.ChannelInfo{}).Where("name=?", info.Name).Count(&count)
 	if count != 0 {
-		return errors.New(fmt.Sprintf("通道名称《%s》已存在", name))
+		return errors.New(fmt.Sprintf("通道名称《%s》已存在", info.Name))
 	}
 
-	info := model.ChannelInfo{
-		Name:       name,
-		Status:     0,
-		Key:        uuid.New().String(),
-		CreateTime: time.Now().UnixMilli(),
-	}
+	info.CreateTime = time.Now().UnixMilli()
+	info.Status = 20
+	info.Key = uuid.New().String()
+
 	err := common.DB.Create(&info)
 	if err.Error != nil {
 		return errors.New("创建失败")

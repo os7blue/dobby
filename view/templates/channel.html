@@ -27,7 +27,7 @@
 
             <template v-slot:status="{ data }">
                 <lay-switch v-model="data.status" onswitch-text="启用" :onswitch-value="10" unswitch-text="禁用"
-                            :unswitch-value="0" @change="changeInfoStatus(data)"></lay-switch>
+                            :unswitch-value="20" @change="changeInfoStatus(data)"></lay-switch>
                 {{data.status}}
             </template>
             <template v-slot:operator="{data}">
@@ -72,25 +72,27 @@
         <lay-layer title="新建通道" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
                    resize move v-model="action.openInfoCreate">
 
-            <lay-form :model="infoCreateForm" ref="icf" required initValidate style="margin: 15px 15px 15px 15px">
-                <lay-form-item label="通道名称：" prop="name" :rules="{min:2,max:20,message:'通道名称为5至20字'}">
+            <lay-form :model="infoCreateForm" ref="icf" initValidate style="margin: 15px 15px 15px 15px">
+                <lay-form-item label="通道名称：" prop="name" required :rules="{min:2,max:20,message:'通道名称为5至20字'}">
                     <lay-input v-model="infoCreateForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
                 </lay-form-item>
-                <lay-form-item label="ip白名单：" >
-                    <lay-tag-input v-model="infoCreateForm.data1" v-model:input-value="infoCreateForm.data2" @change="demo" allow-clear ></lay-tag-input>
+                <lay-form-item label="ip白名单：" prop="whiteListStr" :rules="checkWhiteListStr">
+                    <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
+                                   placeholder="输入正确的ipv4地址敲击回车" @change="toWhiteListStr"
+                                   allow-clear></lay-tag-input>
                 </lay-form-item>
 
                 <lay-form-item label="通道类型：" >
-                    <lay-select v-model="infoCreateForm.channelType">
+                    <lay-select v-model="infoCreateForm.channelType" required>
                         <lay-select-option :value="1" label="webhook通道"></lay-select-option>
                         <lay-select-option :value="2" label="email通道"></lay-select-option>
                     </lay-select>
                 </lay-form-item>
 
-                <lay-form-item label="通道设置："  >
+                <lay-form-item label="通道设置：">
 
-                    <lay-form :model="webhookForm" v-if="infoCreateForm.channelType==1" ref="wif" required initValidate>
-                        <lay-form-item label="url：" prop="url" :rules="{type:'url',message:'请输入正确的url格式'}">
+                    <lay-form :model="webhookForm" v-if="infoCreateForm.channelType==1" ref="wif">
+                        <lay-form-item label="url：" prop="url" required :rules="{type:'url',message:'请输入正确的url格式'}">
                             <lay-input v-model="webhookForm.url" prefix-icon="layui-icon-person" size="lg"></lay-input>
                         </lay-form-item>
 
@@ -122,12 +124,15 @@
             return {
                 infoCreateForm: {
                     name: "",
-                    channelType:1,
-                    whiteListStr:'',
-                    data2:""
+                    channelType: 1,
+                    whiteListStr: '',
                 },
-                webhookForm:{
-                    url:""
+                tagInputs: {
+                    whiteList: [],
+                    whiteListInput: ""
+                },
+                webhookForm: {
+                    url: ""
                 },
                 action: {
                     openInfoCreate: false,
@@ -178,7 +183,30 @@
                     data: [],
                     searchValue: {},
                     loading: false
-                }
+                },
+                checkWhiteListStr: {
+                    validator(rule, value, callback, source, options) {
+
+
+                        if (value !== "") {
+                            const list = value.split(",")
+                            let ipRegx = /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
+                            for (let i = 0; i < list.length; i++) {
+                                let item = list[i]
+                                console.log(item)
+                                if (!ipRegx.test(item)) {
+                                    callback(new Error(`${item}不是正确的ipv4格式`));
+                                    return false
+                                }
+                            }
+
+
+                        }
+
+                        return true
+                    }
+                },
+
 
             };
         },
@@ -200,9 +228,10 @@
 
         },
         methods: {
-            demo(){
-              console.log(this.infoCreateForm)
+            toWhiteListStr() {
+                this.infoCreateForm.whiteListStr = this.$util.arrayParamToStr("", this.tagInputs.whiteList)
             },
+
             deleteInfo(data) {
                 let index = LayuiVue.layer.confirm(`确认删除通道《${data.name}》吗？`, {
                     icon: 3,
@@ -245,7 +274,7 @@
 
 
                 //判断当前值是否为禁用
-                let ifDisabled = data.status === 0
+                let ifDisabled = data.status === 20
 
 
                 let loadIndex = LayuiVue.layer.msg(`正在${ifDisabled ? '启用' : '禁用'}通道《${data.name}》`, {
@@ -256,7 +285,7 @@
                 this.$request.post("/admin/channel/channel_info/update",
                     {
                         id: data.id,
-                        status: ifDisabled ? 10 : 0
+                        status: ifDisabled ? 10 : 20
                     }
                 ).then(res => {
                     if (res.code === 1) {
@@ -331,9 +360,9 @@
                 })
 
             },
-            getFormRefsName(type){
+            getFormRefsName(type) {
 
-                switch (type){
+                switch (type) {
                     case 1:
                         return "wif"
                     case 2:
@@ -343,9 +372,9 @@
                 }
 
             },
-            getOptionValue(type){
+            getOptionValue(type) {
 
-                switch (type){
+                switch (type) {
                     case 1:
                         return this.webhookForm
                     case 2:
@@ -360,40 +389,47 @@
                 this.$refs.icf.validate((isValidate, model, errors) => {
                     if (!isValidate) {
                         return false
-                    }
-                })
-
-                let type = this.infoCreateForm.channelType
-                this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
-                    if (!isValidate) {
-                        return false
-                    }else {
-                        let option = this.getOptionValue(type)
-                        this.$request.post("/admin/channel/channel_info/create", {...this.infoCreateForm,optionJsonStr:JSON.stringify(option)}).then(res => {
-                            if (res.code === 1) {
-
-                                LayuiVue.layer.msg("创建推送通道成功", {icon: 1, time: 1000,})
-                                this.action.openInfoCreate = false
-                                this.loadInfoPageBegin()
-
-
+                    } else {
+                        let type = this.infoCreateForm.channelType
+                        this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
+                            if (!isValidate) {
+                                return false
                             } else {
-                                LayuiVue.layer.msg(`${res.msg},创建推送通道失败`, {icon: 2, time: 1000})
+                                let option = this.getOptionValue(type)
+                                this.$request.post("/admin/channel/channel_info/create", {
+                                    ...this.infoCreateForm,
+                                    optionJsonStr: JSON.stringify(option)
+                                }).then(res => {
+                                    if (res.code === 1) {
 
+                                        LayuiVue.layer.msg("创建推送通道成功", {icon: 1, time: 1000,})
+                                        this.action.openInfoCreate = false
+                                        this.loadInfoPageBegin()
+
+
+                                    } else {
+                                        LayuiVue.layer.msg(`${res.msg},创建推送通道失败`, {icon: 2, time: 1000})
+
+                                    }
+                                }).catch((res) => {
+                                    LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
+                                })
                             }
-                        }).catch((res) => {
-                            LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
                         })
+
+                        return false
                     }
                 })
 
-
+                return false
 
 
             },
         }
     };
     const app = Vue.createApp(App);
+
+
     app.use(LayuiVue);
     app.use(http)
     app.use(util)
