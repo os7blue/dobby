@@ -20,7 +20,7 @@
 ├── api //service api
 ├── common  //global util
 │   └── sender  //all message sender
-├── config  //projrct config init
+├── bootstrap  //projrct config init
 ├── doc 
 ├── model   //struce(like oop model)
 │   ├── constant    //
@@ -29,10 +29,11 @@
 ├── service
 ├── view
 │   ├── static
-│   │   ├── css│
+│   │   ├── css
 │   │   ├── fonts
 │   │   ├── img
-│   │   └── js
+│   │   ├── js
+│   │   └── module
 │   └── templates
 ├── config.ini //config file
 ├── main.go //starter

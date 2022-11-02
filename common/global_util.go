@@ -12,6 +12,7 @@ import (
 const (
 	EmailRegx = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
 	IpV4Regx  = "((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}"
+	UrlRegx   = "^([\\w-]+\\.)+[\\w-]+(\\/[\\w-.\\/?%&=]*)?$"
 )
 
 var GlobalUtil = new(globalUtil)
@@ -23,7 +24,7 @@ func (g *globalUtil) checkArrStr() {
 
 }
 
-// CheckJsonUtil min: min item num;	max:max item num;	regx:item content regx rule
+// CheckArrStr CheckJsonUtil min: min item num;	max:max item num;	regx:item content regx rule
 func (g *globalUtil) CheckArrStr(min int, max int, regx string, data string) error {
 
 	if data != "" {
@@ -47,6 +48,8 @@ func (g *globalUtil) CheckArrStr(min int, max int, regx string, data string) err
 
 		}
 
+	} else if min > 0 {
+		return errors.New(fmt.Sprintf("至少有%d条数据", min))
 	}
 
 	return nil
