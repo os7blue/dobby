@@ -98,6 +98,27 @@
 
                     </lay-form>
 
+                    <lay-form :model="emailForm" v-if="infoCreateForm.channelType==2" ref="eif">
+                        <lay-form-item label="host：" prop="host" required :rules="checkUrl">
+                            <lay-input v-model="emailForm.host" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="port：" prop="port" required :rules="{min:2,message:'请输入正确的端口号'}">
+                            <lay-input v-model="emailForm.port" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="用户名：" prop="username" required :rules="{type:'email',message:'请输入正确的email地址'}">
+                            <lay-input v-model="emailForm.username" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="密码：" prop="password" required>
+                            <lay-input v-model="emailForm.password" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="接收email：" prop="toEmailListStr" :rules="checkToEmailListStr">
+                            <lay-tag-input v-model="tagInputs.toEmailList" v-model:input-value="tagInputs.toEmailListInput"
+                                           placeholder="输入正确的email地址敲击回车" @change="toEmailListStr"
+                                           allow-clear></lay-tag-input>
+                        </lay-form-item>
+
+                    </lay-form>
+
                 </lay-form-item>
 
                 <lay-ripple>
@@ -129,10 +150,20 @@
                 },
                 tagInputs: {
                     whiteList: [],
-                    whiteListInput: ""
+                    whiteListInput: "",
+                    toEmailList:[],
+                    toEmailListInput:"",
+
                 },
                 webhookForm: {
                     url: ""
+                },
+                emailForm: {
+                    host:"",
+                    port:"",
+                    username:"",
+                    password :"",
+                    toEmailListStr:""
                 },
                 action: {
                     openInfoCreate: false,
@@ -188,7 +219,8 @@
                     validator(rule, value, callback, source, options) {
 
 
-                        if (value !== "") {
+                        console.log(value+"cw")
+                        if (value!==null&&value !== "") {
                             const list = value.split(",")
                             let ipRegx = /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
                             for (let i = 0; i < list.length; i++) {
@@ -196,6 +228,42 @@
                                 console.log(item)
                                 if (!ipRegx.test(item)) {
                                     callback(new Error(`${item}不是正确的ipv4格式`));
+                                    return false
+                                }
+                            }
+
+
+                        }
+
+                        return true
+                    }
+                },
+                checkUrl:{
+                    validator(rule, value, callback, source, options) {
+
+                        let urlReg = /^([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?$/
+                        if ( !urlReg.test(value)){
+                            callback(new Error(`host格式错误（请输入不带协议头的域名或ip）`));
+
+                            return false
+                        }
+                        return true
+                    }
+                },
+
+                checkToEmailListStr: {
+                    validator(rule, value, callback, source, options) {
+
+                        console.log(value+"ce")
+
+                        if (value!==null&&value !== "") {
+                            const list = value.split(",")
+                            let emailRegx = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
+                            for (let i = 0; i < list.length; i++) {
+                                let item = list[i]
+                                console.log(item)
+                                if (!emailRegx.test(item)) {
+                                    callback(new Error(`${item}不是正确的email格式`));
                                     return false
                                 }
                             }
@@ -231,6 +299,10 @@
             toWhiteListStr() {
                 this.infoCreateForm.whiteListStr = this.$util.arrayParamToStr("", this.tagInputs.whiteList)
             },
+            toEmailListStr() {
+                this.emailForm.toEmailListStr = this.$util.arrayParamToStr("", this.tagInputs.toEmailList)
+            },
+
 
             deleteInfo(data) {
                 let index = LayuiVue.layer.confirm(`确认删除通道《${data.name}》吗？`, {
@@ -378,7 +450,7 @@
                     case 1:
                         return this.webhookForm
                     case 2:
-                        return "eif"
+                        return this.emailForm
                     case 3:
                         return "wif"
                 }
@@ -391,7 +463,10 @@
                         return false
                     } else {
                         let type = this.infoCreateForm.channelType
+                        console.log(model)
                         this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
+                            console.log(model)
+
                             if (!isValidate) {
                                 return false
                             } else {

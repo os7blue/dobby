@@ -9,6 +9,7 @@ import (
 	"message-push/common"
 	model "message-push/model"
 	"message-push/service"
+	"regexp"
 )
 
 type channelInfoApi struct {
@@ -67,6 +68,32 @@ func checkOption(channelType int, jsonStr string) error {
 			return err
 		}
 
+		break
+	case 2:
+		email := model.EmailChannel{}
+		err := json.Unmarshal([]byte(jsonStr), &email)
+		if err != nil {
+			return errors.New("email项格式错误")
+		}
+		err = validate.Struct(email)
+		if err != nil {
+			return err
+		}
+
+		b, err := regexp.Match(common.UrlRegx, []byte(email.Host))
+		if err != nil || !b {
+			return errors.New("内容： host格式不正确")
+		}
+
+		err = common.GlobalUtil.CheckArrStr(
+			1,
+			0,
+			common.EmailRegx,
+			email.ToEmailListStr,
+		)
+		if err != nil {
+			return err
+		}
 		break
 
 	}
