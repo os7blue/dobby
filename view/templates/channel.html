@@ -73,7 +73,8 @@
                    resize move v-model="action.openInfoCreate">
 
             <lay-form :model="infoCreateForm" ref="icf" initValidate style="margin: 15px 15px 15px 15px">
-                <lay-form-item label="通道名称：" prop="name" required :rules="{min:2,max:20,message:'通道名称为5至20字'}">
+                <lay-form-item label="通道名称：" prop="name" required
+                               :rules="{min:2,max:20,message:'通道名称为5至20字'}">
                     <lay-input v-model="infoCreateForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
                 </lay-form-item>
                 <lay-form-item label="ip白名单：" prop="whiteListStr" :rules="checkWhiteListStr">
@@ -82,38 +83,66 @@
                                    allow-clear></lay-tag-input>
                 </lay-form-item>
 
-                <lay-form-item label="通道类型：" >
+                <lay-form-item label="通道类型：">
                     <lay-select v-model="infoCreateForm.channelType" required>
-                        <lay-select-option :value="1" label="webhook通道"></lay-select-option>
-                        <lay-select-option :value="2" label="email通道"></lay-select-option>
+                        <lay-select-option :value="10" label="webhook通道"></lay-select-option>
+                        <lay-select-option :value="20" label="email通道"></lay-select-option>
+                        <lay-select-option :value="30" label="公众号（测试号）通道"></lay-select-option>
+
                     </lay-select>
                 </lay-form-item>
 
                 <lay-form-item label="通道设置：">
 
-                    <lay-form :model="webhookForm" v-if="infoCreateForm.channelType==1" ref="wif">
-                        <lay-form-item label="url：" prop="url" required :rules="{type:'url',message:'请输入正确的url格式'}">
+                    <lay-form :model="webhookForm" v-if="infoCreateForm.channelType==10" ref="wif">
+                        <lay-form-item label="url：" prop="url" required
+                                       :rules="{type:'url',message:'请输入正确的url格式'}">
                             <lay-input v-model="webhookForm.url" prefix-icon="layui-icon-person" size="lg"></lay-input>
                         </lay-form-item>
 
                     </lay-form>
 
-                    <lay-form :model="emailForm" v-if="infoCreateForm.channelType==2" ref="eif">
+                    <lay-form :model="emailForm" v-if="infoCreateForm.channelType==20" ref="eif">
                         <lay-form-item label="host：" prop="host" required :rules="checkUrl">
                             <lay-input v-model="emailForm.host" prefix-icon="layui-icon-person" size="lg"></lay-input>
                         </lay-form-item>
                         <lay-form-item label="port：" prop="port" required :rules="{min:2,message:'请输入正确的端口号'}">
                             <lay-input v-model="emailForm.port" prefix-icon="layui-icon-person" size="lg"></lay-input>
                         </lay-form-item>
-                        <lay-form-item label="用户名：" prop="username" required :rules="{type:'email',message:'请输入正确的email地址'}">
-                            <lay-input v-model="emailForm.username" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        <lay-form-item label="用户名：" prop="username" required
+                                       :rules="{type:'email',message:'请输入正确的email地址'}">
+                            <lay-input v-model="emailForm.username" prefix-icon="layui-icon-person"
+                                       size="lg"></lay-input>
                         </lay-form-item>
                         <lay-form-item label="密码：" prop="password" required>
-                            <lay-input v-model="emailForm.password" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                            <lay-input v-model="emailForm.password" prefix-icon="layui-icon-person"
+                                       size="lg"></lay-input>
                         </lay-form-item>
-                        <lay-form-item label="接收email：" prop="toEmailListStr" :rules="checkToEmailListStr">
-                            <lay-tag-input v-model="tagInputs.toEmailList" v-model:input-value="tagInputs.toEmailListInput"
+                        <lay-form-item label="接收email：" prop="toEmailListStr" required :rules="checkToEmailListStr">
+                            <lay-tag-input v-model="tagInputs.toEmailList"
+                                           v-model:input-value="tagInputs.toEmailListInput"
                                            placeholder="输入正确的email地址敲击回车" @change="toEmailListStr"
+                                           allow-clear></lay-tag-input>
+                        </lay-form-item>
+
+                    </lay-form>
+
+                    <lay-form :model="WxMpForm" v-if="infoCreateForm.channelType==30" ref="wif">
+                        <lay-form-item label="appId：" prop="appId" required>
+                            <lay-input v-model="WxMpForm.appId" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="appSecret：" prop="appSecret" required>
+                            <lay-input v-model="WxMpForm.appSecret" prefix-icon="layui-icon-person"
+                                       size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="templateId：" prop="templateId" required>
+                            <lay-input v-model="WxMpForm.templateId" prefix-icon="layui-icon-person"
+                                       size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="接收人id：" prop="toUserListStr" required :rules="checkToUserListStr">
+                            <lay-tag-input v-model="tagInputs.toUserList"
+                                           v-model:input-value="tagInputs.toUserListInput"
+                                           placeholder="输入正确的userId敲击回车" @change="toUserListStr"
                                            allow-clear></lay-tag-input>
                         </lay-form-item>
 
@@ -145,25 +174,32 @@
             return {
                 infoCreateForm: {
                     name: "",
-                    channelType: 1,
+                    channelType: 10,
                     whiteListStr: '',
                 },
                 tagInputs: {
                     whiteList: [],
                     whiteListInput: "",
-                    toEmailList:[],
-                    toEmailListInput:"",
-
+                    toEmailList: [],
+                    toEmailListInput: "",
+                    toUserList: [],
+                    toUserListInput: ""
                 },
                 webhookForm: {
                     url: ""
                 },
                 emailForm: {
-                    host:"",
-                    port:"",
-                    username:"",
-                    password :"",
-                    toEmailListStr:""
+                    host: "",
+                    port: "",
+                    username: "",
+                    password: "",
+                    toEmailListStr: ""
+                },
+                WxMpForm: {
+                    appId: '',
+                    appSecret: '',
+                    templateId: "",
+                    toUserListStr: ""
                 },
                 action: {
                     openInfoCreate: false,
@@ -219,8 +255,8 @@
                     validator(rule, value, callback, source, options) {
 
 
-                        console.log(value+"cw")
-                        if (value!==null&&value !== "") {
+                        console.log(value + "cw")
+                        if (value !== null && value !== "") {
                             const list = value.split(",")
                             let ipRegx = /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
                             for (let i = 0; i < list.length; i++) {
@@ -238,11 +274,11 @@
                         return true
                     }
                 },
-                checkUrl:{
+                checkUrl: {
                     validator(rule, value, callback, source, options) {
 
                         let urlReg = /^([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?$/
-                        if ( !urlReg.test(value)){
+                        if (!urlReg.test(value)) {
                             callback(new Error(`host格式错误（请输入不带协议头的域名或ip）`));
 
                             return false
@@ -250,13 +286,35 @@
                         return true
                     }
                 },
+                checkToUserListStr: {
+                    validator(rule, value, callback, source, options) {
+
+                        console.log(value + "ce")
+
+                        if (value !== null && value !== "") {
+                            const list = value.split(",")
+                            for (let i = 0; i < list.length; i++) {
+                                let item = list[i]
+                                console.log(item)
+                                if (item === "") {
+                                    callback(new Error(`userId不能为空`));
+                                    return false
+                                }
+                            }
+
+
+                        }
+
+                        return true
+                    }
+                },
 
                 checkToEmailListStr: {
                     validator(rule, value, callback, source, options) {
 
-                        console.log(value+"ce")
+                        console.log(value + "ce")
 
-                        if (value!==null&&value !== "") {
+                        if (value !== null && value !== "") {
                             const list = value.split(",")
                             let emailRegx = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
                             for (let i = 0; i < list.length; i++) {
@@ -286,7 +344,12 @@
             action: {
                 handler(next, _) {
                     if (!next.openInfoCreate) {
+                        this.$refs[this.getFormRefsName(this.infoCreateForm.channelType)].reset()
                         this.$refs.icf.reset()
+                        this.infoCreateForm.channelType = 10
+
+                        this.tagInputs = this.$options.data().tagInputs
+
 
                     }
 
@@ -301,6 +364,9 @@
             },
             toEmailListStr() {
                 this.emailForm.toEmailListStr = this.$util.arrayParamToStr("", this.tagInputs.toEmailList)
+            },
+            toUserListStr() {
+                this.WxMpForm.toUserListStr = this.$util.arrayParamToStr("", this.tagInputs.toUserList)
             },
 
 
@@ -435,11 +501,11 @@
             getFormRefsName(type) {
 
                 switch (type) {
-                    case 1:
+                    case 10:
                         return "wif"
-                    case 2:
+                    case 20:
                         return "eif"
-                    case 3:
+                    case 30:
                         return "wif"
                 }
 
@@ -447,11 +513,11 @@
             getOptionValue(type) {
 
                 switch (type) {
-                    case 1:
+                    case 10:
                         return this.webhookForm
-                    case 2:
+                    case 20:
                         return this.emailForm
-                    case 3:
+                    case 30:
                         return "wif"
                 }
 

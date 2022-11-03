@@ -7,7 +7,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 	"message-push/common"
-	model "message-push/model"
+	"message-push/model"
+	"message-push/model/constant"
 	"message-push/service"
 	"regexp"
 )
@@ -48,7 +49,6 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-
 	common.R.Success(c)
 
 }
@@ -57,7 +57,7 @@ func checkOption(channelType int, jsonStr string) error {
 
 	validate := validator.New()
 	switch channelType {
-	case 1:
+	case constant.WEBHOOK:
 		hook := model.WebhookChannel{}
 		err := json.Unmarshal([]byte(jsonStr), &hook)
 		if err != nil {
@@ -69,7 +69,7 @@ func checkOption(channelType int, jsonStr string) error {
 		}
 
 		break
-	case 2:
+	case constant.EMAIL:
 		email := model.EmailChannel{}
 		err := json.Unmarshal([]byte(jsonStr), &email)
 		if err != nil {
