@@ -93,10 +93,12 @@ func noAuthRedirect(c *gin.Context) {
 	)
 	if strings.ToLower(method) == "get" {
 		c.Redirect(302, "/")
+		c.Abort()
 	} else {
 		c.JSON(http.StatusOK, model.Result{
 			Code: 401,
 		})
+		c.Abort()
 	}
 }
 

@@ -32,7 +32,7 @@
             </template>
             <template v-slot:operator="{data}">
                 <lay-button size="xs" type="warm" @click="deleteInfo(data)">查看key</lay-button>
-                <lay-button size="xs" type="warm" @click="deleteInfo(data)">编辑</lay-button>
+                <lay-button size="xs" type="warm" @click="editInfo(data)">编辑</lay-button>
                 <lay-button size="xs" type="danger" @click="deleteInfo(data)">重置key</lay-button>
                 <lay-button size="xs" type="danger" @click="deleteInfo(data)">删除</lay-button>
 
@@ -69,22 +69,23 @@
 
     <!--    弹出层统一放置-->
     <div>
-        <lay-layer title="新建通道" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
-                   resize move v-model="action.openInfoCreate">
+        <lay-layer title="修改通道" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
+                   resize move v-model="action.openInfoEdit">
 
-            <lay-form :model="infoCreateForm" ref="icf" initValidate style="margin: 15px 15px 15px 15px">
+            <lay-form :model="infoForm" v-if="action.openInfoEdit" ref="icf" initValidate
+                      style="margin: 15px 15px 15px 15px">
                 <lay-form-item label="通道名称：" prop="name" required
                                :rules="{min:2,max:20,message:'通道名称为5至20字'}">
-                    <lay-input v-model="infoCreateForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                    <lay-input v-model="infoForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
                 </lay-form-item>
-                <lay-form-item label="ip白名单：" prop="whiteListStr" :rules="checkWhiteListStr">
+                <lay-form-item label="ip白名单：" prop="whiteListStr" required  :rules="checkWhiteListStr">
                     <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
-                                   placeholder="输入正确的ipv4地址敲击回车" @change="toWhiteListStr"
+                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0" @change="toWhiteListStr"
                                    allow-clear></lay-tag-input>
                 </lay-form-item>
 
                 <lay-form-item label="通道类型：">
-                    <lay-select v-model="infoCreateForm.channelType" required>
+                    <lay-select v-model="infoForm.channelType" disabled required>
                         <lay-select-option :value="10" label="webhook通道"></lay-select-option>
                         <lay-select-option :value="20" label="email通道"></lay-select-option>
                         <lay-select-option :value="30" label="公众号（测试号）通道"></lay-select-option>
@@ -94,7 +95,7 @@
 
                 <lay-form-item label="通道设置：">
 
-                    <lay-form :model="webhookForm" v-if="infoCreateForm.channelType==10" ref="wif">
+                    <lay-form :model="webhookForm" v-if="infoForm.channelType==10" ref="wif">
                         <lay-form-item label="url：" prop="url" required
                                        :rules="{type:'url',message:'请输入正确的url格式'}">
                             <lay-input v-model="webhookForm.url" prefix-icon="layui-icon-person" size="lg"></lay-input>
@@ -102,7 +103,7 @@
 
                     </lay-form>
 
-                    <lay-form :model="emailForm" v-if="infoCreateForm.channelType==20" ref="eif">
+                    <lay-form :model="emailForm" v-if="infoForm.channelType==20" ref="eif">
                         <lay-form-item label="host：" prop="host" required :rules="checkUrl">
                             <lay-input v-model="emailForm.host" prefix-icon="layui-icon-person" size="lg"></lay-input>
                         </lay-form-item>
@@ -127,16 +128,107 @@
 
                     </lay-form>
 
-                    <lay-form :model="WxMpForm" v-if="infoCreateForm.channelType==30" ref="wif">
+                    <lay-form :model="wxMpForm" v-if="infoForm.channelType==30" ref="wif">
                         <lay-form-item label="appId：" prop="appId" required>
-                            <lay-input v-model="WxMpForm.appId" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                            <lay-input v-model="wxMpForm.appId" prefix-icon="layui-icon-person" size="lg"></lay-input>
                         </lay-form-item>
                         <lay-form-item label="appSecret：" prop="appSecret" required>
-                            <lay-input v-model="WxMpForm.appSecret" prefix-icon="layui-icon-person"
+                            <lay-input v-model="wxMpForm.appSecret" prefix-icon="layui-icon-person"
                                        size="lg"></lay-input>
                         </lay-form-item>
                         <lay-form-item label="templateId：" prop="templateId" required>
-                            <lay-input v-model="WxMpForm.templateId" prefix-icon="layui-icon-person"
+                            <lay-input v-model="wxMpForm.templateId" prefix-icon="layui-icon-person"
+                                       size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="接收人id：" prop="toUserListStr" required :rules="checkToUserListStr">
+                            <lay-tag-input v-model="tagInputs.toUserList"
+                                           v-model:input-value="tagInputs.toUserListInput"
+                                           placeholder="输入正确的userId敲击回车" @change="toUserListStr"
+                                           allow-clear></lay-tag-input>
+                        </lay-form-item>
+
+                    </lay-form>
+
+                </lay-form-item>
+
+                <lay-ripple>
+                    <lay-button type="warm" @click="submitInfoUpdate">提交修改</lay-button>
+
+
+                </lay-ripple>
+            </lay-form>
+
+        </lay-layer>
+
+        <lay-layer title="新建通道" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
+                   resize move v-model="action.openInfoCreate">
+
+            <lay-form :model="infoForm" v-if="action.openInfoCreate" ref="icf" initValidate
+                      style="margin: 15px 15px 15px 15px">
+                <lay-form-item label="通道名称：" prop="name" required
+                               :rules="{min:2,max:20,message:'通道名称为5至20字'}">
+                    <lay-input v-model="infoForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                </lay-form-item>
+                <lay-form-item label="ip白名单：" prop="whiteListStr" required  :rules="checkWhiteListStr">
+                    <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
+                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0" @change="toWhiteListStr"
+                                   allow-clear></lay-tag-input>
+                </lay-form-item>
+
+                <lay-form-item label="通道类型：">
+                    <lay-select v-model="infoForm.channelType" required>
+                        <lay-select-option :value="10" label="webhook通道"></lay-select-option>
+                        <lay-select-option :value="20" label="email通道"></lay-select-option>
+                        <lay-select-option :value="30" label="公众号（测试号）通道"></lay-select-option>
+
+                    </lay-select>
+                </lay-form-item>
+
+                <lay-form-item label="通道设置：">
+
+                    <lay-form :model="webhookForm" v-if="infoForm.channelType==10" ref="wif">
+                        <lay-form-item label="url：" prop="url" required
+                                       :rules="{type:'url',message:'请输入正确的url格式'}">
+                            <lay-input v-model="webhookForm.url" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+
+                    </lay-form>
+
+                    <lay-form :model="emailForm" v-if="infoForm.channelType==20" ref="eif">
+                        <lay-form-item label="host：" prop="host" required :rules="checkUrl">
+                            <lay-input v-model="emailForm.host" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="port：" prop="port" required :rules="{min:2,message:'请输入正确的端口号'}">
+                            <lay-input v-model="emailForm.port" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="用户名：" prop="username" required
+                                       :rules="{type:'email',message:'请输入正确的email地址'}">
+                            <lay-input v-model="emailForm.username" prefix-icon="layui-icon-person"
+                                       size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="密码：" prop="password" required>
+                            <lay-input v-model="emailForm.password" prefix-icon="layui-icon-person"
+                                       size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="接收email：" prop="toEmailListStr" required :rules="checkToEmailListStr">
+                            <lay-tag-input v-model="tagInputs.toEmailList"
+                                           v-model:input-value="tagInputs.toEmailListInput"
+                                           placeholder="输入正确的email地址敲击回车" @change="toEmailListStr"
+                                           allow-clear></lay-tag-input>
+                        </lay-form-item>
+
+                    </lay-form>
+
+                    <lay-form :model="wxMpForm" v-if="infoForm.channelType==30" ref="wif">
+                        <lay-form-item label="appId：" prop="appId" required>
+                            <lay-input v-model="wxMpForm.appId" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="appSecret：" prop="appSecret" required>
+                            <lay-input v-model="wxMpForm.appSecret" prefix-icon="layui-icon-person"
+                                       size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="templateId：" prop="templateId" required>
+                            <lay-input v-model="wxMpForm.templateId" prefix-icon="layui-icon-person"
                                        size="lg"></lay-input>
                         </lay-form-item>
                         <lay-form-item label="接收人id：" prop="toUserListStr" required :rules="checkToUserListStr">
@@ -172,7 +264,8 @@
         },
         data() {
             return {
-                infoCreateForm: {
+                infoForm: {
+                    id: null,
                     name: "",
                     channelType: 10,
                     whiteListStr: '',
@@ -195,7 +288,7 @@
                     password: "",
                     toEmailListStr: ""
                 },
-                WxMpForm: {
+                wxMpForm: {
                     appId: '',
                     appSecret: '',
                     templateId: "",
@@ -203,6 +296,7 @@
                 },
                 action: {
                     openInfoCreate: false,
+                    openInfoEdit: false,
                 },
                 ds: [],
                 infoTableOption: {
@@ -341,32 +435,86 @@
         },
         watch: {
 
-            action: {
+            "action.openInfoCreate": {
                 handler(next, _) {
-                    if (!next.openInfoCreate) {
-                        this.$refs[this.getFormRefsName(this.infoCreateForm.channelType)].reset()
+                    //只监听新增框弹出状态的监听，当新增框关闭时 重置相应的form内容
+                    if (!next) {
+                        this.$refs[this.getFormRefsName(this.infoForm.channelType)].reset()
                         this.$refs.icf.reset()
-                        this.infoCreateForm.channelType = 10
+                        this.infoForm.channelType = 10
 
                         this.tagInputs = this.$options.data().tagInputs
 
+                    }
+
+                }
+            },
+            "action.openInfoEdit": {
+                handler(next, _) {
+                    //只监听新增框弹出状态的监听，当新增框关闭时 重置相应的form内容
+                    if (!next) {
+                        this.$refs[this.getFormRefsName(this.infoForm.channelType)].reset()
+                        this.$refs.icf.reset()
+                        this.infoForm.channelType = 10
+
+                        this.tagInputs = this.$options.data().tagInputs
 
                     }
 
-                },
-                deep: true
+                }
             }
 
         },
         methods: {
             toWhiteListStr() {
-                this.infoCreateForm.whiteListStr = this.$util.arrayParamToStr("", this.tagInputs.whiteList)
+                this.infoForm.whiteListStr = this.$util.arrayParamToStr("", this.tagInputs.whiteList)
             },
             toEmailListStr() {
                 this.emailForm.toEmailListStr = this.$util.arrayParamToStr("", this.tagInputs.toEmailList)
             },
             toUserListStr() {
-                this.WxMpForm.toUserListStr = this.$util.arrayParamToStr("", this.tagInputs.toUserList)
+                this.wxMpForm.toUserListStr = this.$util.arrayParamToStr("", this.tagInputs.toUserList)
+            },
+            editInfo(data) {
+                this.action.openInfoEdit = true
+
+                this.infoForm = {
+                    id: data.id,
+                    name: data.name,
+                    channelType: data.channelType,
+                    whiteListStr: ''
+                }
+                if (data.whiteListStr != "") {
+                    this.tagInputs.whiteList =data.whiteListStr.split(",")
+                }
+
+                let json = JSON.parse(data.optionJsonStr)
+                switch (data.channelType) {
+                    case 20:
+                        this.emailForm = {
+                            host: json.host,
+                            port: json.port,
+                            username: json.username,
+                            password: json.password,
+                        }
+                        this.tagInputs.toEmailList = json.toEmailListStr.split(",")
+
+                        this.emailForm.toEmailListStr = json.toEmailListStr
+                        break
+                    case 30:
+                        this.wxMpForm = {
+                            appId: json.appId,
+                            appSecret: json.appSecret,
+                            templateId: json.templateId,
+                        }
+
+                        this.tagInputs.toUserList = json.toUserListStr.split(",")
+
+                        this.wxMpForm.toUserListStr = json.toUserListStr
+
+                        break
+                }
+
             },
 
 
@@ -518,17 +666,16 @@
                     case 20:
                         return this.emailForm
                     case 30:
-                        return "wif"
+                        return this.wxMpForm
                 }
 
             },
-            submitInfoCreate() {
-
+            submitInfoUpdate() {
                 this.$refs.icf.validate((isValidate, model, errors) => {
                     if (!isValidate) {
                         return false
                     } else {
-                        let type = this.infoCreateForm.channelType
+                        let type = this.infoForm.channelType
                         console.log(model)
                         this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
                             console.log(model)
@@ -537,8 +684,54 @@
                                 return false
                             } else {
                                 let option = this.getOptionValue(type)
+                                this.$request.post("/admin/channel/channel_info/update", {
+                                    ...this.infoForm,
+                                    optionJsonStr: JSON.stringify(option)
+                                }).then(res => {
+                                    if (res.code === 1) {
+
+                                        LayuiVue.layer.msg("修改推送通道成功", {icon: 1, time: 1000,})
+                                        this.action.openInfoEdit = false
+                                        this.loadInfoPageBegin()
+
+
+                                    } else {
+                                        LayuiVue.layer.msg(`${res.msg},修改推送通道失败`, {icon: 2, time: 1000})
+
+                                    }
+                                }).catch((res) => {
+                                    LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
+                                })
+                            }
+                        })
+
+                        return false
+                    }
+                })
+
+                return false
+
+
+            },
+
+            submitInfoCreate() {
+
+                this.$refs.icf.validate((isValidate, model, errors) => {
+                    if (!isValidate) {
+                        return false
+                    } else {
+                        let type = this.infoForm.channelType
+                        console.log(model)
+                        this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
+                            console.log(model)
+
+                            if (!isValidate) {
+                                return false
+                            } else {
+                                let option = this.getOptionValue(type)
+                                console.log(option)
                                 this.$request.post("/admin/channel/channel_info/create", {
-                                    ...this.infoCreateForm,
+                                    ...this.infoForm,
                                     optionJsonStr: JSON.stringify(option)
                                 }).then(res => {
                                     if (res.code === 1) {

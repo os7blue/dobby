@@ -28,17 +28,17 @@ type ChannelInfoView[T any] struct {
 
 type ChannelInfoCreateValidator struct {
 	Name          string `json:"name" binding:"required,min=2,max=20"`
-	WhiteListStr  string `json:"whiteListStr"`
-	ChannelType   int    `json:"channelType" bind:"min"`
-	OptionJsonStr string `json:"optionJsonStr"`
+	WhiteListStr  string `json:"whiteListStr" binding:"required"`
+	ChannelType   int    `json:"channelType" bind:"required"`
+	OptionJsonStr string `json:"optionJsonStr" binding:"required"`
 }
 
 type ChannelInfoUpdateValidator struct {
-	ID           uint   `json:"id" binding:"required"`
-	Name         string `json:"name" binding:"omitempty,min=2,max=20"`
-	WhiteListStr string `json:"whiteListStr"`
-	ChannelType  int    `json:"channelType"`
-	Status       int    `json:"status"`
+	ID            uint   `json:"id" binding:"required"`
+	Name          string `json:"name" binding:"omitempty,min=2,max=20"`
+	WhiteListStr  string `json:"whiteListStr"`
+	Status        int    `json:"status"`
+	OptionJsonStr string `json:"optionJsonStr"`
 }
 
 type ChannelInfoSearchValidator struct {
