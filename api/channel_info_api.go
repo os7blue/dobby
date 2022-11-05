@@ -181,3 +181,22 @@ func (i *channelInfoApi) Delete(c *gin.Context) {
 	common.R.Success(c)
 
 }
+
+func (i *channelInfoApi) RefreshKey(c *gin.Context) {
+
+	var updateVm model.ChannelInfoUpdateValidator
+	err := c.ShouldBindJSON(&updateVm)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
+	key, err := service.Services.ChannelInfoService.RefreshKey(updateVm.ID)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
+	common.R.SuccessWithData(c, key)
+
+}

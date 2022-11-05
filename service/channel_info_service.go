@@ -83,3 +83,13 @@ func (s *channelInfoService) GetOne(id uint) (model.ChannelInfo, error) {
 
 	return result, nil
 }
+
+func (s *channelInfoService) RefreshKey(id uint) (string, error) {
+	key := uuid.New().String()
+	err := common.DB.Model(&model.ChannelInfo{}).Where("id=?", id).Update("key", key)
+	if err.Error != nil {
+		return "", err.Error
+	}
+
+	return key, nil
+}
