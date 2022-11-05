@@ -2,8 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 	"message-push/common"
@@ -45,6 +45,49 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 	var info = model.ChannelInfo{}
 	err = common.StructConvert[model.ChannelInfoCreateValidator, model.ChannelInfo](createVm, &info)
 	err = service.Services.ChannelInfoService.CreateOne(info)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+	common.R.Success(c)
+
+}
+
+func (i *channelInfoApi) Update(c *gin.Context) {
+
+	var updateVm model.ChannelInfoUpdateValidator
+
+	err := c.ShouldBindJSON(&updateVm)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+	err = common.GlobalUtil.CheckArrStr(
+		0,
+		0,
+		common.IpV4Regx,
+		updateVm.WhiteListStr,
+	)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
+	//check channel type
+	existInfo, err := service.Services.ChannelInfoService.GetOne(updateVm.ID)
+	if err != nil {
+		common.R.FailWithMsg(c, fmt.Sprintf("未找到id为 %d 的通道信息", updateVm.ID))
+	}
+
+	err = checkOption(existInfo.ChannelType, updateVm.OptionJsonStr)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
+	var info = model.ChannelInfo{}
+	err = common.StructConvert[model.ChannelInfoUpdateValidator, model.ChannelInfo](updateVm, &info)
+	err = service.Services.ChannelInfoService.Update(info)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -117,38 +160,6 @@ func (i *channelInfoApi) Load(c *gin.Context) {
 	}
 
 	common.R.SuccessWithDataCount(c, result, count)
-
-}
-
-func (i *channelInfoApi) Update(c *gin.Context) {
-
-	var updateVm model.ChannelInfoUpdateValidator
-	err := c.ShouldBindBodyWith(&updateVm, binding.JSON)
-	if err != nil {
-		common.R.FailWithMsg(c, err.Error())
-		return
-	}
-
-	paramMap := make(map[string]any) //注意该结构接受的内容
-	err = c.ShouldBindBodyWith(&paramMap, binding.JSON)
-	if err != nil {
-		common.R.FailWithMsg(c, err.Error())
-		return
-	}
-
-	//var info model.ChannelInfo
-	//err = common.StructConvert[model.ChannelInfoUpdateValidator, model.ChannelInfo](updateVm, &info)
-	//if err != nil {
-	//	common.R.FailWithMsg(c, err.Error())
-	//	return
-	//}
-	err = service.Services.ChannelInfoService.Update(paramMap)
-	if err != nil {
-		common.R.FailWithMsg(c, err.Error())
-		return
-	}
-
-	common.R.Success(c)
 
 }
 
