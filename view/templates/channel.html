@@ -28,12 +28,15 @@
             <template v-slot:status="{ data }">
                 <lay-switch v-model="data.status" onswitch-text="启用" :onswitch-value="10" unswitch-text="禁用"
                             :unswitch-value="20" @change="changeInfoStatus(data)"></lay-switch>
-                {{data.status}}
+            </template>
+            <template v-slot:status="{ data }">
+
+
+
             </template>
             <template v-slot:operator="{data}">
-                <lay-button size="xs" type="warm" @click="deleteInfo(data)">查看key</lay-button>
                 <lay-button size="xs" type="warm" @click="editInfo(data)">编辑</lay-button>
-                <lay-button size="xs" type="danger" @click="deleteInfo(data)">重置key</lay-button>
+                <lay-button size="xs" type="danger" @click="RefreshKey(data)">重置key</lay-button>
                 <lay-button size="xs" type="danger" @click="deleteInfo(data)">删除</lay-button>
 
             </template>
@@ -314,6 +317,12 @@
                             align: "center"
                         },
                         {
+                            title: "key",
+                            width: "200px",
+                            key: "key",
+                            align: "center"
+                        },
+                        {
                             title: "状态",
                             width: "200px",
                             customSlot: 'status',
@@ -556,7 +565,6 @@
             changeInfoStatus(data) {
 
                 let lastStatus = data.status
-                let index = this.$util.getArrayItemIndex(this.infoTableOption.data, data, "id")
 
 
                 //判断当前值是否为禁用
@@ -584,7 +592,7 @@
 
 
                     } else {
-                        this.infoTableOption.data[index].status = lastStatus
+                        data.status= lastStatus
                         LayuiVue.layer.msg(`${res.msg},${ifDisabled ? '启用' : '禁用'}通道《${data.name}》失败`, {
                             icon: 2,
                             time: 1000
@@ -593,7 +601,47 @@
                     }
                 }).catch((res) => {
                     LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
-                    this.infoTableOption.data[index].status = lastStatus
+                    data.status= lastStatus
+                }).finally(() => {
+                    LayuiVue.layer.close(loadIndex)
+
+                })
+
+
+            },
+            RefreshKey(data) {
+
+
+                let loadIndex = LayuiVue.layer.msg(`正在重置通道《${data.name}》的key`, {
+                    icon: 16,
+                    time: 0,
+                    shade: true
+                })
+                this.$request.post("/admin/channel/channel_info/refresh_key",
+                    {
+                        id: data.id,
+                    }
+                ).then(res => {
+                    if (res.code === 1) {
+
+
+                        LayuiVue.layer.msg(`重置通道《${data.name}》的key成功`, {
+                            icon: 1,
+                            time: 1000
+                        })
+
+                        data.key=res.data
+
+
+                    } else {
+                        LayuiVue.layer.msg(`重置通道《${data.name}》的key失败`, {
+                            icon: 2,
+                            time: 1000
+                        })
+
+                    }
+                }).catch((res) => {
+                    LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
                 }).finally(() => {
                     LayuiVue.layer.close(loadIndex)
 
@@ -684,6 +732,11 @@
                                 return false
                             } else {
                                 let option = this.getOptionValue(type)
+                                let loadIndex = LayuiVue.layer.msg(`正在修改通道`, {
+                                    icon: 16,
+                                    time: 0,
+                                    shade: true
+                                })
                                 this.$request.post("/admin/channel/channel_info/update", {
                                     ...this.infoForm,
                                     optionJsonStr: JSON.stringify(option)
@@ -701,7 +754,10 @@
                                     }
                                 }).catch((res) => {
                                     LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
+                                }).finally(()=>{
+                                    LayuiVue.layer.close(loadIndex)
                                 })
+
                             }
                         })
 
@@ -729,7 +785,11 @@
                                 return false
                             } else {
                                 let option = this.getOptionValue(type)
-                                console.log(option)
+                                let loadIndex = LayuiVue.layer.msg(`正在新建通道`, {
+                                    icon: 16,
+                                    time: 0,
+                                    shade: true
+                                })
                                 this.$request.post("/admin/channel/channel_info/create", {
                                     ...this.infoForm,
                                     optionJsonStr: JSON.stringify(option)
@@ -747,6 +807,9 @@
                                     }
                                 }).catch((res) => {
                                     LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
+                                }).finally(()=>{
+                                    LayuiVue.layer.close(loadIndex)
+
                                 })
                             }
                         })
