@@ -2,23 +2,21 @@ package sender
 
 import (
 	"github.com/jordan-wright/email"
-	"message-push/common"
 	"net/smtp"
 )
 
 type mailSender struct {
 }
 
-func (m *mailSender) Send(to []string, title string, content string) error {
+func (m *mailSender) Send(host string, port string, username string, password string, to []string, title string, content string) error {
 
-	ec := common.Option.Email
 	e := email.NewEmail()
-	e.From = ec.Username
+	e.From = username
 	e.To = to
 	e.Subject = title
 	e.Text = []byte(content)
 
-	err := e.Send(ec.Host+":"+ec.Port, smtp.PlainAuth("", ec.Username, ec.Password, ec.Host))
+	err := e.Send(host+":"+port, smtp.PlainAuth("", username, password, host))
 	if err != nil {
 		return err
 	}

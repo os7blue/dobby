@@ -22,7 +22,14 @@ func (a *authService) SendCode(email string) error {
 
 		if e == email {
 
-			err := sender.MailSender.Send([]string{email}, "推送平台登录验证码", code)
+			err := sender.Senders.MailSender.Send(
+				common.Option.Email.Host,
+				common.Option.Email.Port,
+				common.Option.Email.Username,
+				common.Option.Email.Password,
+				[]string{email}, "推送平台登录验证码",
+				code,
+			)
 			if err != nil {
 				return errors.New("发送验证码失败")
 			}

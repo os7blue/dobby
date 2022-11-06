@@ -1,6 +1,6 @@
 package model
 
 type PushInfo struct {
-	Key     string `json:"key"`
-	Content string `json:"content"`
+	KeyStr  string `json:"keyStr" binding:"required"`
+	Content string `json:"content" binding:"required"`
 }
