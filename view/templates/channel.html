@@ -576,7 +576,7 @@
                     time: 0,
                     shade: true
                 })
-                this.$request.post("/admin/channel/channel_info/update",
+                this.$request.post("/admin/channel/channel_info/change_status",
                     {
                         id: data.id,
                         status: ifDisabled ? 10 : 20

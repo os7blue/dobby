@@ -56,3 +56,10 @@ func (r *r) FailWithMsg(c *gin.Context, msg string) {
 		Msg:  msg,
 	})
 }
+
+func (r *r) SuccessWithMsg(c *gin.Context, msg string) {
+	c.JSON(http.StatusOK, &model.Result{
+		Code: 1,
+		Msg:  msg,
+	})
+}

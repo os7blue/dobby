@@ -1,3 +1,7 @@
 package sender
 
-var MailSender = new(mailSender)
+var Senders = new(sender)
+
+type sender struct {
+	MailSender mailSender
+}

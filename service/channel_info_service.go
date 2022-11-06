@@ -56,6 +56,8 @@ func (s *channelInfoService) CreateOne(info model.ChannelInfo) error {
 
 func (s *channelInfoService) Update(info model.ChannelInfo) error {
 
+	common.LocalCache.Del(fmt.Sprintf("channel-%d", info.ID))
+
 	err := common.DB.Model(&model.ChannelInfo{}).Where("id=?", info.ID).Updates(info)
 	if err.Error != nil {
 		return errors.New("修改失败")
@@ -75,16 +77,24 @@ func (s *channelInfoService) Delete(id uint) error {
 
 func (s *channelInfoService) GetOne(id uint) (model.ChannelInfo, error) {
 
+	data, exist := common.LocalCache.Get(fmt.Sprintf("channel-%d", id))
+	if exist {
+		return data.(model.ChannelInfo), nil
+	}
+
 	var result model.ChannelInfo
 	err := common.DB.First(&result, id)
 	if err.Error != nil {
 		return result, err.Error
 	}
-
+	common.LocalCache.Set(fmt.Sprintf("channel-%d", id), result, 7200)
 	return result, nil
 }
 
 func (s *channelInfoService) RefreshKey(id uint) (string, error) {
+
+	common.LocalCache.Del(fmt.Sprintf("channel-%d", id))
+
 	key := uuid.New().String()
 	err := common.DB.Model(&model.ChannelInfo{}).Where("id=?", id).Update("key", key)
 	if err.Error != nil {

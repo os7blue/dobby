@@ -200,3 +200,34 @@ func (i *channelInfoApi) RefreshKey(c *gin.Context) {
 	common.R.SuccessWithData(c, key)
 
 }
+
+func (i *channelInfoApi) ChangeStatus(c *gin.Context) {
+
+	var updateVm model.ChannelInfoUpdateValidator
+
+	err := c.ShouldBindJSON(&updateVm)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+	if updateVm.Status != 10 && updateVm.Status != 20 {
+		common.R.FailWithMsg(c, "status字段为空")
+		return
+	}
+
+	_, err = service.Services.ChannelInfoService.GetOne(updateVm.ID)
+	if err != nil {
+		common.R.FailWithMsg(c, fmt.Sprintf("未找到id为 %d 的通道信息", updateVm.ID))
+	}
+
+	err = service.Services.ChannelInfoService.Update(model.ChannelInfo{
+		ID:     updateVm.ID,
+		Status: updateVm.Status,
+	})
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+	common.R.Success(c)
+
+}
