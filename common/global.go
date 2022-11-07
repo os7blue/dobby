@@ -28,10 +28,15 @@ type web struct {
 	Addr string `ini:"addr"`
 }
 
+type setting struct {
+	PushTitle string `ini:"pushTitle"`
+}
+
 type option struct {
-	Email email
-	DB    db
-	Web   web
+	Email   email
+	DB      db
+	Web     web
+	Setting setting
 }
 
 var Option *option

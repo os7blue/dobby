@@ -1,9 +1,13 @@
 package common
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
+	"io"
 	"math/rand"
+	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -54,6 +58,67 @@ func (g *globalUtil) CheckArrStr(min int, max int, regx string, data string) err
 	}
 
 	return nil
+}
+
+func (g *globalUtil) SendSimpleGet(getUrl string) (string, error) {
+
+	parseUrl, err := url.Parse(getUrl)
+	if err != nil {
+		return "", err
+	}
+
+	params, err := url.ParseQuery(parseUrl.RawQuery)
+	if err != nil {
+		return "", err
+	}
+	parseUrl.RawQuery = params.Encode()
+
+	rq, err := http.NewRequest("GET", parseUrl.String(), nil)
+	if err != nil {
+		return "", err
+	}
+	rq.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36")
+	rp, err := http.DefaultClient.Do(rq)
+	if err != nil {
+		return "", err
+	}
+	defer rp.Body.Close()
+	rpBody, err := io.ReadAll(rp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(rpBody), nil
+}
+
+// SendSimplePost run a simple post request
+func (g *globalUtil) SendSimplePost(url string, param any) (string, error) {
+
+	j, err := json.Marshal(param)
+	fmt.Println(string(j))
+	if err != nil {
+		return "", err
+	}
+	rq, err := http.NewRequest("POST", url, strings.NewReader(string(j)))
+	if err != nil {
+		return "", err
+	}
+
+	rq.Header.Set("Content-Type", "application/json;charset=utf-8")
+
+	rp, err := http.DefaultClient.Do(rq)
+	if err != nil {
+		return "", err
+
+	}
+	defer rp.Body.Close()
+	rpBody, err := io.ReadAll(rp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Println(string(rpBody))
+	return string(rpBody), nil
 }
 
 func (g *globalUtil) RandCodeString(len int) string {
