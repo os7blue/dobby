@@ -3,5 +3,7 @@ package sender
 var Senders = new(sender)
 
 type sender struct {
-	MailSender mailSender
+	WebhookSender webhookSender
+	MailSender    mailSender
+	WxMpSender    wxMpSender
 }

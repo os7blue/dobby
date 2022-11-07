@@ -32,7 +32,6 @@
             <template v-slot:status="{ data }">
 
 
-
             </template>
             <template v-slot:operator="{data}">
                 <lay-button size="xs" type="warm" @click="editInfo(data)">编辑</lay-button>
@@ -81,9 +80,10 @@
                                :rules="{min:2,max:20,message:'通道名称为5至20字'}">
                     <lay-input v-model="infoForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
                 </lay-form-item>
-                <lay-form-item label="ip白名单：" prop="whiteListStr" required  :rules="checkWhiteListStr">
+                <lay-form-item label="ip白名单：" prop="whiteListStr" required :rules="checkWhiteListStr">
                     <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
-                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0" @change="toWhiteListStr"
+                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0"
+                                   @change="toWhiteListStr"
                                    allow-clear></lay-tag-input>
                 </lay-form-item>
 
@@ -104,6 +104,14 @@
                             <lay-input v-model="webhookForm.url" prefix-icon="layui-icon-person" size="lg"></lay-input>
                         </lay-form-item>
 
+                        <lay-form-item label="类型：" prop="hookType" required>
+                            <lay-select v-model="webhookForm.hookType">
+                                <lay-select-option :value="11" label="钉钉"></lay-select-option>
+                                <lay-select-option :value="12" label="飞书"></lay-select-option>
+                                <lay-select-option :value="13" label="企业微信"></lay-select-option>
+
+                            </lay-select>
+                        </lay-form-item>
                     </lay-form>
 
                     <lay-form :model="emailForm" v-if="infoForm.channelType==20" ref="eif">
@@ -172,9 +180,10 @@
                                :rules="{min:2,max:20,message:'通道名称为5至20字'}">
                     <lay-input v-model="infoForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
                 </lay-form-item>
-                <lay-form-item label="ip白名单：" prop="whiteListStr" required  :rules="checkWhiteListStr">
+                <lay-form-item label="ip白名单：" prop="whiteListStr" required :rules="checkWhiteListStr">
                     <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
-                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0" @change="toWhiteListStr"
+                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0"
+                                   @change="toWhiteListStr"
                                    allow-clear></lay-tag-input>
                 </lay-form-item>
 
@@ -193,6 +202,14 @@
                         <lay-form-item label="url：" prop="url" required
                                        :rules="{type:'url',message:'请输入正确的url格式'}">
                             <lay-input v-model="webhookForm.url" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                        </lay-form-item>
+                        <lay-form-item label="类型：" prop="hookType" required>
+                            <lay-select v-model="webhookForm.hookType">
+                                <lay-select-option :value="11" label="钉钉"></lay-select-option>
+                                <lay-select-option :value="12" label="飞书"></lay-select-option>
+                                <lay-select-option :value="13" label="企业微信"></lay-select-option>
+
+                            </lay-select>
                         </lay-form-item>
 
                     </lay-form>
@@ -282,7 +299,8 @@
                     toUserListInput: ""
                 },
                 webhookForm: {
-                    url: ""
+                    url: "",
+                    hookType: 11,
                 },
                 emailForm: {
                     host: "",
@@ -491,14 +509,20 @@
                     id: data.id,
                     name: data.name,
                     channelType: data.channelType,
-                    whiteListStr: ''
+                    whiteListStr: data.whiteListStr
                 }
-                if (data.whiteListStr != "") {
-                    this.tagInputs.whiteList =data.whiteListStr.split(",")
-                }
+
+                this.tagInputs.whiteList = data.whiteListStr.split(",")
+
 
                 let json = JSON.parse(data.optionJsonStr)
                 switch (data.channelType) {
+                    case 10:
+                        this.webhookForm = {
+                            url: json.url,
+                            hookType: json.hookType
+                        }
+                        break
                     case 20:
                         this.emailForm = {
                             host: json.host,
@@ -592,7 +616,7 @@
 
 
                     } else {
-                        data.status= lastStatus
+                        data.status = lastStatus
                         LayuiVue.layer.msg(`${res.msg},${ifDisabled ? '启用' : '禁用'}通道《${data.name}》失败`, {
                             icon: 2,
                             time: 1000
@@ -601,7 +625,7 @@
                     }
                 }).catch((res) => {
                     LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
-                    data.status= lastStatus
+                    data.status = lastStatus
                 }).finally(() => {
                     LayuiVue.layer.close(loadIndex)
 
@@ -630,7 +654,7 @@
                             time: 1000
                         })
 
-                        data.key=res.data
+                        data.key = res.data
 
 
                     } else {
@@ -754,7 +778,7 @@
                                     }
                                 }).catch((res) => {
                                     LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
-                                }).finally(()=>{
+                                }).finally(() => {
                                     LayuiVue.layer.close(loadIndex)
                                 })
 
@@ -807,7 +831,7 @@
                                     }
                                 }).catch((res) => {
                                     LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
-                                }).finally(()=>{
+                                }).finally(() => {
                                     LayuiVue.layer.close(loadIndex)
 
                                 })

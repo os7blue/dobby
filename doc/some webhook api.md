@@ -54,31 +54,15 @@ mentioned_mobile_list	否	手机号列表，提醒手机号对应的群成员(@�
 ```
 
 {
-	"msg_type": "post",
-	"content": {
-		"post": {
-			"zh_cn": {
-				"title": "项目更新通知",
-				"content": [
-					[{
-							"tag": "text",
-							"text": "项目有更新: "
-						},
-						{
-							"tag": "a",
-							"text": "请查看",
-							"href": "http://www.example.com/"
-						},
-						{
-							"tag": "at",
-							"user_id": "ou_18eac8********17ad4f02e8bbbb" all为@所有人
-						}
-					]
-				]
-			}
-		}
-	}
-}
+    "msg_type": "text",
+    "content": {
+        "text": "新更新提醒"
+    }
+} 
+// at 指定用户
+<at user_id="ou_xxx">Name</at> //取值必须使用ou_xxxxx格式的 open_id 来at指定人
+// at 所有人
+<at user_id="all">所有人</at> 
 
 飞书群机器人@个人需要单独获取openid，因此不考虑@个人，本平台只涉及简单信息推送而已，没有必要越做越大，直接@所有人
 如果需要设置@的人，单独建个群又没有成本对吧。
