@@ -1,11 +1,11 @@
 package bootstrap
 
 import (
+	"dobby/common"
+	"dobby/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
-	"dobby/common"
-	"dobby/model"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -35,7 +35,7 @@ func authCheck() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		//test login token
-		setTestToken(c)
+		//setTestToken(c)
 		uri := c.Request.RequestURI
 		uris := strings.Split(uri, "/")
 		if uris[1] == "admin" {
