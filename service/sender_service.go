@@ -1,13 +1,13 @@
 package service
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/pkg/errors"
 	"dobby/common"
 	"dobby/model"
 	"dobby/model/constant"
 	"dobby/service/sender"
+	"encoding/json"
+	"fmt"
+	"github.com/pkg/errors"
 	"strings"
 )
 
@@ -84,7 +84,7 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 				c.Username,
 				c.Password,
 				strings.Split(c.ToEmailListStr, ","),
-				info.Content,
+				common.Option.Setting.PushTitle,
 				info.Content,
 			)
 			if err != nil {
