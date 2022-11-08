@@ -29,10 +29,14 @@
                 <lay-switch v-model="data.status" onswitch-text="启用" :onswitch-value="10" unswitch-text="禁用"
                             :unswitch-value="20" @change="changeInfoStatus(data)"></lay-switch>
             </template>
-            <template v-slot:status="{ data }">
-
-
+            <template v-slot:channel-type="{ data }">
+                {{getChannelTypeName(data.channelType)}}
             </template>
+
+            <template v-slot:create-time="{ data }">
+                {{this.$util.longTimeFormat(data.createTime)}}
+            </template>
+
             <template v-slot:operator="{data}">
                 <lay-button size="xs" type="warm" @click="editInfo(data)">编辑</lay-button>
                 <lay-button size="xs" type="danger" @click="RefreshKey(data)">重置key</lay-button>
@@ -41,28 +45,30 @@
             </template>
 
             <template v-slot:expand="{ data }">
-                <div class="card-container">
-                    <lay-card title="标题">
-                        内容
-                    </lay-card>
-                    <lay-card title="标题">
-                        内容
-                    </lay-card>
-                    <lay-card title="标题">
-                        内容
-                    </lay-card>
-                    <lay-card title="标题">
-                        内容
-                    </lay-card>
-                    <lay-card title="标题">
-                        内容
-                    </lay-card>
-                    <lay-card title="标题">
-                        内容
-                    </lay-card>
+
+                <lay-panel>
+                    <lay-space v-if="data.channelType===10">
+                        <span>webhook 类型：{{getWebhookTypeName(JSON.parse(data.optionJsonStr).hookType)}}</span>
+
+                        <span>webhook url：{{JSON.parse(data.optionJsonStr).url}}</span>
+                    </lay-space>
+                    <lay-space v-if="data.channelType===20">
+                        <span>host：{{JSON.parse(data.optionJsonStr).host}}</span>
+                        <span>port：{{JSON.parse(data.optionJsonStr).port}}</span>
+                        <span>username：{{JSON.parse(data.optionJsonStr).username}}</span>
+                        <span>password：{{JSON.parse(data.optionJsonStr).password}}</span>
+                        <span>toEmails：{{JSON.parse(data.optionJsonStr).toEmailListStr}}</span>
+                    </lay-space>
+                    <lay-space v-if="data.channelType===30">
+                        <span>appId：{{JSON.parse(data.optionJsonStr).appId}}</span>
+                        <span>appSecret：{{JSON.parse(data.optionJsonStr).appSecret}}</span>
+                        <span>templateId：{{JSON.parse(data.optionJsonStr).templateId}}</span>
+                        <span>userIds：{{JSON.parse(data.optionJsonStr).toUserListStr}}</span>
+
+                    </lay-space>
+                </lay-panel>
 
 
-                </div>
             </template>
 
         </lay-table>
@@ -276,12 +282,8 @@
 
 
 <script type="module">
-    import channelcard from "/static/module/channelcard.js"
 
     const App = {
-        components: {
-            channelcard
-        },
         data() {
             return {
                 infoForm: {
@@ -335,11 +337,19 @@
                             align: "center"
                         },
                         {
+                            title: "通道类型",
+                            width: "200px",
+                            customSlot: 'channel-type',
+                            key: "channelType",
+                            align: "center"
+                        },
+                        {
                             title: "key",
                             width: "200px",
                             key: "key",
                             align: "center"
                         },
+
                         {
                             title: "状态",
                             width: "200px",
@@ -349,11 +359,12 @@
                         },
                         {
                             title: "创建时间",
-                            customSlot: 'createTime',
                             width: "200px",
+                            customSlot: 'create-time',
                             key: "createTime",
                             align: "center"
-                        }, {
+                        },
+                        {
                             title: "操作",
                             width: "150px",
                             fixed: "right",
@@ -376,13 +387,12 @@
                     validator(rule, value, callback, source, options) {
 
 
-                        console.log(value + "cw")
+
                         if (value !== null && value !== "") {
                             const list = value.split(",")
                             let ipRegx = /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
                             for (let i = 0; i < list.length; i++) {
                                 let item = list[i]
-                                console.log(item)
                                 if (!ipRegx.test(item)) {
                                     callback(new Error(`${item}不是正确的ipv4格式`));
                                     return false
@@ -410,13 +420,11 @@
                 checkToUserListStr: {
                     validator(rule, value, callback, source, options) {
 
-                        console.log(value + "ce")
 
                         if (value !== null && value !== "") {
                             const list = value.split(",")
                             for (let i = 0; i < list.length; i++) {
                                 let item = list[i]
-                                console.log(item)
                                 if (item === "") {
                                     callback(new Error(`userId不能为空`));
                                     return false
@@ -433,14 +441,12 @@
                 checkToEmailListStr: {
                     validator(rule, value, callback, source, options) {
 
-                        console.log(value + "ce")
 
                         if (value !== null && value !== "") {
                             const list = value.split(",")
                             let emailRegx = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
                             for (let i = 0; i < list.length; i++) {
                                 let item = list[i]
-                                console.log(item)
                                 if (!emailRegx.test(item)) {
                                     callback(new Error(`${item}不是正确的email格式`));
                                     return false
@@ -718,6 +724,26 @@
                 })
 
             },
+            getChannelTypeName(type){
+                switch (type) {
+                    case 10:
+                        return "webhook"
+                    case 20:
+                        return "email"
+                    case 30:
+                        return "公众号/测试号"
+                }
+            },
+            getWebhookTypeName(type){
+                switch (type) {
+                    case 11:
+                        return "钉钉"
+                    case 12:
+                        return "飞书"
+                    case 13:
+                        return "企业微信"
+                }
+            },
             getFormRefsName(type) {
 
                 switch (type) {
@@ -748,9 +774,7 @@
                         return false
                     } else {
                         let type = this.infoForm.channelType
-                        console.log(model)
                         this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
-                            console.log(model)
 
                             if (!isValidate) {
                                 return false
@@ -801,9 +825,7 @@
                         return false
                     } else {
                         let type = this.infoForm.channelType
-                        console.log(model)
                         this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
-                            console.log(model)
 
                             if (!isValidate) {
                                 return false

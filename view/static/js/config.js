@@ -24,7 +24,6 @@ const http = {
 
                 return new Promise((resolve, reject) => {
                     axiosInstance.post(url, JSON.stringify(data)).then(res => {
-                        console.log(res)
                         resolve(res.data)
                     }).catch(err => {
                         reject(err.data)
@@ -38,9 +37,31 @@ const http = {
     }
 }
 
+
+function pushZero(num) {
+    return num < 10 ? (`0${  num}`) : num
+}
 const util = {
     install(app, options) {
         app.config.globalProperties.$util = {
+
+            longTimeFormat: (longTime) => {
+                if (!longTime) {
+                    return ""
+                }
+
+                const time = new Date(Number(longTime))
+                return `${time.getFullYear()}-${pushZero(time.getMonth() + 1)}-${pushZero(time.getDate())} ${pushZero(time.getHours())}:${pushZero(time.getMinutes())}:${pushZero(time.getSeconds())}`
+            },
+            longTimeWeekFormat: (longTime) => {
+                if (!longTime) {
+                    return ""
+                }
+                const time = new Date(Number(longTime))
+                const weeks = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                return `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()} ${time.getHours()}:${time
+                    .getMinutes()}:${time.getSeconds()} ${weeks[time.getDay()]}`
+            },
             arrayParamToStr: (key = '', data = []) => {
 
                 let params = '';

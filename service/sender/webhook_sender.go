@@ -2,6 +2,8 @@ package sender
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
+	"github.com/tidwall/gjson"
 	"message-push/common"
 	"message-push/model"
 	"message-push/model/constant"
@@ -19,9 +21,14 @@ func (w *webhookSender) Send(url string, content string, hookType int) error {
 		}
 		body.At.IsAtAll = true
 		body.Text.Content = fmt.Sprintf("%s%s", common.Option.Setting.PushTitle, content)
-		_, err := common.GlobalUtil.SendSimplePost(url, body)
+		rpBody, err := common.GlobalUtil.SendSimplePost(url, body)
 		if err != nil {
 			return err
+		}
+		g := gjson.Parse(rpBody)
+
+		if !g.Get("errcode").Exists() || g.Get("errcode").Int() != 0 {
+			return errors.New(rpBody)
 		}
 
 		break
@@ -31,9 +38,14 @@ func (w *webhookSender) Send(url string, content string, hookType int) error {
 		}
 
 		body.Content.Text = fmt.Sprintf("<at user_id=\"all\"></at>%s%s", common.Option.Setting.PushTitle, content)
-		_, err := common.GlobalUtil.SendSimplePost(url, body)
+		rpBody, err := common.GlobalUtil.SendSimplePost(url, body)
 		if err != nil {
 			return err
+		}
+		g := gjson.Parse(rpBody)
+
+		if !g.Get("StatusCode").Exists() || g.Get("StatusCode").Int() != 0 {
+			return errors.New(rpBody)
 		}
 
 		break
@@ -44,9 +56,14 @@ func (w *webhookSender) Send(url string, content string, hookType int) error {
 		body.Text.Content = common.Option.Setting.PushTitle + content
 		body.Text.MentionedMobileList = []string{"@all"}
 
-		_, err := common.GlobalUtil.SendSimplePost(url, body)
+		rpBody, err := common.GlobalUtil.SendSimplePost(url, body)
 		if err != nil {
 			return err
+		}
+		g := gjson.Parse(rpBody)
+
+		if !g.Get("errcode").Exists() || g.Get("errcode").Int() != 0 {
+			return errors.New(rpBody)
 		}
 
 		break
