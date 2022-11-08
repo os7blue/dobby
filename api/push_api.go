@@ -2,9 +2,9 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"message-push/common"
-	"message-push/model"
-	"message-push/service"
+	"dobby/common"
+	"dobby/model"
+	"dobby/service"
 )
 
 type pushApi struct {

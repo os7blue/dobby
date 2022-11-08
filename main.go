@@ -1,7 +1,7 @@
 package main
 
 import (
-	"message-push/bootstrap"
+	"dobby/bootstrap"
 )
 
 func main() {

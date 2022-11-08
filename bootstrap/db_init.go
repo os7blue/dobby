@@ -1,8 +1,8 @@
 package bootstrap
 
 import (
-	"message-push/common"
-	"message-push/model"
+	"dobby/common"
+	"dobby/model"
 )
 
 func dbInit() {

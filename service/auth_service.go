@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"message-push/common"
-	"message-push/service/sender"
+	"dobby/common"
+	"dobby/service/sender"
 )
 
 type authService struct {

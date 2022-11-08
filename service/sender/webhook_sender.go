@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
-	"message-push/common"
-	"message-push/model"
-	"message-push/model/constant"
+	"dobby/common"
+	"dobby/model"
+	"dobby/model/constant"
 )
 
 type webhookSender struct {

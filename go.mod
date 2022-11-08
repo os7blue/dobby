@@ -1,4 +1,4 @@
-module message-push
+module dobby
 
 go 1.19
 

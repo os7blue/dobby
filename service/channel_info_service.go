@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"message-push/common"
-	"message-push/model"
+	"dobby/common"
+	"dobby/model"
 	"time"
 )
 

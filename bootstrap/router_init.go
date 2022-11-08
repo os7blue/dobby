@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"github.com/gin-gonic/gin"
-	"message-push/router"
+	"dobby/router"
 )
 
 func routerInit(g *gin.Engine) {

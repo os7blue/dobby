@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"github.com/gin-gonic/gin"
-	"message-push/api"
+	"dobby/api"
 )
 
 func apiInit(g *gin.Engine) {

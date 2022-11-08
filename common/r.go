@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/gin-gonic/gin"
-	"message-push/model"
+	"dobby/model"
 	"net/http"
 )
 
