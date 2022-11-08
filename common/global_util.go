@@ -95,7 +95,6 @@ func (g *globalUtil) SendSimpleGet(getUrl string) (string, error) {
 func (g *globalUtil) SendSimplePost(url string, param any) (string, error) {
 
 	j, err := json.Marshal(param)
-	fmt.Println(string(j))
 	if err != nil {
 		return "", err
 	}
@@ -117,7 +116,6 @@ func (g *globalUtil) SendSimplePost(url string, param any) (string, error) {
 		return "", err
 	}
 
-	fmt.Println(string(rpBody))
 	return string(rpBody), nil
 }
 

@@ -25,7 +25,6 @@ func ginInit() {
 	routerInit(G)
 	apiInit(G)
 
-	fmt.Println(common.Option.Web.Port)
 	err := G.Run(fmt.Sprintf("%s:%s", common.Option.Web.Addr, common.Option.Web.Port))
 	if err != nil {
 		fmt.Println("gin init failed")
