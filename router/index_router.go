@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"message-push/common"
+	"dobby/common"
 	"net/http"
 )
 

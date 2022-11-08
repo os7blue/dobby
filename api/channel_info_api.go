@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
-	"message-push/common"
-	"message-push/model"
-	"message-push/model/constant"
-	"message-push/service"
+	"dobby/common"
+	"dobby/model"
+	"dobby/model/constant"
+	"dobby/service"
 	"regexp"
 )
 

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
-	"message-push/common"
-	"message-push/model"
-	"message-push/model/constant"
-	"message-push/service/sender"
+	"dobby/common"
+	"dobby/model"
+	"dobby/model/constant"
+	"dobby/service/sender"
 	"strings"
 )
 
