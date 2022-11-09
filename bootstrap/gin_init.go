@@ -94,6 +94,7 @@ func noAuthRedirect(c *gin.Context) {
 		c.Redirect(302, "/")
 		c.Abort()
 	} else {
+		common.AuthUtil.DelToken(c)
 		c.JSON(http.StatusOK, model.Result{
 			Code: 401,
 		})

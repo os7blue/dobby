@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" class="full-box">
 <head>
+    <title>登录</title>
     <meta charset="UTF-8"/>
+    <link rel="shortcut  icon" href="/static/img/dobby.jpeg" type="image/x-icon" />
     <link rel="stylesheet" href="/static/css/index.css"/>
     <link rel="stylesheet" href="/static/css/global.css">
     <script src="/static/js/vue.js"></script>
@@ -33,7 +35,7 @@
                             </lay-button>
                         </lay-ripple>
                         <lay-ripple type="out" trigger="always"  v-if="sendCodeStatus.status">
-                            <lay-button type="warm" disabled="true">{{sendCodeStatus.second}}</lay-button>
+                            <lay-button type="warm" :disabled="true">{{sendCodeStatus.second}}</lay-button>
                         </lay-ripple>
                     </template>
                 </lay-input>
@@ -72,7 +74,7 @@
 
 
             if (self !== top) {
-                window.location.href="/"
+                window.top.location.href="/"
             }
         },
         watch: {

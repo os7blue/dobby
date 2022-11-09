@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
+    <title>管理</title>
+    <link rel="shortcut  icon" href="/static/img/dobby.jpeg"/>
     <link rel="stylesheet" href="/static/css/index.css"/>
     <link rel="stylesheet" href="/static/css/global.css">
     <script src="/static/js/vue.js"></script>
     <script src="/static/js/layui-vue.js"></script>
+    <script src="/static/js/vue-cookies.js"></script>
+    <script src="/static/js/marked.js"></script>
     <script src="/static/js/axios.min.js"></script>
     <script src="/static/js/config.js"></script>
 
@@ -21,10 +25,16 @@
         <lay-header>
             <lay-menu v-model:selected-key="select" @change-selected-key="changeContent" style="text-align: center">
                 <lay-menu-item id="1">
-                    <lay-icon type="layui-icon-file"></lay-icon>
+                    <lay-icon type="layui-icon-notice"></lay-icon>
                     通道
                 </lay-menu-item>
                 <lay-menu-item id="2">
+                    <lay-icon type="layui-icon-file"></lay-icon>
+                    文档
+                </lay-menu-item>
+
+
+                <lay-menu-item id="3">
                     <lay-icon type="layui-icon-date"></lay-icon>
                     登出
                 </lay-menu-item>
@@ -40,6 +50,54 @@
         </lay-layout>
     </lay-layout>
 
+    <lay-layer type="drawer" v-model="openReadme" title="文档">
+
+        <div id="md" style="margin: 10px 10px 10px 10px;">
+
+            <lay-field title="推送接口调用：">
+                <lay-quote>
+                    <p>post /push</p>
+                    <p>
+
+                        <lay-table :columns="[{title:'参数',key:'k'},{title:'示例',key:'demo'},{title:'说明',key:'remark'}]" :data-source="[{k:'keyStr',demo:'2ee3dfd9-16be-4f39-b237-4727edb78211',remark:'通道key，可批量调用，key之间使用,分隔'},{k:'content',demo:'这是一个测试消息',remark:'推送内容，只支持文字'}]"></lay-table>
+
+                    </p>
+                    <p>请求回执信息示例：{"code":1,"msg":"请求key数量与实际通道数不匹配","data":null,"count":0}</p>
+                    <p>未使用http标准状态码，如果调用的通道中有某个通道未执行成功，msg字段会有相应说明，如果msg字段没有内容，则表明所有通道都调用成功</p>
+
+                </lay-quote>
+            </lay-field>
+
+            <lay-field title="通道ip白名单说明：">
+                <p>
+                    如果不设置ip白名单，只填写为0.0.0.0即可，如果有多个ip，即使其中包含0.0.0.0也会逐一匹配。
+                </p>
+            </lay-field>
+
+            <lay-field title="webhook通道安全验证说明：">
+                <p>
+                    可以实现两种方式：
+                <p>1、将部署本服务的机器ip设置为ip白名单</p>
+                <p>2、配置文件中 setting -> pushTitle内容设置为关键字验证。</p>
+                </p>
+            </lay-field>
+
+
+
+            <lay-field title="微信公众号/测试号说明：">
+                <p>1、申请测试号链接：<a style="text-decoration:underline"
+                                       href="https://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login">https://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login</a>
+                </p>
+                <p>2、创建消息模板并将 "{{mpValue}}" 填入模板内容（引号中的内容，不包括引号）。</p>
+                <p>3、用接收推送的微信关注该测试号。</p>
+                <p>4、完成上述步骤后，添加测试号通道，并在测试号管理找到相关内容填写表单完成创建。</p>
+            </lay-field>
+
+
+        </div>
+
+    </lay-layer>
+
 
 </div>
 <script>
@@ -47,14 +105,23 @@
 
         data() {
             return {
+                mpValue: "{{content.DATA}}",
+                openReadme: false,
                 select: "1",
                 src: "/admin/channel"
             };
         },
 
         created() {
+
         },
         methods: {
+            logOut() {
+                this.$request.post("/login/logOut", {}).then(() => {
+                    window.location.href = "/"
+                })
+
+            },
             changeContent(id) {
 
                 switch (id) {
@@ -62,12 +129,14 @@
                         this.src = "/admin/channel"
 
                         break
-
                     case "2":
+                        this.openReadme = !this.openReadme
 
                         break
-                    default:
-                        this.src = "/admin/channel"
+                    case "3":
+                        this.logOut()
+                        break
+
                 }
 
             },
@@ -77,6 +146,7 @@
     app.use(LayuiVue);
     app.use(http)
     app.use(util)
+
     app.mount("#app");
 </script>
 
