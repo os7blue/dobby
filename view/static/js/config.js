@@ -7,6 +7,26 @@ const axiosInstance = axios.create({
         'Content-Type': 'application/json'
     }
 });
+axiosInstance.interceptors.response.use(function (response) {
+
+    console.log(response)
+    if (response.data.code===401){
+        let index = LayuiVue.layer.confirm(`您的登录状态已失效，点击跳转重新登陆`, {
+            icon: 3,
+            title: false,
+            yes:()=>{
+                window.location.href="/"
+            }
+        })
+    }
+
+
+    return response;
+}, function (error) {
+    // 超出 2xx 范围的状态码都会触发该函数。
+    // 对响应错误做点什么
+    return Promise.reject(error);
+});
 
 const http = {
     install(app, options) {

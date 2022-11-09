@@ -1,15 +1,19 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"dobby/common"
 	"dobby/model"
 	"dobby/service"
+	"github.com/gin-gonic/gin"
 )
 
 type authApi struct {
 }
 
+func (a *authApi) LogOut(c *gin.Context) {
+	common.AuthUtil.DelToken(c)
+	common.R.Success(c)
+}
 func (a *authApi) Login(c *gin.Context) {
 	var loginVm model.LoginValidator
 	err := c.ShouldBindJSON(&loginVm)

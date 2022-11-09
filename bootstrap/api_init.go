@@ -1,8 +1,8 @@
 package bootstrap
 
 import (
-	"github.com/gin-gonic/gin"
 	"dobby/api"
+	"github.com/gin-gonic/gin"
 )
 
 func apiInit(g *gin.Engine) {
@@ -10,6 +10,7 @@ func apiInit(g *gin.Engine) {
 	//login , push
 	g.POST("/login/send_code", api.Apis.AuthApi.SendCode)
 	g.POST("/login/login", api.Apis.AuthApi.Login)
+	g.POST("/login/logOut", api.Apis.AuthApi.LogOut)
 	g.POST("/push", api.Apis.PushApi.Push)
 
 	//channel

@@ -10,6 +10,24 @@ var AuthUtil = new(authUtil)
 type authUtil struct {
 }
 
+func (a *authUtil) DelToken(c *gin.Context) {
+	v, exist := a.GetTokenValue(c)
+	if !exist {
+		return
+	}
+	c.SetCookie(
+		"u",
+		"",
+		-1,
+		"",
+		"",
+		false,
+		true,
+	)
+	LocalCache.Del(fmt.Sprintf("auth-%s", v))
+
+}
+
 func (a *authUtil) Check(c *gin.Context) bool {
 
 	u, err := c.Cookie("u")
