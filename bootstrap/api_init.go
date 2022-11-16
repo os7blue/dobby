@@ -17,7 +17,7 @@ func apiInit(g *gin.Engine) {
 	channelGroup := g.Group("/admin/channel")
 
 	//channel info
-	channelInfoGroup := channelGroup.Group("/channel_info")
+	channelInfoGroup := channelGroup.Group("/info")
 	channelInfoGroup.POST("/create", api.Apis.ChannelInfoApi.Create)
 	channelInfoGroup.POST("/load", api.Apis.ChannelInfoApi.Load)
 	channelInfoGroup.POST("/update", api.Apis.ChannelInfoApi.Update)
@@ -26,7 +26,7 @@ func apiInit(g *gin.Engine) {
 	channelInfoGroup.POST("/refresh_key", api.Apis.ChannelInfoApi.RefreshKey)
 
 	//channel plan
-	channelPlanGroup := channelGroup.Group("/channel_plan")
+	channelPlanGroup := channelGroup.Group("/plan")
 	channelPlanGroup.POST("/create", api.Apis.ChannelPlanApi.Create)
 	channelPlanGroup.POST("/load", api.Apis.ChannelPlanApi.Load)
 	channelPlanGroup.POST("/update", api.Apis.ChannelPlanApi.Update)

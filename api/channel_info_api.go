@@ -25,12 +25,7 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-	err = common.GlobalUtil.CheckArrStr(
-		0,
-		0,
-		common.IpV4Regx,
-		createVm.WhiteListStr,
-	)
+
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -62,12 +57,7 @@ func (i *channelInfoApi) Update(c *gin.Context) {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-	err = common.GlobalUtil.CheckArrStr(
-		0,
-		0,
-		common.IpV4Regx,
-		updateVm.WhiteListStr,
-	)
+
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -210,10 +200,6 @@ func (i *channelInfoApi) ChangeStatus(c *gin.Context) {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-	if updateVm.Status != 10 && updateVm.Status != 20 {
-		common.R.FailWithMsg(c, "status字段为空")
-		return
-	}
 
 	_, err = service.Services.ChannelInfoService.GetOne(updateVm.ID)
 	if err != nil {
@@ -221,8 +207,7 @@ func (i *channelInfoApi) ChangeStatus(c *gin.Context) {
 	}
 
 	err = service.Services.ChannelInfoService.Update(model.ChannelInfo{
-		ID:     updateVm.ID,
-		Status: updateVm.Status,
+		ID: updateVm.ID,
 	})
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())

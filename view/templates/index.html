@@ -24,15 +24,19 @@
             <lay-menu v-model:selected-key="select" @change-selected-key="changeContent" style="text-align: center">
                 <lay-menu-item id="1">
                     <lay-icon type="layui-icon-notice"></lay-icon>
-                    通道
+                    通道方案
                 </lay-menu-item>
                 <lay-menu-item id="2">
+                    <lay-icon type="layui-icon-notice"></lay-icon>
+                    通道
+                </lay-menu-item>
+                <lay-menu-item id="3">
                     <lay-icon type="layui-icon-file"></lay-icon>
                     文档
                 </lay-menu-item>
 
 
-                <lay-menu-item id="3">
+                <lay-menu-item id="4">
                     <lay-icon type="layui-icon-date"></lay-icon>
                     登出
                 </lay-menu-item>
@@ -73,11 +77,11 @@
             </lay-field>
 
             <lay-field title="webhook通道安全验证说明：">
-                <p>
+
                     可以实现两种方式：
                 <p>1、将部署本服务的机器ip设置为ip白名单</p>
                 <p>2、配置文件中 setting -> pushTitle内容设置为关键字验证。</p>
-                </p>
+
             </lay-field>
 
 
@@ -124,14 +128,18 @@
 
                 switch (id) {
                     case "1":
-                        this.src = "/admin/channel"
+                        this.src = "/admin/channel/plan"
 
                         break
                     case "2":
-                        this.openReadme = !this.openReadme
+                        this.src = "/admin/channel/info"
 
                         break
                     case "3":
+                        this.openReadme = !this.openReadme
+
+                        break
+                    case "4":
                         this.logOut()
                         break
 

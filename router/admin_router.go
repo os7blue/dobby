@@ -16,7 +16,7 @@ func (r *adminRouter) ToIndex(c *gin.Context) {
 
 }
 
-func (r *adminRouter) ToChannel(c *gin.Context) {
+func (r *adminRouter) ToChannelInfo(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "channel.html", gin.H{
 		"title": "通道管理",
@@ -28,6 +28,13 @@ func (r *adminRouter) ToLog(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "log.html", gin.H{
 		"title": "log",
+	})
+
+}
+
+func (r *adminRouter) ToChannelPlan(c *gin.Context) {
+	c.HTML(http.StatusOK, "channel_plan.html", gin.H{
+		"title": "通道方案",
 	})
 
 }
