@@ -11,18 +11,15 @@ type ChannelInfo struct {
 }
 
 type ChannelInfoView[T any] struct {
-	ID   uint   ` json:"id"`
-	Name string ` json:"name"`
-
+	ID            uint   ` json:"id"`
+	Name          string ` json:"name"`
 	CreateTime    int64  `json:"createTime"`
-	WhiteListStr  string `json:"whiteListStr"`
 	ChannelType   int    `json:"channelType"`
 	ChannelOption T      `json:"channelOption"`
 }
 
 type ChannelInfoCreateValidator struct {
 	Name          string `json:"name" binding:"required,min=2,max=20"`
-	WhiteListStr  string `json:"whiteListStr" binding:"required"`
 	ChannelType   int    `json:"channelType" bind:"required"`
 	OptionJsonStr string `json:"optionJsonStr" binding:"required"`
 }
@@ -30,7 +27,6 @@ type ChannelInfoCreateValidator struct {
 type ChannelInfoUpdateValidator struct {
 	ID            uint   `json:"id" binding:"required"`
 	Name          string `json:"name" binding:"omitempty,min=2,max=20"`
-	WhiteListStr  string `json:"whiteListStr"`
 	OptionJsonStr string `json:"optionJsonStr"`
 }
 

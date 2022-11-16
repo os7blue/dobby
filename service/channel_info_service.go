@@ -1,11 +1,11 @@
 package service
 
 import (
+	"dobby/common"
+	"dobby/model"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"dobby/common"
-	"dobby/model"
 	"time"
 )
 
@@ -43,8 +43,6 @@ func (s *channelInfoService) CreateOne(info model.ChannelInfo) error {
 	}
 
 	info.CreateTime = time.Now().UnixMilli()
-	info.Status = 20
-	info.Key = uuid.New().String()
 
 	err := common.DB.Create(&info)
 	if err.Error != nil {
