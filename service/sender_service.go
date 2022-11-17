@@ -29,31 +29,31 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 	for _, channel := range channels {
 
 		//check channel status
-		if channel.Status != 10 {
-			msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：通道为未启用状态]", msgs, channel.Name, channel.Key)
-			continue
-		}
+		//if channel.Status != 10 {
+		//	msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：通道为未启用状态]", msgs, channel.Name, channel.Key)
+		//	continue
+		//}
 
 		//check request source ip
-		if channel.WhiteListStr != "0.0.0.0" {
-
-			ips := strings.Split(channel.WhiteListStr, ",")
-			has := false
-			for _, ip := range ips {
-
-				if ip == info.Ip {
-					has = true
-					break
-				}
-
-			}
-
-			if !has {
-				msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：来源非法]", msgs, channel.Name, channel.Key)
-				break
-			}
-
-		}
+		//if channel.WhiteListStr != "0.0.0.0" {
+		//
+		//	ips := strings.Split(channel.WhiteListStr, ",")
+		//	has := false
+		//	for _, ip := range ips {
+		//
+		//		if ip == info.Ip {
+		//			has = true
+		//			break
+		//		}
+		//
+		//	}
+		//
+		//	if !has {
+		//		msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：来源非法]", msgs, channel.Name, channel.Key)
+		//		break
+		//	}
+		//
+		//}
 
 		//dispatching different channel request
 		switch channel.ChannelType {
@@ -61,12 +61,12 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 			c := model.WebhookChannel{}
 			err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，key=%s，参数加载失败]", msgs, channel.Name, channel.Key)
+				msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
 				break
 			}
 			err = sender.Senders.WebhookSender.Send(c.Url, info.Content, c.HookType)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，key=%s，推送失败，失败原因：%s]", msgs, channel.Name, channel.Key, err.Error())
+				msgs = fmt.Sprintf("%s [通道：%s，推送失败，失败原因：%s]", msgs, channel.Name, err.Error())
 
 			}
 			break
@@ -75,7 +75,7 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 			c := model.EmailChannel{}
 			err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，key=%s，参数加载失败]", msgs, channel.Name, channel.Key)
+				msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
 				break
 			}
 			err = sender.Senders.MailSender.Send(
@@ -88,14 +88,14 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 				info.Content,
 			)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：%s]", msgs, channel.Name, channel.Key, err.Error())
+				msgs = fmt.Sprintf("%s [通道:%s，推送失败，原因：%s]", msgs, channel.Name, err.Error())
 			}
 			break
 		case constant.WXMP:
 			c := model.WxMpChannel{}
 			err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，key=%s，参数加载失败]", msgs, channel.Name, channel.Key)
+				msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
 				break
 			}
 			err = sender.Senders.WxMpSender.Send(
@@ -106,7 +106,7 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 				info.Content,
 			)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：%s]", msgs, channel.Name, channel.Key, err.Error())
+				msgs = fmt.Sprintf("%s [通道:%s，推送失败，原因：%s]", msgs, channel.Name, err.Error())
 			}
 			break
 
