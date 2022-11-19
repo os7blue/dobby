@@ -31,5 +31,5 @@ type ChannelInfoUpdateValidator struct {
 }
 
 type ChannelInfoSearchValidator struct {
-	Name string `json:"name" binding:"omitempty"`
+	Name string `json:"name"`
 }

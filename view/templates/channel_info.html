@@ -30,7 +30,7 @@
                             :unswitch-value="20" @change="changeInfoStatus(data)"></lay-switch>
             </template>
             <template v-slot:channel-type="{ data }">
-                {{getChannelTypeName(data.channelType)}}
+                {{getChannelTypeName(data)}}
             </template>
 
             <template v-slot:create-time="{ data }">
@@ -39,7 +39,6 @@
 
             <template v-slot:operator="{data}">
                 <lay-button size="xs" type="warm" @click="editInfo(data)">编辑</lay-button>
-                <lay-button size="xs" type="danger" @click="RefreshKey(data)">重置key</lay-button>
                 <lay-button size="xs" type="danger" @click="deleteInfo(data)">删除</lay-button>
 
             </template>
@@ -85,12 +84,6 @@
                 <lay-form-item label="通道名称：" prop="name" required
                                :rules="{min:2,max:20,message:'通道名称为5至20字'}">
                     <lay-input v-model="infoForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
-                </lay-form-item>
-                <lay-form-item label="ip白名单：" prop="whiteListStr" required :rules="checkWhiteListStr">
-                    <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
-                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0"
-                                   @change="toWhiteListStr"
-                                   allow-clear></lay-tag-input>
                 </lay-form-item>
 
                 <lay-form-item label="通道类型：">
@@ -186,12 +179,7 @@
                                :rules="{min:2,max:20,message:'通道名称为5至20字'}">
                     <lay-input v-model="infoForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
                 </lay-form-item>
-                <lay-form-item label="ip白名单：" prop="whiteListStr" required :rules="checkWhiteListStr">
-                    <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
-                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0"
-                                   @change="toWhiteListStr"
-                                   allow-clear></lay-tag-input>
-                </lay-form-item>
+
 
                 <lay-form-item label="通道类型：">
                     <lay-select v-model="infoForm.channelType" required>
@@ -290,11 +278,8 @@
                     id: null,
                     name: "",
                     channelType: 10,
-                    whiteListStr: '',
                 },
                 tagInputs: {
-                    whiteList: [],
-                    whiteListInput: "",
                     toEmailList: [],
                     toEmailListInput: "",
                     toUserList: [],
@@ -343,20 +328,7 @@
                             key: "channelType",
                             align: "center"
                         },
-                        {
-                            title: "key",
-                            width: "200px",
-                            key: "key",
-                            align: "center"
-                        },
 
-                        {
-                            title: "状态",
-                            width: "200px",
-                            customSlot: 'status',
-                            key: "status",
-                            align: "center"
-                        },
                         {
                             title: "创建时间",
                             width: "200px",
@@ -382,28 +354,6 @@
                     data: [],
                     searchValue: {},
                     loading: false
-                },
-                checkWhiteListStr: {
-                    validator(rule, value, callback, source, options) {
-
-
-
-                        if (value !== null && value !== "") {
-                            const list = value.split(",")
-                            let ipRegx = /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
-                            for (let i = 0; i < list.length; i++) {
-                                let item = list[i]
-                                if (!ipRegx.test(item)) {
-                                    callback(new Error(`${item}不是正确的ipv4格式`));
-                                    return false
-                                }
-                            }
-
-
-                        }
-
-                        return true
-                    }
                 },
                 checkUrl: {
                     validator(rule, value, callback, source, options) {
@@ -499,9 +449,6 @@
 
         },
         methods: {
-            toWhiteListStr() {
-                this.infoForm.whiteListStr = this.$util.arrayParamToStr("", this.tagInputs.whiteList)
-            },
             toEmailListStr() {
                 this.emailForm.toEmailListStr = this.$util.arrayParamToStr("", this.tagInputs.toEmailList)
             },
@@ -515,10 +462,8 @@
                     id: data.id,
                     name: data.name,
                     channelType: data.channelType,
-                    whiteListStr: data.whiteListStr
                 }
 
-                this.tagInputs.whiteList = data.whiteListStr.split(",")
 
 
                 let json = JSON.parse(data.optionJsonStr)
@@ -568,7 +513,7 @@
                             time: 0,
                             shade: true
                         })
-                        this.$request.post("/admin/channel/channel_info/del", {id: data.id}).then(res => {
+                        this.$request.post("/api/admin/channel/info/del", {id: data.id}).then(res => {
                             if (res.code === 1) {
 
                                 this.loadInfoPage()
@@ -606,7 +551,7 @@
                     time: 0,
                     shade: true
                 })
-                this.$request.post("/admin/channel/channel_info/change_status",
+                this.$request.post("/api/admin/channel/info/change_status",
                     {
                         id: data.id,
                         status: ifDisabled ? 10 : 20
@@ -647,7 +592,7 @@
                     time: 0,
                     shade: true
                 })
-                this.$request.post("/admin/channel/channel_info/refresh_key",
+                this.$request.post("/api/admin/channel/info/refresh_key",
                     {
                         id: data.id,
                     }
@@ -706,7 +651,7 @@
                     }
                 }
                 this.infoTableOption.loading = true
-                this.$request.post("/admin/channel/channel_info/load", param).then(res => {
+                this.$request.post("/api/admin/channel/info/load", param).then(res => {
                     if (res.code == 1) {
 
                         this.infoTableOption.data = res.data
@@ -724,10 +669,25 @@
                 })
 
             },
-            getChannelTypeName(type){
-                switch (type) {
+            getChannelTypeName(data){
+                switch (data.channelType) {
                     case 10:
-                        return "webhook"
+                        let content = "webhook->"
+                        let json = JSON.parse(data.optionJsonStr)
+
+                        switch (json.hookType){
+                            case 11:
+                                content+="钉钉"
+                                break
+                            case 12:
+                                content+="飞书"
+                                break
+                            case 13:
+                                content+="企业微信"
+                                break
+                        }
+
+                        return content
                     case 20:
                         return "email"
                     case 30:
@@ -785,7 +745,7 @@
                                     time: 0,
                                     shade: true
                                 })
-                                this.$request.post("/admin/channel/channel_info/update", {
+                                this.$request.post("/api/admin/channel/info/update", {
                                     ...this.infoForm,
                                     optionJsonStr: JSON.stringify(option)
                                 }).then(res => {
@@ -836,7 +796,7 @@
                                     time: 0,
                                     shade: true
                                 })
-                                this.$request.post("/admin/channel/channel_info/create", {
+                                this.$request.post("/api/admin/channel/info/create", {
                                     ...this.infoForm,
                                     optionJsonStr: JSON.stringify(option)
                                 }).then(res => {

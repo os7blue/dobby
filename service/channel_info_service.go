@@ -19,8 +19,9 @@ func (s *channelInfoService) LoadPage(page int, limit int, channelInfo model.Cha
 	d.Select("*")
 
 	if "" != channelInfo.Name {
-		d.Where("name LIKE %?%", channelInfo.Name).Or("key like %?%", channelInfo.Name)
-		c.Where("name LIKE %?%", channelInfo.Name).Or("key like %?%", channelInfo.Name)
+		like := fmt.Sprintf("%%%s%%", channelInfo.Name)
+		d.Where("name LIKE ?", like)
+		c.Where("name LIKE ?", like)
 	}
 
 	var results []model.ChannelInfo
