@@ -23,7 +23,7 @@
         <lay-header>
             <lay-menu v-model:selected-key="select" @change-selected-key="changeContent" style="text-align: center">
                 <lay-menu-item id="1">
-                    <lay-icon type="layui-icon-notice"></lay-icon>
+                    <lay-icon type="layui-icon-release"></lay-icon>
                     通道方案
                 </lay-menu-item>
                 <lay-menu-item id="2">
@@ -37,7 +37,7 @@
 
 
                 <lay-menu-item id="4">
-                    <lay-icon type="layui-icon-date"></lay-icon>
+                    <lay-icon type="layui-icon-logout"></lay-icon>
                     登出
                 </lay-menu-item>
 
@@ -110,22 +110,18 @@
                 mpValue: "{{content.DATA}}",
                 openReadme: false,
                 select: "1",
-                src: "/admin/channel"
+                src: "/admin/channel/plan"
             };
         },
 
-        created() {
-
-        },
         methods: {
             logOut() {
-                this.$request.post("/login/logOut", {}).then(() => {
+                this.$request.post("/api/login/logOut", {}).then(() => {
                     window.location.href = "/"
                 })
 
             },
             changeContent(id) {
-
                 switch (id) {
                     case "1":
                         this.src = "/admin/channel/plan"
