@@ -9,7 +9,6 @@ const axiosInstance = axios.create({
 });
 axiosInstance.interceptors.response.use(function (response) {
 
-    console.log(response)
     if (response.data.code===401){
         let index = LayuiVue.layer.confirm(`您的登录状态已失效，点击跳转重新登陆`, {
             icon: 3,
