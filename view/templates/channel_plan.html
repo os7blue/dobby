@@ -23,7 +23,7 @@
 
         </lay-space>
         <lay-table :columns="planTableOption.columns" :page="planTableOption.page" :data-source="planTableOption.data"
-                   :loading="planTableOption.loading" @change="changeInfoTable" id="id">
+                   :loading="planTableOption.loading"  >
 
             <template v-slot:status="{ data }">
                 <lay-switch v-model="data.status" onswitch-text="启用" :onswitch-value="10" unswitch-text="禁用"
@@ -80,7 +80,7 @@
         <lay-layer title="修改通道" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
                    resize move v-model="action.openInfoEdit">
 
-            <lay-form :model="infoForm" v-if="action.openInfoEdit" ref="icf" initValidate
+            <lay-form :model="infoForm" v-if="action.openInfoEdit" ref="nef" initValidate
                       style="margin: 15px 15px 15px 15px">
                 <lay-form-item label="通道名称：" prop="name" required
                                :rules="{min:2,max:20,message:'通道名称为5至20字'}">
@@ -107,7 +107,7 @@
         <lay-layer title="新建方案" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
                    resize move v-model="action.openInfoCreate">
 
-            <lay-form :model="infoForm" v-if="action.openInfoCreate" ref="icf" initValidate
+            <lay-form :model="infoForm" v-if="action.openInfoCreate" ref="ncf" initValidate
                       style="margin: 15px 15px 15px 15px">
                 <lay-form-item label="方案名称：" prop="name" required
                                :rules="{min:2,max:20,message:'方案名称为5至20字'}">
@@ -135,8 +135,8 @@
 
                     </lay-tag-input>
 
-                    <lay-table :columns="infoTableOption.columns" v-model:selected-keys="infoTableOption.selectedKeys" :page="infoTableOption.page" :data-source="infoTableOption.data"
-                               :loading="infoTableOption.loading" @change="changeInfoTable" id="id" getCheckboxProps="id">
+                    <lay-table :columns="infoTableOption.columns" :page="infoTableOption.page" :data-source="infoTableOption.data"
+                               :loading="infoTableOption.loading" @change="changeInfoTable" id="id">
                         <template v-slot:channel-type="{data}">
                             <lay-space v-if="data.channelType===10">
                                 {{data.channelType}}
@@ -185,10 +185,6 @@
                 infoTableOption: {
                     selectedKeys:[],
                     columns: [
-                        {
-                            fixed: "left",
-                            type: "checkbox",
-                        },
 
                         {
                             title: "通道名",
@@ -229,20 +225,16 @@
                             key: "name",
                             align: "center"
                         },
-                        {
-                            title: "key",
-                            width: "200px",
-                            key: "key",
-                            align: "center"
-                        },
 
                         {
                             title: "状态",
                             width: "200px",
-                            customSlot: 'status',
                             key: "status",
+                            customSlot: 'status',
                             align: "center"
                         },
+
+
                         {
                             title: "创建时间",
                             width: "200px",
@@ -349,8 +341,8 @@
 
             };
         },
-        created() {
-            this.loadInfoPage()
+        mounted() {
+            this.loadPlanPage()
         },
         watch: {
 
@@ -358,7 +350,7 @@
                 handler(next, _) {
                     //只监听新增框弹出状态的监听，当新增框关闭时 重置相应的form内容
                     if (!next) {
-                        this.$refs.icf.reset()
+                        this.$refs.ncf.reset()
 
                         this.tagInputs = this.$options.data().tagInputs
                         this.infoTableOption=this.$options.data().infoTableOption
@@ -374,7 +366,7 @@
                 handler(next, _) {
                     //只监听新增框弹出状态的监听，当新增框关闭时 重置相应的form内容
                     if (!next) {
-                        this.$refs.icf.reset()
+                        this.$refs.ncf.reset()
 
                         this.tagInputs = this.$options.data().tagInputs
                         this.infoTableOption=this.$options.data().infoTableOption
@@ -405,7 +397,6 @@
 
             },
             changeInfoTable(data) {
-                console.log(this.infoTableOption.selectedKeys)
                 this.infoTableOption.page.current = data.current
                 this.infoTableOption.page.limit = data.limit
 
@@ -427,7 +418,6 @@
 
                         this.infoTableOption.data = res.data
                         this.infoTableOption.page.total = res.count
-
                     } else {
                         LayuiVue.layer.msg(`${res.msg},加载通道信息失败`, {icon: 2, time: 1000})
 
@@ -436,6 +426,7 @@
                     LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
                 }).finally(() => {
                     this.infoTableOption.loading = false
+
 
                 })
 
@@ -604,19 +595,19 @@
                 let param = {
                     page: this.planTableOption.page.current,
                     limit: this.planTableOption.page.limit,
-                    params: {
-                        ...this.planTableOption.searchValue
-                    }
+
                 }
                 this.planTableOption.loading = true
                 this.$request.post("/api/admin/channel/plan/load", param).then(res => {
                     if (res.code == 1) {
 
+                        console.log(res.data)
                         this.planTableOption.data = res.data
+
                         this.planTableOption.page.total = res.count
 
                     } else {
-                        LayuiVue.layer.msg(`${res.msg},加载通道信息失败`, {icon: 2, time: 1000})
+                        LayuiVue.layer.msg(`${res.msg},加载通道方案失败`, {icon: 2, time: 1000})
 
                     }
                 }).catch((res) => {
@@ -628,7 +619,7 @@
 
             },
             submitInfoUpdate() {
-                this.$refs.icf.validate((isValidate, model, errors) => {
+                this.$refs.ncf.validate((isValidate, model, errors) => {
                     if (!isValidate) {
                         return false
                     } else {
@@ -679,7 +670,7 @@
 
             submitInfoCreate() {
 
-                this.$refs.icf.validate((isValidate, model, errors) => {
+                this.$refs.ncf.validate((isValidate, model, errors) => {
                     if (!isValidate) {
                         return false
                     } else {

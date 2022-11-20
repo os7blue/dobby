@@ -31,9 +31,8 @@ func (cps *channelPlanService) Create(plan model.ChannelPlan) error {
 
 func (cps *channelPlanService) LoadPage(page int, limit int, name string) (interface{}, int64, error) {
 
-	d := common.DB.Model(&model.ChannelPlan{})
+	d := common.DB.Model(&model.ChannelPlan{}).Select("*,'['||(SELECT GROUP_CONCAT(json_object('id',id,'name',name)) FROM channel_info WHERE id in (1,2))||']' as channel_id_list_str")
 	c := common.DB.Model(&model.ChannelPlan{})
-	d.Select("*")
 
 	if "" != name {
 		like := fmt.Sprintf("%%%s%%", name)
@@ -42,7 +41,7 @@ func (cps *channelPlanService) LoadPage(page int, limit int, name string) (inter
 		c.Where("name LIKE ?", like).Or("key like ?", like).Or("(SELECT count(1) FROM channel_info WHERE id in (channel_plan.id) and name like %?%) > 0", name)
 	}
 
-	var results []model.ChannelInfo
+	var results []model.ChannelPlanView
 	err := d.Offset((page - 1) * limit).Limit(limit).Order("create_time DESC").Find(&results)
 	if err.Error != nil {
 		return nil, 0, errors.New("查找失败")

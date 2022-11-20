@@ -11,6 +11,18 @@ type ChannelPlan struct {
 	ChannelIdListStr string `json:"ChannelIdListStr"`
 }
 
+type ChannelPlanView struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+	//status code , enable is 10 , disabled is 20
+	Status                 int    `json:"status"`
+	Key                    string `json:"key"`
+	CreateTime             int64  `json:"createTime"`
+	WhiteListStr           string `json:"whiteListStr"`
+	ChannelIdListStr       string `json:"ChannelIdListStr"`
+	ChannelInfoListJsonStr string `json:"channelInfoListJsonStr"`
+}
+
 type ChannelPlanCreateValidator struct {
 	Name             string `json:"name"`
 	WhiteListStr     string `json:"whiteListStr" binding:"required"`
@@ -21,8 +33,8 @@ type ChannelPlanUpdateValidator struct {
 	ID               uint   `json:"id" bind:"required"`
 	Name             string `json:"name"`
 	Status           int    `json:"status"`
-	WhiteListStr     string `json:"whiteListStr" binding:"required"`
-	ChannelIdListStr string `json:"ChannelIdListStr" binding:"required"`
+	WhiteListStr     string `json:"whiteListStr"`
+	ChannelIdListStr string `json:"ChannelIdListStr"`
 }
 
 type ChannelPlanSearchValidator struct {
