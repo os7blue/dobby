@@ -9,12 +9,12 @@ const axiosInstance = axios.create({
 });
 axiosInstance.interceptors.response.use(function (response) {
 
-    if (response.data.code===401){
+    if (response.data.code === 401) {
         let index = LayuiVue.layer.confirm(`您的登录状态已失效，点击跳转重新登陆`, {
             icon: 3,
             title: false,
-            yes:()=>{
-                window.location.href="/"
+            yes: () => {
+                window.location.href = "/"
             }
         })
     }
@@ -58,11 +58,36 @@ const http = {
 
 
 function pushZero(num) {
-    return num < 10 ? (`0${  num}`) : num
+    return num < 10 ? (`0${num}`) : num
 }
+
 const util = {
     install(app, options) {
         app.config.globalProperties.$util = {
+
+            /*这个方法用来随机一个十六进制颜色代码，让每一次点击浮动文字的杨色不同*/
+            randomHexColor: () => {
+                const colorArr= ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f']
+
+                let color = "#";
+                for (let i = 0; i < 6; i++) {
+                    color += colorArr[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            },
+            arrayItemParamToArray:(key ='',data=[])=>{
+                let arr = []
+                for (let i = 0; i < data.length; i++) {
+                    if (key===''){
+                        arr.push(data[i])
+                    }else {
+                        arr.push(data[i][key])
+                    }
+                }
+
+                return arr
+
+            },
 
             longTimeFormat: (longTime) => {
                 if (!longTime) {
