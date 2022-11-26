@@ -5,7 +5,6 @@ import (
 	"dobby/model"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"time"
 )
 
@@ -55,9 +54,7 @@ func (s *channelInfoService) CreateOne(info model.ChannelInfo) error {
 
 func (s *channelInfoService) Update(info model.ChannelInfo) error {
 
-	common.LocalCache.Del(fmt.Sprintf("channel-%d", info.ID))
-
-	err := common.DB.Model(&model.ChannelInfo{}).Where("id=?", info.ID).Updates(info)
+	err := common.DB.Updates(info)
 	if err.Error != nil {
 		return errors.New("修改失败")
 	}
@@ -67,7 +64,26 @@ func (s *channelInfoService) Update(info model.ChannelInfo) error {
 
 func (s *channelInfoService) Delete(id uint) error {
 
-	err := common.DB.Delete(&model.ChannelInfo{}, id)
+	var plans []model.ChannelPlan
+	err := common.DB.Model(model.ChannelPlan{}).Where(fmt.Sprintf("channel_id_list_str LIKE '%%' || %d || ',%%' OR channel_id_list_str LIKE '%%,' || %d || ',' OR channel_id_list_str LIKE '%%' || %d", id, id, id)).Find(&plans)
+	if err.Error != nil {
+		return errors.New("删除失败")
+	}
+
+	if len(plans) != 0 {
+
+		msg := "方案可能被"
+		for _, item := range plans {
+
+			msg += fmt.Sprintf("[%s]", item.Name)
+
+		}
+
+		msg += fmt.Sprintf(",等%d个方案引用", len(plans))
+		return errors.New(msg)
+	}
+
+	err = common.DB.Delete(&model.ChannelInfo{}, id)
 	if err.Error != nil {
 		return errors.New("删除失败")
 	}
@@ -76,29 +92,10 @@ func (s *channelInfoService) Delete(id uint) error {
 
 func (s *channelInfoService) GetOne(id uint) (model.ChannelInfo, error) {
 
-	data, exist := common.LocalCache.Get(fmt.Sprintf("channel-%d", id))
-	if exist {
-		return data.(model.ChannelInfo), nil
-	}
-
 	var result model.ChannelInfo
 	err := common.DB.First(&result, id)
 	if err.Error != nil {
 		return result, err.Error
 	}
-	common.LocalCache.Set(fmt.Sprintf("channel-%d", id), result, 7200)
 	return result, nil
-}
-
-func (s *channelInfoService) RefreshKey(id uint) (string, error) {
-
-	common.LocalCache.Del(fmt.Sprintf("channel-%d", id))
-
-	key := uuid.New().String()
-	err := common.DB.Model(&model.ChannelInfo{}).Where("id=?", id).Update("key", key)
-	if err.Error != nil {
-		return "", err.Error
-	}
-
-	return key, nil
 }

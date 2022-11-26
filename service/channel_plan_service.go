@@ -6,20 +6,26 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"time"
 )
 
 type channelPlanService struct {
 }
 
+func (cps *channelPlanService) getOne(id uint) model.ChannelPlanView {
+	data, exist := common.LocalCache.Get(fmt.Sprintf("plan-%d", id))
+	if exist {
+		return data.(model.ChannelPlanView)
+	}
+
+	var plan model.ChannelPlanView
+	common.DB.Model(&model.ChannelPlan{}).Select("*").Where("id = ?", id).Find(&plan)
+}
+
 func (cps *channelPlanService) Create(plan model.ChannelPlan) error {
 
-	//finalStr := common.GlobalUtil.ArrStrItemFormat(
-	//	plan.ChannelListStr,
-	//	"{%s}",
-	//	",",
-	//	",",
-	//)
-	//plan.ChannelListStr = finalStr
+	plan.CreateTime = time.Now().UnixMilli()
+	plan.Key = uuid.New().String()
 
 	err := common.DB.Create(&plan)
 
@@ -31,7 +37,7 @@ func (cps *channelPlanService) Create(plan model.ChannelPlan) error {
 
 func (cps *channelPlanService) LoadPage(page int, limit int, name string) (interface{}, int64, error) {
 
-	d := common.DB.Model(&model.ChannelPlan{}).Select("*,'['||(SELECT GROUP_CONCAT(json_object('id',id,'name',name)) FROM channel_info WHERE id in (1,2))||']' as channel_id_list_str")
+	d := common.DB.Model(&model.ChannelPlan{}).Select("*,(SELECT '[' || GROUP_CONCAT(json_object ('id',id,'name',name,'channelType',channel_type,'optionJsonStr',option_json_str)) || ']' FROM channel_info i WHERE channel_id_list_str LIKE '%' || i.id || ',%' OR channel_id_list_str LIKE '%,' || i.id || ',' OR channel_id_list_str LIKE '%' || i.id) AS channel_info_list_json_str")
 	c := common.DB.Model(&model.ChannelPlan{})
 
 	if "" != name {
@@ -55,7 +61,7 @@ func (cps *channelPlanService) LoadPage(page int, limit int, name string) (inter
 
 func (cps *channelPlanService) Update(plan model.ChannelPlan) error {
 
-	err := common.DB.Model(&model.ChannelInfo{}).Where("id=?", plan.ID).Updates(plan)
+	err := common.DB.Updates(plan)
 	if err.Error != nil {
 		return err.Error
 	}
@@ -65,28 +71,7 @@ func (cps *channelPlanService) Update(plan model.ChannelPlan) error {
 
 func (cps *channelPlanService) Delete(id uint) error {
 
-	var channelInfos []model.ChannelInfo
-	err := common.DB.Model(model.ChannelInfo{}).Where("channelIdListStr = ?").Or("channelIdListStr like ,?").Or("channelIdListStr like ,?,").Find(&channelInfos)
-	if err.Error != nil {
-		return err.Error
-	}
-
-	if len(channelInfos) != 0 {
-
-		msg := ""
-		for index, info := range channelInfos {
-			if index != len(channelInfos)-1 && index != 0 {
-				msg = fmt.Sprintf("%s%s,", msg, info.Name)
-			} else {
-				msg += info.Name
-			}
-		}
-
-		return errors.New(fmt.Sprintf("通道方案：%s可能引用了该通道", msg))
-
-	}
-
-	err = common.DB.Delete(&model.ChannelPlan{}, id)
+	err := common.DB.Delete(&model.ChannelPlan{}, id)
 	if err.Error != nil {
 		return err.Error
 	}

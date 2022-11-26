@@ -24,7 +24,6 @@ func apiInit(g *gin.Engine) {
 	channelInfoGroup.POST("/load", api.Apis.ChannelInfoApi.Load)
 	channelInfoGroup.POST("/update", api.Apis.ChannelInfoApi.Update)
 	channelInfoGroup.POST("/del", api.Apis.ChannelInfoApi.Delete)
-	channelInfoGroup.POST("/refresh_key", api.Apis.ChannelInfoApi.RefreshKey)
 
 	//channel plan
 	channelPlanGroup := channelGroup.Group("/plan")

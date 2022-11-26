@@ -15,58 +15,57 @@
 </head>
 <body>
 <div id="app" style="padding: 10px 10px 10px 10px">
-    <lay-field title="通道方案"></lay-field>
+    <lay-field title="推送方案"></lay-field>
 
     <lay-space direction="vertical" :fill="true">
         <lay-space>
-            <lay-button type="primary" @click="this.action.openInfoCreate=true">添加方案</lay-button>
+            <lay-button type="primary" @click="this.action.openPlanCreate=true">添加方案</lay-button>
 
         </lay-space>
         <lay-table :columns="planTableOption.columns" :page="planTableOption.page" :data-source="planTableOption.data"
-                   :loading="planTableOption.loading"  >
+                   :loading="planTableOption.loading" @change="changePlanTable">
 
             <template v-slot:status="{ data }">
                 <lay-switch v-model="data.status" onswitch-text="启用" :onswitch-value="10" unswitch-text="禁用"
                             :unswitch-value="20" @change="changeInfoStatus(data)"></lay-switch>
             </template>
             <template v-slot:channel-type="{ data }">
-                {{getChannelTypeName(data.channelType)}}
+                {{ getChannelTypeName(data.channelType) }}
             </template>
 
             <template v-slot:create-time="{ data }">
-                {{this.$util.longTimeFormat(data.createTime)}}
+                {{ this.$util.longTimeFormat(data.createTime) }}
             </template>
 
             <template v-slot:operator="{data}">
                 <lay-button size="xs" type="warm" @click="editInfo(data)">编辑</lay-button>
                 <lay-button size="xs" type="danger" @click="RefreshKey(data)">重置key</lay-button>
-                <lay-button size="xs" type="danger" @click="deleteInfo(data)">删除</lay-button>
+                <lay-button size="xs" type="danger" @click="deletePlan(data)">删除</lay-button>
 
             </template>
 
             <template v-slot:expand="{ data }">
 
-                <lay-panel>
-                    <lay-space v-if="data.channelType===10">
-                        <span>webhook 类型：{{getWebhookTypeName(JSON.parse(data.optionJsonStr).hookType)}}</span>
 
-                        <span>webhook url：{{JSON.parse(data.optionJsonStr).url}}</span>
-                    </lay-space>
-                    <lay-space v-if="data.channelType===20">
-                        <span>host：{{JSON.parse(data.optionJsonStr).host}}</span>
-                        <span>port：{{JSON.parse(data.optionJsonStr).port}}</span>
-                        <span>username：{{JSON.parse(data.optionJsonStr).username}}</span>
-                        <span>password：{{JSON.parse(data.optionJsonStr).password}}</span>
-                        <span>toEmails：{{JSON.parse(data.optionJsonStr).toEmailListStr}}</span>
-                    </lay-space>
-                    <lay-space v-if="data.channelType===30">
-                        <span>appId：{{JSON.parse(data.optionJsonStr).appId}}</span>
-                        <span>appSecret：{{JSON.parse(data.optionJsonStr).appSecret}}</span>
-                        <span>templateId：{{JSON.parse(data.optionJsonStr).templateId}}</span>
-                        <span>userIds：{{JSON.parse(data.optionJsonStr).toUserListStr}}</span>
+                    <lay-panel shadow="never">
+                        白名单：
+                        <lay-space size="md">
+                        <lay-tag v-for="(item,index) in data.whiteListStr.split(',')"
+                                 :color="this.$util.randomHexColor()">
+                            {{ item }}
+                        </lay-tag>
+                        </lay-space>
 
+                    </lay-panel>
+                    <lay-panel shadow="never">
+                    引用通道：
+                    <lay-space size="md">
+                        <lay-tag v-for="(item,index) in JSON.parse(data.channelInfoListJsonStr)"
+                                 :color="this.$util.randomHexColor()">
+                            {{ item.name }}→{{ getChannelTypeName(item) }}
+                        </lay-tag>
                     </lay-space>
-                </lay-panel>
+                    </lay-panel>
 
 
             </template>
@@ -77,41 +76,15 @@
 
     <!--    弹出层统一放置-->
     <div>
-        <lay-layer title="修改通道" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
-                   resize move v-model="action.openInfoEdit">
 
-            <lay-form :model="infoForm" v-if="action.openInfoEdit" ref="nef" initValidate
-                      style="margin: 15px 15px 15px 15px">
-                <lay-form-item label="通道名称：" prop="name" required
-                               :rules="{min:2,max:20,message:'通道名称为5至20字'}">
-                    <lay-input v-model="infoForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
-                </lay-form-item>
-                <lay-form-item label="ip白名单：" prop="whiteListStr" required :rules="checkWhiteListStr">
-                    <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
-                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0"
-                                   @change="toWhiteListStr"
-                                   allow-clear></lay-tag-input>
-                </lay-form-item>
+        <lay-layer title="修改方案" :shade="true" :shade-close="false" style="text-align: center;" :area="['60%','60%']"
+                   resize move v-model="action.openPlanEdit">
 
-
-
-                <lay-ripple>
-                    <lay-button type="warm" @click="submitInfoUpdate">提交修改</lay-button>
-
-
-                </lay-ripple>
-            </lay-form>
-
-        </lay-layer>
-
-        <lay-layer title="新建方案" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
-                   resize move v-model="action.openInfoCreate">
-
-            <lay-form :model="infoForm" v-if="action.openInfoCreate" ref="ncf" initValidate
+            <lay-form :model="planForm" v-if="action.openPlanEdit" ref="pef" initValidate
                       style="margin: 15px 15px 15px 15px">
                 <lay-form-item label="方案名称：" prop="name" required
                                :rules="{min:2,max:20,message:'方案名称为5至20字'}">
-                    <lay-input v-model="infoForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                    <lay-input v-model="planForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
                 </lay-form-item>
                 <lay-form-item label="ip白名单：" prop="whiteListStr" required :rules="checkWhiteListStr">
                     <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
@@ -120,14 +93,13 @@
                                    allow-clear></lay-tag-input>
                 </lay-form-item>
 
-                <lay-form-item label="使用通道：" porp="channelIdListStr" required>
+                <lay-form-item label="使用通道：" prop="channelIdListStr" required>
 
                     <lay-tag-input
                             v-model="tagInputs.channelIdList"
                             v-model:input-value="tagInputs.channelIdListInput"
                             allowClear
                             placeholder="选择调用的通道"
-                            @change="toChannelIdListStr"
                             @input-value-change="inputSearch"
                             @remove="removeInfo"
                             @press-enter="stopEnter"
@@ -135,19 +107,92 @@
 
                     </lay-tag-input>
 
-                    <lay-table :columns="infoTableOption.columns" :page="infoTableOption.page" :data-source="infoTableOption.data"
+                    <lay-table :columns="infoTableOption.columns" :page="infoTableOption.page"
+                               :data-source="infoTableOption.data"
                                :loading="infoTableOption.loading" @change="changeInfoTable" id="id">
                         <template v-slot:channel-type="{data}">
                             <lay-space v-if="data.channelType===10">
-                                {{data.channelType}}
+                                {{ getChannelTypeName(data) }}
                             </lay-space>
+                        </template>
+
+                        <template v-slot:operator="{data}">
+                            <lay-button size="xs" type="primary" v-if="channelIdSelected.indexOf(data.id)===-1"
+                                        @click="selectInfo(data.id,data.name)">选择
+                            </lay-button>
+                            <lay-button size="xs" type="warm" v-if="channelIdSelected.indexOf(data.id)!==-1"
+                                        @click="unSelectInfo(data.id,data.name)">取消选择
+                            </lay-button>
+
                         </template>
 
                     </lay-table>
                 </lay-form-item>
 
                 <lay-ripple>
-                    <lay-button type="warm" @click="submitInfoCreate">创建方案</lay-button>
+                    <lay-button type="warm" @click="submitPlanEdit">修改方案</lay-button>
+
+
+                </lay-ripple>
+            </lay-form>
+
+        </lay-layer>
+
+
+        <lay-layer title="新建方案" :shade="true" :shade-close="false" style="text-align: center;" :area="['60%','60%']"
+                   resize move v-model="action.openPlanCreate">
+
+            <lay-form :model="planForm" v-if="action.openPlanCreate" ref="pcf" initValidate
+                      style="margin: 15px 15px 15px 15px">
+                <lay-form-item label="方案名称：" prop="name" required
+                               :rules="{min:2,max:20,message:'方案名称为5至20字'}">
+                    <lay-input v-model="planForm.name" prefix-icon="layui-icon-person" size="lg"></lay-input>
+                </lay-form-item>
+                <lay-form-item label="ip白名单：" prop="whiteListStr" required :rules="checkWhiteListStr">
+                    <lay-tag-input v-model="tagInputs.whiteList" v-model:input-value="tagInputs.whiteListInput"
+                                   placeholder="输入正确的ipv4地址敲击回车,不使用白名单请添加0.0.0.0"
+                                   @change="toWhiteListStr"
+                                   allow-clear></lay-tag-input>
+                </lay-form-item>
+
+                <lay-form-item label="使用通道：" prop="channelIdListStr" required>
+
+                    <lay-tag-input
+                            v-model="tagInputs.channelIdList"
+                            v-model:input-value="tagInputs.channelIdListInput"
+                            allowClear
+                            placeholder="选择调用的通道"
+                            @input-value-change="inputSearch"
+                            @remove="removeInfo"
+                            @press-enter="stopEnter"
+                    >
+
+                    </lay-tag-input>
+
+                    <lay-table :columns="infoTableOption.columns" :page="infoTableOption.page"
+                               :data-source="infoTableOption.data"
+                               :loading="infoTableOption.loading" @change="changeInfoTable" id="id">
+                        <template v-slot:channel-type="{data}">
+                            <lay-space v-if="data.channelType===10">
+                                {{ getChannelTypeName(data) }}
+                            </lay-space>
+                        </template>
+
+                        <template v-slot:operator="{data}">
+                            <lay-button size="xs" type="primary" v-if="channelIdSelected.indexOf(data.id)===-1"
+                                        @click="selectInfo(data.id,data.name)">选择
+                            </lay-button>
+                            <lay-button size="xs" type="warm" v-if="channelIdSelected.indexOf(data.id)!==-1"
+                                        @click="unSelectInfo(data.id,data.name)">取消选择
+                            </lay-button>
+
+                        </template>
+
+                    </lay-table>
+                </lay-form-item>
+
+                <lay-ripple>
+                    <lay-button type="warm" @click="submitPlanCreate">创建方案</lay-button>
 
 
                 </lay-ripple>
@@ -159,31 +204,34 @@
 </div>
 
 
-<script type="module">
+<script>
 
     const App = {
         data() {
             return {
-                infoForm: {
+                planForm: {
                     id: null,
                     name: "",
                     whiteListStr: '',
-                    channelIdListStr:''
+                    channelIdListStr: ''
                 },
                 tagInputs: {
                     whiteList: [],
                     whiteListInput: "",
-                    channelIdList:[],
-                    channelIdListInput:''
+                    channelIdList: [],
+                    channelIdListInput: ''
                 },
 
+                //选中id数组
+                channelIdSelected: [],
+                channelIdSelectedTemp: [],
                 action: {
-                    openInfoCreate: false,
-                    openInfoEdit: false,
+                    openPlanCreate: false,
+                    openPlanEdit: false,
                 },
                 ds: [],
                 infoTableOption: {
-                    selectedKeys:[],
+                    selectedKeys: [],
                     columns: [
 
                         {
@@ -199,6 +247,14 @@
                             key: "channelType",
                             align: "center"
                         },
+                        {
+                            title: "操作",
+                            width: "150px",
+                            fixed: "right",
+                            align: "center",
+                            customSlot: "operator",
+                            key: "operator"
+                        }
 
                     ],
                     page: {
@@ -225,6 +281,13 @@
                             key: "name",
                             align: "center"
                         },
+                        {
+                            title: "key",
+                            width: "200px",
+                            key: "key",
+                            align: "center"
+                        },
+
 
                         {
                             title: "状态",
@@ -233,8 +296,6 @@
                             customSlot: 'status',
                             align: "center"
                         },
-
-
                         {
                             title: "创建时间",
                             width: "200px",
@@ -263,7 +324,6 @@
                 },
                 checkWhiteListStr: {
                     validator(rule, value, callback, source, options) {
-
 
 
                         if (value !== null && value !== "") {
@@ -345,31 +405,45 @@
             this.loadPlanPage()
         },
         watch: {
-
-            "action.openInfoCreate": {
+            channelIdSelected: {
                 handler(next, _) {
-                    //只监听新增框弹出状态的监听，当新增框关闭时 重置相应的form内容
+
+                    this.planForm.channelIdListStr = this.$util.arrayParamToStr("", next)
+                    console.log(this.planForm)
+                },
+                deep: true
+            },
+            "action.openPlanCreate": {
+                handler(next, _) {
+                    //新建弹出层关闭时 重置表单内容,
                     if (!next) {
-                        this.$refs.ncf.reset()
 
+                        this.planForm = this.$options.data().planForm
                         this.tagInputs = this.$options.data().tagInputs
-                        this.infoTableOption=this.$options.data().infoTableOption
+                        this.planForm = this.$options.data().planForm
+                        this.channelIdSelected = this.$options.data().channelIdSelected
+                        this.channelIdSelectedTemp = this.$options.data().channelIdSelectedTemp
+                        this.infoTableOption = this.$options.data().infoTableOption
 
 
-                    }else {
+                    } else {
                         this.loadInfoPage()
                     }
 
                 }
             },
-            "action.openInfoEdit": {
+            "action.openPlanEdit": {
                 handler(next, _) {
-                    //只监听新增框弹出状态的监听，当新增框关闭时 重置相应的form内容
                     if (!next) {
-                        this.$refs.ncf.reset()
-
+                        this.planForm = this.$options.data().planForm
                         this.tagInputs = this.$options.data().tagInputs
-                        this.infoTableOption=this.$options.data().infoTableOption
+                        this.planForm = this.$options.data().planForm
+                        this.channelIdSelected = this.$options.data().channelIdSelected
+                        this.channelIdSelectedTemp = this.$options.data().channelIdSelectedTemp
+                        this.infoTableOption = this.$options.data().infoTableOption
+
+
+                    } else {
 
                         this.loadInfoPage()
 
@@ -380,27 +454,83 @@
 
         },
         methods: {
-            removeInfo(v,e){
+            selectInfo(id, name) {
+                /**
+                 *
+                 *选定时填充id数组和名字数组
+                 */
+                this.channelIdSelected.push(id)
+                this.channelIdSelectedTemp.push(name)
+                this.tagInputs.channelIdList.push(name)
 
             },
-            inputSearch(value){
-                this.infoTableOption=this.$options.data().infoTableOption
+            unSelectInfo(id, name) {
+                let index = this.channelIdSelected.indexOf(id)
+                this.channelIdSelected.splice(index, 1)
+                this.channelIdSelectedTemp.splice(index, 1)
+                this.tagInputs.channelIdList.splice(index, 1)
+
+            },
+            getChannelTypeName(data) {
+                switch (data.channelType) {
+                    case 10:
+                        let content = "webhook→"
+                        let json = JSON.parse(data.optionJsonStr)
+
+                        switch (json.hookType) {
+                            case 11:
+                                content += "钉钉"
+                                break
+                            case 12:
+                                content += "飞书"
+                                break
+                            case 13:
+                                content += "企业微信"
+                                break
+                        }
+
+                        return content
+                    case 20:
+                        return "email"
+                    case 30:
+                        return "公众号/测试号"
+                }
+            },
+            removeInfo(v, e) {
+
+                //选项在temp中的下标
+                let index = this.channelIdSelectedTemp.indexOf(v)
+
+                this.channelIdSelectedTemp.splice(index, 1)
+                this.channelIdSelected.splice(index, 1)
+
+            },
+            inputSearch(value) {
+                this.infoTableOption = this.$options.data().infoTableOption
                 this.loadInfoPage();
             },
-            stopEnter(v,e){
+            stopEnter(v, e) {
                 let len = this.tagInputs.channelIdList.length;
-                if (len>0){
-                    let data =this.tagInputs.channelIdList[len-1]
-                    this.tagInputs.channelIdList.splice(len-1,1)
-                    this.tagInputs.channelIdListInput=data
+                if (len > 0) {
+                    let data = this.tagInputs.channelIdList[len - 1]
+                    this.tagInputs.channelIdList.splice(len - 1, 1)
+                    this.tagInputs.channelIdListInput = data
                 }
 
             },
             changeInfoTable(data) {
+
                 this.infoTableOption.page.current = data.current
                 this.infoTableOption.page.limit = data.limit
 
                 this.loadInfoPage()
+            },
+            changePlanTable(data) {
+
+                this.planTableOption.page.current = data.current
+                this.planTableOption.page.limit = data.limit
+
+                this.loadPlanPage()
             },
             loadInfoPage() {
 
@@ -409,7 +539,7 @@
                     page: this.infoTableOption.page.current,
                     limit: this.infoTableOption.page.limit,
                     params: {
-                        name:this.tagInputs.channelIdListInput
+                        name: this.tagInputs.channelIdListInput
                     }
                 }
                 this.infoTableOption.loading = true
@@ -433,36 +563,34 @@
             },
 
             toWhiteListStr() {
-                this.infoForm.whiteListStr = this.$util.arrayParamToStr("", this.tagInputs.whiteList)
+                this.planForm.whiteListStr = this.$util.arrayParamToStr("", this.tagInputs.whiteList)
             },
 
-            toChannelIdListStr() {
-                this.infoForm.channelIdListStr= this.$util.arrayParamToStr("", this.tagInputs.channelIdList)
-            },
             editInfo(data) {
-                this.action.openInfoEdit = true
+                this.action.openPlanEdit = true
 
-                this.infoForm = {
+                this.planForm = {
                     id: data.id,
                     name: data.name,
-                    channelType: data.channelType,
-                    whiteListStr: data.whiteListStr
+                    whiteListStr: data.whiteListStr,
+                    channelIdListStr: data.channelIdListStr
                 }
-
+                let ops = JSON.parse(data.channelInfoListJsonStr)
+                this.channelIdSelected = this.$util.arrayItemParamToArray("id", ops)
+                this.channelIdSelectedTemp = this.$util.arrayItemParamToArray("id", ops)
+                this.tagInputs.channelIdList = this.$util.arrayItemParamToArray("name", ops)
                 this.tagInputs.whiteList = data.whiteListStr.split(",")
-
-
-
+                this.loadInfoPage()
             },
 
 
-            deleteInfo(data) {
-                let index = LayuiVue.layer.confirm(`确认删除通道《${data.name}》吗？`, {
+            deletePlan(data) {
+                let index = LayuiVue.layer.confirm(`确认删除方案《${data.name}》吗？`, {
                     icon: 3,
                     title: false,
                     yes: () => {
 
-                        let loadIndex = LayuiVue.layer.msg(`正在删除通道《${data.name}》`, {
+                        let loadIndex = LayuiVue.layer.msg(`正在删除方案《${data.name}》`, {
                             icon: 16,
                             time: 0,
                             shade: true
@@ -470,14 +598,14 @@
                         this.$request.post("/api/admin/channel/plan/del", {id: data.id}).then(res => {
                             if (res.code === 1) {
 
-                                this.loadInfoPage()
+                                this.loadPlanPage()
 
                                 LayuiVue.layer.close(index)
-                                LayuiVue.layer.msg(`${res.msg},删除通道《${data.name}》成功`, {icon: 1, time: 1000})
+                                LayuiVue.layer.msg(`${res.msg},删除方案《${data.name}》成功`, {icon: 1, time: 1000})
 
 
                             } else {
-                                LayuiVue.layer.msg(`${res.msg},删除通道《${data.name}》失败`, {icon: 2, time: 1000})
+                                LayuiVue.layer.msg(`${res.msg},删除方案《${data.name}》失败`, {icon: 2, time: 1000})
 
                             }
                         }).catch((res) => {
@@ -500,7 +628,7 @@
                 let ifDisabled = data.status === 20
 
 
-                let loadIndex = LayuiVue.layer.msg(`正在${ifDisabled ? '启用' : '禁用'}通道《${data.name}》`, {
+                let loadIndex = LayuiVue.layer.msg(`正在${ifDisabled ? '启用' : '禁用'}方案《${data.name}》`, {
                     icon: 16,
                     time: 0,
                     shade: true
@@ -514,7 +642,7 @@
                     if (res.code === 1) {
 
 
-                        LayuiVue.layer.msg(`${res.msg},${ifDisabled ? '启用' : '禁用'}通道《${data.name}》成功`, {
+                        LayuiVue.layer.msg(`${res.msg},${ifDisabled ? '启用' : '禁用'}方案《${data.name}》成功`, {
                             icon: 1,
                             time: 1000
                         })
@@ -522,7 +650,7 @@
 
                     } else {
                         data.status = lastStatus
-                        LayuiVue.layer.msg(`${res.msg},${ifDisabled ? '启用' : '禁用'}通道《${data.name}》失败`, {
+                        LayuiVue.layer.msg(`${res.msg},${ifDisabled ? '启用' : '禁用'}方案《${data.name}》失败`, {
                             icon: 2,
                             time: 1000
                         })
@@ -579,7 +707,7 @@
 
             },
 
-            loadInfoPageBegin() {
+            loadPlanPageBegin() {
                 this.planTableOption.page = {
                     total: 0,
                     limit: 10,
@@ -587,7 +715,7 @@
                     showRefresh: true,
                 }
                 this.planTableOption.searchValue = {}
-                this.loadInfoPage()
+                this.loadPlanPage()
             },
             loadPlanPage() {
 
@@ -601,7 +729,6 @@
                 this.$request.post("/api/admin/channel/plan/load", param).then(res => {
                     if (res.code == 1) {
 
-                        console.log(res.data)
                         this.planTableOption.data = res.data
 
                         this.planTableOption.page.total = res.count
@@ -618,45 +745,36 @@
                 })
 
             },
-            submitInfoUpdate() {
-                this.$refs.ncf.validate((isValidate, model, errors) => {
+            submitPlanEdit() {
+
+                this.$refs.pef.validate((isValidate, model, errors) => {
                     if (!isValidate) {
                         return false
                     } else {
-                        let type = this.infoForm.channelType
-                        this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
+                        let loadIndex = LayuiVue.layer.msg(`正在修改方案《${this.planForm.name}》`, {
+                            icon: 16,
+                            time: 0,
+                            shade: true
+                        })
+                        this.$request.post("/api/admin/channel/plan/update", {
+                            ...this.planForm,
+                        }).then(res => {
+                            if (res.code === 1) {
 
-                            if (!isValidate) {
-                                return false
+                                LayuiVue.layer.msg("修改方案成功", {icon: 1, time: 1000,})
+                                this.action.openPlanEdit = false
+                                this.loadPlanPage()
+
+
                             } else {
-                                let option = this.getOptionValue(type)
-                                let loadIndex = LayuiVue.layer.msg(`正在修改通道`, {
-                                    icon: 16,
-                                    time: 0,
-                                    shade: true
-                                })
-                                this.$request.post("/api/admin/channel/plan/update", {
-                                    ...this.infoForm,
-                                    optionJsonStr: JSON.stringify(option)
-                                }).then(res => {
-                                    if (res.code === 1) {
-
-                                        LayuiVue.layer.msg("修改推送通道成功", {icon: 1, time: 1000,})
-                                        this.action.openInfoEdit = false
-                                        this.loadInfoPageBegin()
-
-
-                                    } else {
-                                        LayuiVue.layer.msg(`${res.msg},修改推送通道失败`, {icon: 2, time: 1000})
-
-                                    }
-                                }).catch((res) => {
-                                    LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
-                                }).finally(() => {
-                                    LayuiVue.layer.close(loadIndex)
-                                })
+                                LayuiVue.layer.msg(`${res.msg},修改方案失败`, {icon: 2, time: 1000})
 
                             }
+                        }).catch((res) => {
+                            LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
+                        }).finally(() => {
+                            LayuiVue.layer.close(loadIndex)
+
                         })
 
                         return false
@@ -668,46 +786,37 @@
 
             },
 
-            submitInfoCreate() {
+            submitPlanCreate() {
 
-                this.$refs.ncf.validate((isValidate, model, errors) => {
+                this.$refs.pcf.validate((isValidate, model, errors) => {
                     if (!isValidate) {
                         return false
                     } else {
-                        let type = this.infoForm.channelType
-                        this.$refs[this.getFormRefsName(type)].validate((isValidate, model, errors) => {
 
-                            if (!isValidate) {
-                                return false
+                        let loadIndex = LayuiVue.layer.msg(`正在创建方案《${this.planForm.name}》`, {
+                            icon: 16,
+                            time: 0,
+                            shade: true
+                        })
+                        this.$request.post("/api/admin/channel/plan/create", {
+                            ...this.planForm,
+                        }).then(res => {
+                            if (res.code === 1) {
+
+                                LayuiVue.layer.msg("创建方案成功", {icon: 1, time: 1000,})
+                                this.action.openPlanCreate = false
+                                this.loadPlanPageBegin()
+
+
                             } else {
-                                let option = this.getOptionValue(type)
-                                let loadIndex = LayuiVue.layer.msg(`正在新建通道`, {
-                                    icon: 16,
-                                    time: 0,
-                                    shade: true
-                                })
-                                this.$request.post("/api/admin/channel/plan/create", {
-                                    ...this.infoForm,
-                                    optionJsonStr: JSON.stringify(option)
-                                }).then(res => {
-                                    if (res.code === 1) {
+                                LayuiVue.layer.msg(`${res.msg},创建方案失败`, {icon: 2, time: 1000})
 
-                                        LayuiVue.layer.msg("创建推送通道成功", {icon: 1, time: 1000,})
-                                        this.action.openInfoCreate = false
-                                        this.loadInfoPageBegin()
-
-
-                                    } else {
-                                        LayuiVue.layer.msg(`${res.msg},创建推送通道失败`, {icon: 2, time: 1000})
-
-                                    }
-                                }).catch((res) => {
-                                    LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
-                                }).finally(() => {
-                                    LayuiVue.layer.close(loadIndex)
-
-                                })
                             }
+                        }).catch((res) => {
+                            LayuiVue.layer.msg("网络错误，请稍后再试", {icon: 2, time: 1000})
+                        }).finally(() => {
+                            LayuiVue.layer.close(loadIndex)
+
                         })
 
                         return false

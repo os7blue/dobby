@@ -15,7 +15,7 @@
 </head>
 <body>
 <div id="app" style="padding: 10px 10px 10px 10px">
-    <lay-field title="通道管理"></lay-field>
+    <lay-field title="推送通道"></lay-field>
 
     <lay-space direction="vertical" :fill="true">
         <lay-space>
@@ -76,7 +76,7 @@
 
     <!--    弹出层统一放置-->
     <div>
-        <lay-layer title="修改通道" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
+        <lay-layer title="修改通道"  :shade="true" :shade-close="false" style="text-align: center;" area="60%"
                    resize move v-model="action.openInfoEdit">
 
             <lay-form :model="infoForm" v-if="action.openInfoEdit" ref="icf" initValidate
@@ -170,7 +170,7 @@
 
         </lay-layer>
 
-        <lay-layer title="新建通道" maxmin :shade="true" :shade-close="false" style="text-align: center;" area="60%"
+        <lay-layer title="新建通道"  :shade="true" :shade-close="false" style="text-align: center;" area="60%"
                    resize move v-model="action.openInfoCreate">
 
             <lay-form :model="infoForm" v-if="action.openInfoCreate" ref="icf" initValidate
@@ -672,7 +672,7 @@
             getChannelTypeName(data){
                 switch (data.channelType) {
                     case 10:
-                        let content = "webhook->"
+                        let content = "webhook→"
                         let json = JSON.parse(data.optionJsonStr)
 
                         switch (json.hookType){

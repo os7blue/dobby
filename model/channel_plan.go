@@ -4,7 +4,7 @@ type ChannelPlan struct {
 	ID   uint   `gorm:"primaryKey;autoIncrement" json:"id"`
 	Name string `gorm:"not null;size:20;unique" json:"name"`
 	//status code , enable is 10 , disabled is 20
-	Status           int    `gorm:"not null" json:"status"`
+	Status           int    `gorm:"not null;default:20" json:"status"`
 	Key              string `gorm:"not null;unique" json:"key"`
 	CreateTime       int64  `gorm:"not null;autoCreateTime:milli" json:"createTime"`
 	WhiteListStr     string `json:"whiteListStr"`
@@ -21,6 +21,7 @@ type ChannelPlanView struct {
 	WhiteListStr           string `json:"whiteListStr"`
 	ChannelIdListStr       string `json:"ChannelIdListStr"`
 	ChannelInfoListJsonStr string `json:"channelInfoListJsonStr"`
+	ChannelInfoList        string
 }
 
 type ChannelPlanCreateValidator struct {
