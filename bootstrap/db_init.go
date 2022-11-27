@@ -9,6 +9,7 @@ func dbInit() {
 
 	err := common.DB.AutoMigrate(
 		&model.ChannelInfo{},
+		&model.ChannelPlan{},
 	)
 	if err != nil {
 		return

@@ -6,6 +6,8 @@ import (
 	"gopkg.in/ini.v1"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 	"os"
 )
 
@@ -65,7 +67,12 @@ func init() {
 var DB *gorm.DB
 
 func init() {
-	db, err := gorm.Open(sqlite.Open(Option.DB.Url))
+	db, err := gorm.Open(sqlite.Open(Option.DB.Url), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true, // 使用单数表名
+		},
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		fmt.Println("datasource init failed")
 		os.Exit(1)
