@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"strings"
+	"sync"
 )
 
 type sendService struct {
@@ -47,66 +48,91 @@ func (s *sendService) Send(key string, title string, content string, ip string) 
 	}
 
 	msgs := ""
+	var wait sync.WaitGroup
+	wait.Add(len(plan.ChannelInfoList))
+
 	for _, channel := range plan.ChannelInfoList {
 
 		//dispatching different channel request
 		switch channel.ChannelType {
 		case constant.WEBHOOK:
-			c := model.WebhookChannel{}
-			err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
-			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
-				break
-			}
-			err = sender.Senders.WebhookSender.Send(c.Url, title, content, c.HookType)
-			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，推送失败，失败原因：%s]", msgs, channel.Name, err.Error())
+			go func(channel model.ChannelInfo, title string, content string) {
+				c := model.WebhookChannel{}
+				err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
+				if err != nil {
+					msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
+					wait.Done()
+					return
+				}
+				err = sender.Senders.WebhookSender.Send(c.Url, title, content, c.HookType)
+				if err != nil {
+					msgs = fmt.Sprintf("%s [通道：%s，推送失败，失败原因：%s]", msgs, channel.Name, err.Error())
 
-			}
+				}
+				wait.Done()
+
+			}(channel, title, content)
 			break
 		case constant.EMAIL:
 
-			c := model.EmailChannel{}
-			err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
-			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
-				break
-			}
-			err = sender.Senders.MailSender.Send(
-				c.Host,
-				c.Port,
-				c.Username,
-				c.Password,
-				strings.Split(c.ToEmailListStr, ","),
-				common.Option.Setting.PushTitle+title,
-				content,
-			)
-			if err != nil {
-				msgs = fmt.Sprintf("%s [通道:%s，推送失败，原因：%s]", msgs, channel.Name, err.Error())
-			}
+			go func(channel model.ChannelInfo, title string, content string) {
+				c := model.EmailChannel{}
+				err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
+				if err != nil {
+					msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
+					wait.Done()
+
+					return
+				}
+				err = sender.Senders.MailSender.Send(
+					c.Host,
+					c.Port,
+					c.Username,
+					c.Password,
+					strings.Split(c.ToEmailListStr, ","),
+					common.Option.Setting.PushTitle+title,
+					content,
+				)
+				if err != nil {
+					msgs = fmt.Sprintf("%s [通道:%s，推送失败，原因：%s]", msgs, channel.Name, err.Error())
+
+				}
+				wait.Done()
+			}(channel, title, content)
+
 			break
 		case constant.WXMP:
-			c := model.WxMpChannel{}
-			err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
-			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
-				break
-			}
-			err = sender.Senders.WxMpSender.Send(
-				c.AppId,
-				c.AppSecret,
-				c.TemplateId,
-				c.ToUserListStr,
-				content,
-			)
-			if err != nil {
-				msgs = fmt.Sprintf("%s [通道:%s，推送失败，原因：%s]", msgs, channel.Name, err.Error())
-			}
+
+			go func(channel model.ChannelInfo, title string, content string) {
+				c := model.WxMpChannel{}
+				err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
+				if err != nil {
+					msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
+					wait.Done()
+
+					return
+				}
+				err = sender.Senders.WxMpSender.Send(
+					c.AppId,
+					c.AppSecret,
+					c.TemplateId,
+					c.ToUserListStr,
+					content,
+				)
+				if err != nil {
+					msgs = fmt.Sprintf("%s [通道:%s，推送失败，原因：%s]", msgs, channel.Name, err.Error())
+
+				}
+				wait.Done()
+			}(channel, title, content)
+
 			break
 
 		}
 
 	}
+
+	wait.Wait()
 
 	return msgs, nil
 }
