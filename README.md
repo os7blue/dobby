@@ -4,6 +4,11 @@
 
 # dobby 多通道消息推送服务
 
+界面：
+![截图1](./doc/1.png)
+![截图2](./doc/2.png)
+![截图3](./doc/3.png)
+
 流程：
 
 ![流程](./doc/process.svg)
@@ -79,6 +84,11 @@ username : os7blue@163.com
 password :
 #切记 这是可以登录管理后台的邮箱，所有账户都具有相同权限，默认会将smtp自身的邮件地址加入。
 admin:
+[Setting]
+#所有推送内容前置标题，会与实际推送标题进行拼接，也可用实现一些webhook通道的关键字认证
+#如果调用推送api时 设置了 了title 那么会展现为为 pushTitle[你的title]：xxxxcontent 这种格式
+pushTitle = dobby
+
 
 
 ```

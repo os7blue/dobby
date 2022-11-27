@@ -19,21 +19,25 @@
 <div id="app">
 
 
-    <lay-layout class="example" style="width: 100%;height: 100%">
+    <lay-layout style="height: 100%">
         <lay-header>
-            <lay-menu v-model:selected-key="select" @change-selected-key="changeContent" style="text-align: center">
+            <lay-menu v-model:selected-key="select"  :inverted="true" @change-selected-key="changeContent" style="text-align: center">
                 <lay-menu-item id="1">
+                    <lay-icon type="layui-icon-release"></lay-icon>
+                    通道方案
+                </lay-menu-item>
+                <lay-menu-item id="2">
                     <lay-icon type="layui-icon-notice"></lay-icon>
                     通道
                 </lay-menu-item>
-                <lay-menu-item id="2">
+                <lay-menu-item id="3">
                     <lay-icon type="layui-icon-file"></lay-icon>
                     文档
                 </lay-menu-item>
 
 
-                <lay-menu-item id="3">
-                    <lay-icon type="layui-icon-date"></lay-icon>
+                <lay-menu-item id="4">
+                    <lay-icon type="layui-icon-logout"></lay-icon>
                     登出
                 </lay-menu-item>
 
@@ -42,13 +46,13 @@
         <lay-layout>
             <lay-body>
 
-                <iframe :src="src" width="100%" height="100%"></iframe>
+                <iframe :src="src" style="border: 0" width="100%" height="100%"></iframe>
 
             </lay-body>
         </lay-layout>
     </lay-layout>
 
-    <lay-layer type="drawer" v-model="openReadme" title="文档">
+    <lay-layer type="drawer" v-model="openReadme" :area="['70%','100%']" title="文档">
 
         <div id="md" style="margin: 10px 10px 10px 10px;">
 
@@ -57,11 +61,11 @@
                     <p>post /push</p>
                     <p>
 
-                        <lay-table :columns="[{title:'参数',key:'k'},{title:'示例',key:'demo'},{title:'说明',key:'remark'}]" :data-source="[{k:'keyStr',demo:'2ee3dfd9-16be-4f39-b237-4727edb78211',remark:'通道key，可批量调用，key之间使用,分隔'},{k:'content',demo:'这是一个测试消息',remark:'推送内容，只支持文字'}]"></lay-table>
+                        <lay-table :columns="[{title:'参数',key:'k'},{title:'示例',key:'demo'},{title:'说明',key:'remark'}]" :data-source="[{k:'key',demo:'2ee3dfd9-16be-4f39-b237-4727edb78211',remark:'必填，方案key'},{k:'title',demo:'这是一个测试标题',remark:'非必填，推送标题，只支持文字'},{k:'content',demo:'这是一个测试消息',remark:'必填，推送内容，只支持文字'}]"></lay-table>
 
                     </p>
-                    <p>请求回执信息示例：{"code":1,"msg":"请求key数量与实际通道数不匹配","data":null,"count":0}</p>
-                    <p>未使用http标准状态码，如果调用的通道中有某个通道未执行成功，msg字段会有相应说明，如果msg字段没有内容，则表明所有通道都调用成功</p>
+                    <p>请求回执信息示例：{"code":1,"msg":"通道不存在","data":null,"count":0}</p>
+                    <p>未使用http标准状态码，如果调用的方案中有某个通道未推送成功，msg字段会有相应说明，如果msg字段没有内容，则表明所有通道都调用成功</p>
 
                 </lay-quote>
             </lay-field>
@@ -73,11 +77,11 @@
             </lay-field>
 
             <lay-field title="webhook通道安全验证说明：">
-                <p>
+
                     可以实现两种方式：
                 <p>1、将部署本服务的机器ip设置为ip白名单</p>
                 <p>2、配置文件中 setting -> pushTitle内容设置为关键字验证。</p>
-                </p>
+
             </lay-field>
 
 
@@ -106,32 +110,32 @@
                 mpValue: "{{content.DATA}}",
                 openReadme: false,
                 select: "1",
-                src: "/admin/channel"
+                src: "/admin/channel/plan"
             };
         },
 
-        created() {
-
-        },
         methods: {
             logOut() {
-                this.$request.post("/login/logOut", {}).then(() => {
+                this.$request.post("/api/login/logOut", {}).then(() => {
                     window.location.href = "/"
                 })
 
             },
             changeContent(id) {
-
                 switch (id) {
                     case "1":
-                        this.src = "/admin/channel"
+                        this.src = "/admin/channel/plan"
 
                         break
                     case "2":
-                        this.openReadme = !this.openReadme
+                        this.src = "/admin/channel/info"
 
                         break
                     case "3":
+                        this.openReadme = !this.openReadme
+
+                        break
+                    case "4":
                         this.logOut()
                         break
 

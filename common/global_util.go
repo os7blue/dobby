@@ -25,7 +25,20 @@ var GlobalUtil = new(globalUtil)
 type globalUtil struct {
 }
 
-func (g *globalUtil) checkArrStr() {
+func (g *globalUtil) ArrStrItemFormat(arrStr string, formatTemp string, separator string, newSeparator string) string {
+
+	arr := strings.Split(arrStr, separator)
+	newArrStr := ""
+	for i, item := range arr {
+
+		if i != 0 && len(arr) > 1 {
+			newArrStr += newSeparator + fmt.Sprintf(formatTemp, item)
+		} else {
+			newArrStr += fmt.Sprintf(formatTemp, item)
+		}
+
+	}
+	return newArrStr
 
 }
 
@@ -44,13 +57,15 @@ func (g *globalUtil) CheckArrStr(min int, max int, regx string, data string) err
 			return errors.New(fmt.Sprintf("最多%d条数据", max))
 		}
 
-		for _, v := range dataArr {
+		if regx != "" {
+			for _, v := range dataArr {
 
-			b, err := regexp.Match(regx, []byte(v))
-			if err != nil || !b {
-				return errors.New(fmt.Sprintf("内容： %s 格式不正确", v))
+				b, err := regexp.Match(regx, []byte(v))
+				if err != nil || !b {
+					return errors.New(fmt.Sprintf("内容： %s 格式不正确", v))
+				}
+
 			}
-
 		}
 
 	} else if min > 0 {

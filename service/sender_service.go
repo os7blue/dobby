@@ -14,46 +14,40 @@ import (
 type sendService struct {
 }
 
-func (s *sendService) Send(info model.PushInfo) (string, error) {
+func (s *sendService) Send(key string, title string, content string, ip string) (string, error) {
 
-	var channels []model.ChannelInfo
-	err := common.DB.Model(&model.ChannelInfo{}).Where("key in (?)", strings.Split(info.KeyStr, ",")).Find(&channels)
-	if err.Error != nil {
-		return "", err.Error
-	}
-	if len(channels) != len(strings.Split(info.KeyStr, ",")) {
-		return "", errors.New("请求key数量与实际通道数不匹配")
+	plan, err := Services.ChannelPlanService.getOneByKey(key)
+	if err != nil {
+		return "", err
 	}
 
-	msgs := ""
-	for _, channel := range channels {
+	//check channel status
+	if plan.Status != 10 {
+		return "", errors.New(fmt.Sprintf("方案[%s]推送失败，原因：方案为未启用状态]", plan.Name))
+	}
 
-		//check channel status
-		if channel.Status != 10 {
-			msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：通道为未启用状态]", msgs, channel.Name, channel.Key)
-			continue
-		}
+	//check request source ip
+	if plan.WhiteListStr != "0.0.0.0" {
 
-		//check request source ip
-		if channel.WhiteListStr != "0.0.0.0" {
+		ips := strings.Split(plan.WhiteListStr, ",")
+		has := false
+		for _, p := range ips {
 
-			ips := strings.Split(channel.WhiteListStr, ",")
-			has := false
-			for _, ip := range ips {
-
-				if ip == info.Ip {
-					has = true
-					break
-				}
-
-			}
-
-			if !has {
-				msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：来源非法]", msgs, channel.Name, channel.Key)
+			if p == ip {
+				has = true
 				break
 			}
 
 		}
+
+		if !has {
+			return "", errors.New(fmt.Sprintf("[方案[%s]推送失败，原因：来源非法]", plan.Name))
+		}
+
+	}
+
+	msgs := ""
+	for _, channel := range plan.ChannelInfoList {
 
 		//dispatching different channel request
 		switch channel.ChannelType {
@@ -61,12 +55,12 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 			c := model.WebhookChannel{}
 			err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，key=%s，参数加载失败]", msgs, channel.Name, channel.Key)
+				msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
 				break
 			}
-			err = sender.Senders.WebhookSender.Send(c.Url, info.Content, c.HookType)
+			err = sender.Senders.WebhookSender.Send(c.Url, title, content, c.HookType)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，key=%s，推送失败，失败原因：%s]", msgs, channel.Name, channel.Key, err.Error())
+				msgs = fmt.Sprintf("%s [通道：%s，推送失败，失败原因：%s]", msgs, channel.Name, err.Error())
 
 			}
 			break
@@ -75,7 +69,7 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 			c := model.EmailChannel{}
 			err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，key=%s，参数加载失败]", msgs, channel.Name, channel.Key)
+				msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
 				break
 			}
 			err = sender.Senders.MailSender.Send(
@@ -84,18 +78,18 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 				c.Username,
 				c.Password,
 				strings.Split(c.ToEmailListStr, ","),
-				common.Option.Setting.PushTitle,
-				info.Content,
+				common.Option.Setting.PushTitle+title,
+				content,
 			)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：%s]", msgs, channel.Name, channel.Key, err.Error())
+				msgs = fmt.Sprintf("%s [通道:%s，推送失败，原因：%s]", msgs, channel.Name, err.Error())
 			}
 			break
 		case constant.WXMP:
 			c := model.WxMpChannel{}
 			err := json.Unmarshal([]byte(channel.OptionJsonStr), &c)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道：%s，key=%s，参数加载失败]", msgs, channel.Name, channel.Key)
+				msgs = fmt.Sprintf("%s [通道：%s，参数加载失败]", msgs, channel.Name)
 				break
 			}
 			err = sender.Senders.WxMpSender.Send(
@@ -103,10 +97,10 @@ func (s *sendService) Send(info model.PushInfo) (string, error) {
 				c.AppSecret,
 				c.TemplateId,
 				c.ToUserListStr,
-				info.Content,
+				content,
 			)
 			if err != nil {
-				msgs = fmt.Sprintf("%s [通道:%s，key=%s，推送失败，原因：%s]", msgs, channel.Name, channel.Key, err.Error())
+				msgs = fmt.Sprintf("%s [通道:%s，推送失败，原因：%s]", msgs, channel.Name, err.Error())
 			}
 			break
 

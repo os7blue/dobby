@@ -1,15 +1,15 @@
 package api
 
 import (
+	"dobby/common"
+	"dobby/model"
+	"dobby/model/constant"
+	"dobby/service"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
-	"dobby/common"
-	"dobby/model"
-	"dobby/model/constant"
-	"dobby/service"
 	"regexp"
 )
 
@@ -25,12 +25,7 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-	err = common.GlobalUtil.CheckArrStr(
-		0,
-		0,
-		common.IpV4Regx,
-		createVm.WhiteListStr,
-	)
+
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -62,12 +57,7 @@ func (i *channelInfoApi) Update(c *gin.Context) {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-	err = common.GlobalUtil.CheckArrStr(
-		0,
-		0,
-		common.IpV4Regx,
-		updateVm.WhiteListStr,
-	)
+
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -178,56 +168,6 @@ func (i *channelInfoApi) Delete(c *gin.Context) {
 		return
 	}
 
-	common.R.Success(c)
-
-}
-
-func (i *channelInfoApi) RefreshKey(c *gin.Context) {
-
-	var updateVm model.ChannelInfoUpdateValidator
-	err := c.ShouldBindJSON(&updateVm)
-	if err != nil {
-		common.R.FailWithMsg(c, err.Error())
-		return
-	}
-
-	key, err := service.Services.ChannelInfoService.RefreshKey(updateVm.ID)
-	if err != nil {
-		common.R.FailWithMsg(c, err.Error())
-		return
-	}
-
-	common.R.SuccessWithData(c, key)
-
-}
-
-func (i *channelInfoApi) ChangeStatus(c *gin.Context) {
-
-	var updateVm model.ChannelInfoUpdateValidator
-
-	err := c.ShouldBindJSON(&updateVm)
-	if err != nil {
-		common.R.FailWithMsg(c, err.Error())
-		return
-	}
-	if updateVm.Status != 10 && updateVm.Status != 20 {
-		common.R.FailWithMsg(c, "status字段为空")
-		return
-	}
-
-	_, err = service.Services.ChannelInfoService.GetOne(updateVm.ID)
-	if err != nil {
-		common.R.FailWithMsg(c, fmt.Sprintf("未找到id为 %d 的通道信息", updateVm.ID))
-	}
-
-	err = service.Services.ChannelInfoService.Update(model.ChannelInfo{
-		ID:     updateVm.ID,
-		Status: updateVm.Status,
-	})
-	if err != nil {
-		common.R.FailWithMsg(c, err.Error())
-		return
-	}
 	common.R.Success(c)
 
 }

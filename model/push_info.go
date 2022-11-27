@@ -1,7 +1,7 @@
 package model
 
 type PushInfo struct {
-	KeyStr  string `json:"keyStr" binding:"required"`
+	Key     string `json:"key" binding:"required"`
+	Title   string `json:"title"`
 	Content string `json:"content" binding:"required"`
-	Ip      string `json:"ip"`
 }
