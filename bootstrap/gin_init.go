@@ -35,15 +35,16 @@ func authCheck() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		//test login token
-		setTestToken(c)
+		//setTestToken(c)
 		uri := c.Request.RequestURI
-		uris := strings.Split(uri, "/")
-		if uris[1] == "admin" || (len(uri) >= 2 && uris[2] == "admin") {
+		//uris := strings.Split(uri, "/")
+
+		if strings.Contains(uri, "admin") {
 
 			RefreshToken(c)
+			return
 
 		}
-
 	}
 
 }

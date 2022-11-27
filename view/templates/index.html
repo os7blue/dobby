@@ -61,11 +61,11 @@
                     <p>post /push</p>
                     <p>
 
-                        <lay-table :columns="[{title:'参数',key:'k'},{title:'示例',key:'demo'},{title:'说明',key:'remark'}]" :data-source="[{k:'keyStr',demo:'2ee3dfd9-16be-4f39-b237-4727edb78211',remark:'通道key，可批量调用，key之间使用,分隔'},{k:'content',demo:'这是一个测试消息',remark:'推送内容，只支持文字'}]"></lay-table>
+                        <lay-table :columns="[{title:'参数',key:'k'},{title:'示例',key:'demo'},{title:'说明',key:'remark'}]" :data-source="[{k:'key',demo:'2ee3dfd9-16be-4f39-b237-4727edb78211',remark:'必填，方案key'},{k:'title',demo:'这是一个测试标题',remark:'非必填，推送标题，只支持文字'},{k:'content',demo:'这是一个测试消息',remark:'必填，推送内容，只支持文字'}]"></lay-table>
 
                     </p>
-                    <p>请求回执信息示例：{"code":1,"msg":"请求key数量与实际通道数不匹配","data":null,"count":0}</p>
-                    <p>未使用http标准状态码，如果调用的通道中有某个通道未执行成功，msg字段会有相应说明，如果msg字段没有内容，则表明所有通道都调用成功</p>
+                    <p>请求回执信息示例：{"code":1,"msg":"通道不存在","data":null,"count":0}</p>
+                    <p>未使用http标准状态码，如果调用的方案中有某个通道未推送成功，msg字段会有相应说明，如果msg字段没有内容，则表明所有通道都调用成功</p>
 
                 </lay-quote>
             </lay-field>

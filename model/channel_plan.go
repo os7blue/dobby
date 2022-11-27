@@ -15,13 +15,13 @@ type ChannelPlanView struct {
 	ID   uint   `json:"id"`
 	Name string `json:"name"`
 	//status code , enable is 10 , disabled is 20
-	Status                 int    `json:"status"`
-	Key                    string `json:"key"`
-	CreateTime             int64  `json:"createTime"`
-	WhiteListStr           string `json:"whiteListStr"`
-	ChannelIdListStr       string `json:"ChannelIdListStr"`
-	ChannelInfoListJsonStr string `json:"channelInfoListJsonStr"`
-	ChannelInfoList        string
+	Status                 int           `json:"status"`
+	Key                    string        `json:"key"`
+	CreateTime             int64         `json:"createTime"`
+	WhiteListStr           string        `json:"whiteListStr"`
+	ChannelIdListStr       string        `json:"ChannelIdListStr"`
+	ChannelInfoListJsonStr string        `json:"channelInfoListJsonStr"`
+	ChannelInfoList        []ChannelInfo `gorm:"-"`
 }
 
 type ChannelPlanCreateValidator struct {

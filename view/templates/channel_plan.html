@@ -111,7 +111,7 @@
                                :data-source="infoTableOption.data"
                                :loading="infoTableOption.loading" @change="changeInfoTable" id="id">
                         <template v-slot:channel-type="{data}">
-                            <lay-space v-if="data.channelType===10">
+                            <lay-space >
                                 {{ getChannelTypeName(data) }}
                             </lay-space>
                         </template>
@@ -173,7 +173,7 @@
                                :data-source="infoTableOption.data"
                                :loading="infoTableOption.loading" @change="changeInfoTable" id="id">
                         <template v-slot:channel-type="{data}">
-                            <lay-space v-if="data.channelType===10">
+                            <lay-space >
                                 {{ getChannelTypeName(data) }}
                             </lay-space>
                         </template>
