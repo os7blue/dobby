@@ -3,7 +3,6 @@ package service
 import (
 	"dobby/common"
 	"dobby/model"
-	"dobby/model/constant"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -24,10 +23,10 @@ func (cps *channelPlanService) GetOne(id uint) (model.ChannelPlan, error) {
 }
 
 func (cps *channelPlanService) getOneByKey(key string) (model.ChannelPlanView, error) {
-	data, exist := common.LocalCache.Get(fmt.Sprintf(constant.PlanKeyKey.KeyTemp, key))
-	if exist {
-		return data.(model.ChannelPlanView), nil
-	}
+	//data, exist := common.LocalCache.Get(fmt.Sprintf(constant.PlanKeyKey.KeyTemp, key))
+	//if exist {
+	//	return data.(model.ChannelPlanView), nil
+	//}
 
 	var plan model.ChannelPlanView
 	err := common.DB.Model(&model.ChannelPlan{}).Select("*").Where("key = ?", key).Find(&plan)
@@ -42,8 +41,7 @@ func (cps *channelPlanService) getOneByKey(key string) (model.ChannelPlanView, e
 	}
 
 	plan.ChannelInfoList = infos
-	common.LocalCache.Set(fmt.Sprintf(constant.PlanKeyKey.KeyTemp, key), plan, constant.PlanKeyKey.Time)
-	common.LocalCache.Set(fmt.Sprintf(constant.PlanIdKey.KeyTemp, plan.ID), plan, constant.PlanKeyKey.Time)
+
 	return plan, nil
 
 }
@@ -87,14 +85,6 @@ func (cps *channelPlanService) LoadPage(page int, limit int, name string) (inter
 
 func (cps *channelPlanService) Update(plan model.ChannelPlan) error {
 
-	data, exist := common.LocalCache.Get(fmt.Sprintf(constant.PlanIdKey.KeyTemp, plan.ID))
-
-	if exist {
-		common.LocalCache.Del(fmt.Sprintf(constant.PlanKeyKey.KeyTemp, data.(model.ChannelPlanView).Key))
-		common.LocalCache.Del(fmt.Sprintf(constant.PlanIdKey.KeyTemp, plan.ID))
-
-	}
-
 	err := common.DB.Updates(plan)
 	if err.Error != nil {
 		return err.Error
@@ -105,12 +95,6 @@ func (cps *channelPlanService) Update(plan model.ChannelPlan) error {
 
 func (cps *channelPlanService) Delete(id uint) error {
 
-	data, exist := common.LocalCache.Get(fmt.Sprintf(constant.PlanIdKey.KeyTemp, id))
-	if exist {
-		common.LocalCache.Del(fmt.Sprintf(constant.PlanKeyKey.KeyTemp, data.(model.ChannelPlanView).Key))
-		common.LocalCache.Del(fmt.Sprintf(constant.PlanIdKey.KeyTemp, id))
-	}
-
 	err := common.DB.Delete(&model.ChannelPlan{}, id)
 	if err.Error != nil {
 		return err.Error
@@ -120,12 +104,7 @@ func (cps *channelPlanService) Delete(id uint) error {
 }
 
 func (cps *channelPlanService) RefreshKey(id uint) (string, error) {
-	data, exist := common.LocalCache.Get(fmt.Sprintf(constant.PlanIdKey.KeyTemp, id))
 
-	if exist {
-		common.LocalCache.Del(fmt.Sprintf(constant.PlanKeyKey.KeyTemp, data.(model.ChannelPlanView).Key))
-
-	}
 	key := uuid.New().String()
 	err := common.DB.Model(&model.ChannelPlan{}).Where("id=?", id).Update("key", key)
 	if err.Error != nil {
