@@ -35,7 +35,7 @@ func authCheck() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		//test login token
-		setTestToken(c)
+		//setTestToken(c)
 		uri := c.Request.RequestURI
 		//uris := strings.Split(uri, "/")
 
