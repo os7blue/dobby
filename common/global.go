@@ -12,11 +12,11 @@ import (
 )
 
 type email struct {
-	Host     string   `ini:"host"`
-	Port     string   `ini:"port"`
-	Username string   `ini:"username"`
-	Password string   `ini:"password"`
-	Admin    []string `ini:"admin"`
+	Host     string `ini:"host"`
+	Port     string `ini:"port"`
+	Username string `ini:"username"`
+	Password string `ini:"password"`
+	Admin    string `ini:"admin"`
 }
 
 type db struct {
