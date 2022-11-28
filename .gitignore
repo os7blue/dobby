@@ -4,7 +4,9 @@ dev.ini
 
 message-push
 
-dobby*
+dobby
+
+dobby.exe
 
 
 # ---> Java
