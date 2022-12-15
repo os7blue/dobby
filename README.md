@@ -82,6 +82,7 @@ port = 25
 username =
 password =
 #切记 这是可以登录管理后台的邮箱，所有账户都具有相同权限，默认会将smtp自身的邮件地址加入。
+admin:
 
 #非必填
 [Setting]
@@ -98,6 +99,7 @@ password =
 #设置pushTitle是为了能设置一个统一的标题以方便使用各个webhook的关键字验证。
 #也可自己调用api的时候自己在title/content中包含设置好的关键字。
 pushTitle = dobby
+
 
 
 
