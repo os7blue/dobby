@@ -58,7 +58,12 @@
 
             <lay-field title="推送接口调用：">
                 <lay-quote>
-                    <p>post /push</p>
+                    <p>推送api:</p>
+                    <p>
+                        <lay-table :columns="[{title:'api',key:'api'},{title:'方法',key:'method'},{title:'参数类型',key:'type'}]" :data-source="[{api:'/push',method:'post',type:'json'}]"></lay-table>
+                    </p>
+                    <br>
+                    <p>参数说明：</p>
                     <p>
 
                         <lay-table :columns="[{title:'参数',key:'k'},{title:'示例',key:'demo'},{title:'说明',key:'remark'}]" :data-source="[{k:'key',demo:'2ee3dfd9-16be-4f39-b237-4727edb78211',remark:'必填，方案key'},{k:'title',demo:'这是一个测试标题',remark:'非必填，推送标题，只支持文字'},{k:'content',demo:'这是一个测试消息',remark:'必填，推送内容，只支持文字'}]"></lay-table>

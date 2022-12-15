@@ -58,7 +58,6 @@ func Recover(c *gin.Context) {
 			debug.PrintStack()
 			//封装通用json返回
 			//c.JSON(http.StatusOK, Result.Fail(errorToString(r)))
-			//Result.Fail不是本例的重点，因此用下面代码代替
 			c.JSON(http.StatusOK, &model.Result{
 				Code: 0,
 				Msg:  errorToString(r),
