@@ -15,10 +15,8 @@ func (m *mailSender) Send(host string, port string, username string, password st
 	userTitle := common.Option.Setting.PushTitle
 	if userTitle != "" {
 
-		title = fmt.Sprintf("[%s]%s：", userTitle, title)
+		title = fmt.Sprintf("[%s]%s", userTitle, title)
 
-	} else {
-		title += "："
 	}
 
 	e := email.NewEmail()
