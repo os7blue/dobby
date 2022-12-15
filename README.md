@@ -82,7 +82,7 @@ port = 25
 username =
 password =
 #切记 这是可以登录管理后台的邮箱，所有账户都具有相同权限，默认会将smtp自身的邮件地址加入。
-admin:
+admin = 
 
 #非必填
 [Setting]
