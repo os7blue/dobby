@@ -1,17 +1,17 @@
 package sender
 
 import (
+	"dobby/common"
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
-	"dobby/common"
 	"strings"
 )
 
 type wxMpSender struct {
 }
 
-func (w *wxMpSender) Send(AppId string, appSecret string, templateId string, to string, content string) error {
+func (w *wxMpSender) Send(AppId string, appSecret string, templateId string, to string, title string, content string) error {
 
 	token := ""
 	data, exist := common.LocalCache.Get(fmt.Sprintf("mpt-%s", AppId))
@@ -45,11 +45,21 @@ func (w *wxMpSender) Send(AppId string, appSecret string, templateId string, to 
 	}
 
 	sendMagUrl := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s", token)
+
+	userTitle := common.Option.Setting.PushTitle
+	if userTitle != "" {
+
+		title = fmt.Sprintf("[%s]%s：", userTitle, title)
+
+	} else {
+		title += "："
+	}
+
 	tempMap := map[string]any{
 		"template_id": templateId,
 		"data": map[string]any{
 			"content": map[string]any{
-				"value": fmt.Sprintf("%s%s", common.Option.Setting.PushTitle, content),
+				"value": title + content,
 			},
 		},
 	}

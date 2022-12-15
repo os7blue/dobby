@@ -1,6 +1,8 @@
 package sender
 
 import (
+	"dobby/common"
+	"fmt"
 	"github.com/jordan-wright/email"
 	"net/smtp"
 )
@@ -9,6 +11,15 @@ type mailSender struct {
 }
 
 func (m *mailSender) Send(host string, port string, username string, password string, to []string, title string, content string) error {
+
+	userTitle := common.Option.Setting.PushTitle
+	if userTitle != "" {
+
+		title = fmt.Sprintf("[%s]%s：", userTitle, title)
+
+	} else {
+		title += "："
+	}
 
 	e := email.NewEmail()
 	e.From = username

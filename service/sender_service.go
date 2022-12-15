@@ -117,6 +117,7 @@ func (s *sendService) Send(key string, title string, content string, ip string) 
 					c.AppSecret,
 					c.TemplateId,
 					c.ToUserListStr,
+					title,
 					content,
 				)
 				if err != nil {

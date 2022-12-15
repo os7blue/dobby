@@ -77,16 +77,28 @@ password =
 #默认邮件服务，不配置将无法登录
 #一把情况下去你的电子邮件服务商的设置页面都可以查看并设置smtp服务
 [Email]
-host = smtp.163.com
+host = smtp.qq.com
 port = 25
-username : os7blue@163.com
-password :
+username =
+password =
 #切记 这是可以登录管理后台的邮箱，所有账户都具有相同权限，默认会将smtp自身的邮件地址加入。
-admin:
+
+#非必填
 [Setting]
-#所有推送内容前置标题，会与实际推送标题进行拼接，也可用实现一些webhook通道的关键字认证
-#如果调用推送api时 设置了 了title 那么会展现为为 pushTitle[你的title]：xxxxcontent 这种格式
+#如果设置了pushTitle
+#webhook推送格式为：[pushTitle]调用api时传递的title：推送内容
+#mail的推送标题为：[pushTitle]调用api时传递的title
+#测试号/公众号的推送格式为：[pushTitle]调用api时传递的title：推送内容
+
+#如果未设置pushTitle
+#webhook推送格式为：调用api时传递的title：推送内容
+#mail的推送标题为：调用api时传递的title
+#测试号/公众号的推送格式为：调用api时传递的title：推送内容
+
+#设置pushTitle是为了能设置一个统一的标题以方便使用各个webhook的关键字验证。
+#也可自己调用api的时候自己在title/content中包含设置好的关键字。
 pushTitle = dobby
+
 
 
 
@@ -95,7 +107,7 @@ pushTitle = dobby
 其他说明：
 ```
     
-    登录页面背景图是我自己拍的星空和领导手绘的图。
+    登录页面背景图是我家领导手绘的图。
     文件有点大，可以自己替换自己喜欢的，或者直接删掉，设置了默认背景色，但是我觉得不好看。
     我也懒得在css上下太多功夫，就这样吧。
     

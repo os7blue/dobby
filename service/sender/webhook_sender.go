@@ -15,10 +15,12 @@ type webhookSender struct {
 func (w *webhookSender) Send(url string, title string, content string, hookType int) error {
 
 	userTitle := common.Option.Setting.PushTitle
-	if title != "" {
+	if userTitle != "" {
 
-		userTitle = fmt.Sprintf("%s[%s]：", userTitle, title)
+		title = fmt.Sprintf("[%s]%s：", userTitle, title)
 
+	} else {
+		title += "："
 	}
 
 	switch hookType {
@@ -27,7 +29,7 @@ func (w *webhookSender) Send(url string, title string, content string, hookType 
 			MsgType: "text",
 		}
 		body.At.IsAtAll = true
-		body.Text.Content = fmt.Sprintf("%s%s", userTitle, content)
+		body.Text.Content = fmt.Sprintf("%s%s", title, content)
 		rpBody, err := common.GlobalUtil.SendSimplePost(url, body)
 		if err != nil {
 			return err
@@ -44,7 +46,7 @@ func (w *webhookSender) Send(url string, title string, content string, hookType 
 			MsgType: "text",
 		}
 
-		body.Content.Text = fmt.Sprintf("<at user_id=\"all\"></at>%s%s", userTitle, content)
+		body.Content.Text = fmt.Sprintf("<at user_id=\"all\"></at>%s%s", title, content)
 		rpBody, err := common.GlobalUtil.SendSimplePost(url, body)
 		if err != nil {
 			return err
@@ -60,7 +62,7 @@ func (w *webhookSender) Send(url string, title string, content string, hookType 
 		body := model.WxWorkBody{
 			Msgtype: "text",
 		}
-		body.Text.Content = userTitle + content
+		body.Text.Content = title + content
 		body.Text.MentionedMobileList = []string{"@all"}
 
 		rpBody, err := common.GlobalUtil.SendSimplePost(url, body)
