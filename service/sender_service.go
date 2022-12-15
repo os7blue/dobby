@@ -1,7 +1,6 @@
 package service
 
 import (
-	"dobby/common"
 	"dobby/model"
 	"dobby/model/constant"
 	"dobby/service/sender"
@@ -90,7 +89,7 @@ func (s *sendService) Send(key string, title string, content string, ip string) 
 					c.Username,
 					c.Password,
 					strings.Split(c.ToEmailListStr, ","),
-					common.Option.Setting.PushTitle+title,
+					title,
 					content,
 				)
 				if err != nil {
