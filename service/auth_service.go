@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"strings"
+	"time"
 )
 
 type authService struct {
@@ -33,7 +34,12 @@ func (a *authService) SendCode(email string) error {
 	if err != nil {
 		return errors.New("发送验证码失败")
 	}
-	common.LocalCache.Set(fmt.Sprintf("code-%s", email), code, 18000)
+	common.LocalCache.SetWithTTL(
+		fmt.Sprintf("code-%s", email),
+		code,
+		360,
+		time.Second,
+	)
 
 	return nil
 
@@ -59,7 +65,12 @@ func (a *authService) Login(email string, code string) (string, error) {
 	}
 
 	tokenCode := uuid.New()
-	common.LocalCache.Set(fmt.Sprintf("auth-%s", tokenCode.String()), email, 7200)
+	common.LocalCache.SetWithTTL(
+		fmt.Sprintf("auth-%s", tokenCode.String()),
+		email,
+		7200,
+		time.Second,
+	)
 
 	common.LocalCache.Del(key)
 	return tokenCode.String(), nil

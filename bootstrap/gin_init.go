@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"runtime/debug"
 	"strings"
+	"time"
 )
 
 var G = gin.Default()
@@ -35,7 +36,7 @@ func authCheck() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		//test login token
-		//setTestToken(c)
+		setTestToken(c)
 		uri := c.Request.RequestURI
 		//uris := strings.Split(uri, "/")
 
@@ -114,7 +115,12 @@ func setTestToken(c *gin.Context) {
 		false,
 		true,
 	)
-	common.LocalCache.Set(fmt.Sprintf("auth-%s", "test"), "123", 7200)
+	common.LocalCache.SetWithTTL(
+		fmt.Sprintf("auth-%s", "test"),
+		"123",
+		7200,
+		time.Second,
+	)
 
 }
 
@@ -141,6 +147,11 @@ func RefreshToken(c *gin.Context) {
 		false,
 		true,
 	)
-	common.LocalCache.Set(fmt.Sprintf("auth-%s", u), v, 7200)
+	common.LocalCache.SetWithTTL(
+		fmt.Sprintf("auth-%s", u),
+		v,
+		7200,
+		time.Second,
+	)
 
 }

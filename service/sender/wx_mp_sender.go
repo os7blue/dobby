@@ -6,12 +6,17 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
 	"strings"
+	"time"
 )
 
 type wxMpSender struct {
 }
 
 func (w *wxMpSender) Send(AppId string, appSecret string, templateId string, to string, title string, content string) error {
+
+BEGIN:
+
+	count := 0
 
 	token := ""
 	data, exist := common.LocalCache.Get(fmt.Sprintf("mpt-%s", AppId))
@@ -36,10 +41,11 @@ func (w *wxMpSender) Send(AppId string, appSecret string, templateId string, to 
 			return errors.New(fmt.Sprintf("推送失败，%s", body))
 		}
 		token = t.String()
-		common.LocalCache.Set(
+		common.LocalCache.SetWithTTL(
 			fmt.Sprintf("mpt-%s", AppId),
 			body,
-			o.Int()-100,
+			o.Int()-10,
+			time.Second,
 		)
 
 	}
@@ -74,7 +80,14 @@ func (w *wxMpSender) Send(AppId string, appSecret string, templateId string, to 
 		}
 		ec := gjson.Get(body, "errcode")
 		if ec.Int() != 0 {
-			return errors.New(gjson.Get(body, "errmsg").String())
+
+			if ec.Int() == 40001 && count < 4 {
+				count++
+				common.LocalCache.Del(fmt.Sprintf("mpt-%s", AppId))
+				goto BEGIN
+			}
+
+			return errors.New(body)
 		}
 
 	}
