@@ -1,12 +1,12 @@
 #me
 
-dev.ini
+./dev.ini
 
-message-push
+./message-push
 
-dobby
+./dobby
 
-dobby.exe
+./dobby.exe
 
 
 # ---> Java
