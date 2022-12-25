@@ -118,8 +118,8 @@ func setTestToken(c *gin.Context) {
 	common.LocalCache.SetWithTTL(
 		fmt.Sprintf("auth-%s", "test"),
 		"123",
-		7200,
-		time.Second,
+		1,
+		time.Second*7200,
 	)
 
 }
@@ -150,8 +150,8 @@ func RefreshToken(c *gin.Context) {
 	common.LocalCache.SetWithTTL(
 		fmt.Sprintf("auth-%s", u),
 		v,
-		7200,
-		time.Second,
+		1,
+		time.Second*7200,
 	)
 
 }
