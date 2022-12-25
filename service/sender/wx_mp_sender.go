@@ -44,8 +44,8 @@ BEGIN:
 		common.LocalCache.SetWithTTL(
 			fmt.Sprintf("mpt-%s", AppId),
 			body,
-			o.Int()-10,
-			time.Second,
+			1,
+			(7200-10)*time.Second,
 		)
 
 	}

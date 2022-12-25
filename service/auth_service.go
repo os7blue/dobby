@@ -37,8 +37,8 @@ func (a *authService) SendCode(email string) error {
 	common.LocalCache.SetWithTTL(
 		fmt.Sprintf("code-%s", email),
 		code,
-		360,
-		time.Second,
+		1,
+		time.Second*360,
 	)
 
 	return nil
@@ -68,8 +68,8 @@ func (a *authService) Login(email string, code string) (string, error) {
 	common.LocalCache.SetWithTTL(
 		fmt.Sprintf("auth-%s", tokenCode.String()),
 		email,
-		7200,
-		time.Second,
+		1,
+		time.Second*7200,
 	)
 
 	common.LocalCache.Del(key)
