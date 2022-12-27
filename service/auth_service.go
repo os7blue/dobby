@@ -32,7 +32,7 @@ func (a *authService) SendCode(email string) error {
 		code,
 	)
 	if err != nil {
-		return errors.New("发送验证码失败")
+		return err
 	}
 	common.LocalCache.SetWithTTL(
 		fmt.Sprintf("code-%s", email),
