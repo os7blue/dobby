@@ -409,7 +409,6 @@
                 handler(next, _) {
 
                     this.planForm.channelIdListStr = this.$util.arrayParamToStr("", next)
-                    console.log(this.planForm)
                 },
                 deep: true
             },
@@ -567,20 +566,28 @@
             },
 
             editInfo(data) {
-                this.action.openPlanEdit = true
+                let that  = this
 
-                this.planForm = {
+                that.action.openPlanEdit = true
+
+                that.planForm = {
                     id: data.id,
                     name: data.name,
                     whiteListStr: data.whiteListStr,
                     channelIdListStr: data.channelIdListStr
                 }
                 let ops = JSON.parse(data.channelInfoListJsonStr)
-                this.channelIdSelected = this.$util.arrayItemParamToArray("id", ops)
-                this.channelIdSelectedTemp = this.$util.arrayItemParamToArray("id", ops)
-                this.tagInputs.channelIdList = this.$util.arrayItemParamToArray("name", ops)
-                this.tagInputs.whiteList = data.whiteListStr.split(",")
-                this.loadInfoPage()
+
+                ops.forEach(function (ele) {
+
+                    that.channelIdSelected.push(ele.id)
+                    that.channelIdSelectedTemp.push(ele.name)
+                    that.tagInputs.channelIdList.push(ele.name)
+                });
+
+
+                that.tagInputs.whiteList = data.whiteListStr.split(",")
+                that.loadInfoPage()
             },
 
 
