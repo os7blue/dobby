@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"dobby/common"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -15,9 +15,7 @@ func (r *indexRouter) ToIndex(c *gin.Context) {
 	if ifLogin {
 		c.Redirect(302, "/admin")
 	} else {
-		c.HTML(http.StatusOK, "login.html", gin.H{
-			"title": "消息推送平台登录",
-		})
+		c.HTML(http.StatusOK, "login.html", nil)
 	}
 
 }

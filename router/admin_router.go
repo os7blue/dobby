@@ -10,31 +10,23 @@ type adminRouter struct {
 
 func (r *adminRouter) ToIndex(c *gin.Context) {
 
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title": "管理页面",
-	})
+	c.HTML(http.StatusOK, "index.html", nil)
 
 }
 
 func (r *adminRouter) ToChannelInfo(c *gin.Context) {
 
-	c.HTML(http.StatusOK, "channel_info.html", gin.H{
-		"title": "通道管理",
-	})
+	c.HTML(http.StatusOK, "channel_info.html", nil)
 
 }
 
 func (r *adminRouter) ToLog(c *gin.Context) {
 
-	c.HTML(http.StatusOK, "log.html", gin.H{
-		"title": "log",
-	})
+	c.HTML(http.StatusOK, "log.html", nil)
 
 }
 
 func (r *adminRouter) ToChannelPlan(c *gin.Context) {
-	c.HTML(http.StatusOK, "channel_plan.html", gin.H{
-		"title": "通道方案",
-	})
+	c.HTML(http.StatusOK, "channel_plan.html", nil)
 
 }
