@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 var AuthUtil = new(authUtil)
@@ -68,6 +69,13 @@ func (a *authUtil) SetToken(c *gin.Context, code string) {
 		"",
 		false,
 		true,
+	)
+
+	LocalCache.SetWithTTL(
+		fmt.Sprintf("auth-%s", code),
+		code,
+		1,
+		time.Second*7200,
 	)
 
 }
