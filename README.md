@@ -3,6 +3,12 @@
 
 # dobby 多通道消息推送服务
 
+```shell
+
+sudo docker run -itd --name dobby -p 8087:8702 -v 你的config.ini文件路径:/app/config.ini os7blue/dobby:1.1
+
+```
+
 
 待修复bug：
     
