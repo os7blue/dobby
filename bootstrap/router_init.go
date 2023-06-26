@@ -12,4 +12,6 @@ func routerInit(g *gin.Engine) {
 	g.GET("/admin/channel/info", router.Routers.AdminRouter.ToChannelInfo)
 	g.GET("/admin/channel/plan", router.Routers.AdminRouter.ToChannelPlan)
 
+	g.GET("/voice_channel/:key", router.Routers.IndexRouter.ToVoiceChannel)
+
 }
