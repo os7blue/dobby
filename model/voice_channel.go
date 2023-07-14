@@ -1,6 +1,6 @@
 package model
 
-type VoiceChannel struct {
+type WebSocketChannel struct {
 	Title      string `json:"title" validate:"required"`
 	Key        string `json:"key" validate:"required,min=2"`
 	BgColor    string `json:"bgColor" validate:"required"`
