@@ -31,10 +31,12 @@ func (w *webSocketSender) NewConn(channelId string, conn *websocket.Conn) string
 	return clientID
 }
 
+// send something to one connection
 func (w *webSocketSender) SendClient(channelId string, ClientId string) {
 
 }
 
+// send something to all connections
 func (w *webSocketSender) Send(channelId string) error {
 
 	channel := *webSocketGroup[channelId]
