@@ -186,11 +186,12 @@
                         <lay-select-option :value="10" label="webhook通道"></lay-select-option>
                         <lay-select-option :value="20" label="email通道"></lay-select-option>
                         <lay-select-option :value="30" label="公众号（测试号）通道"></lay-select-option>
+                        <lay-select-option :value="40" label="web socket 通道"></lay-select-option>
 
                     </lay-select>
                 </lay-form-item>
 
-                <lay-form-item label="通道设置：">
+                <lay-form-item :label="infoForm.channelType==40?'通道设置：无':'通道设置：'">
 
                     <lay-form :model="webhookForm" v-if="infoForm.channelType==10" ref="wif">
                         <lay-form-item label="url：" prop="url" required
