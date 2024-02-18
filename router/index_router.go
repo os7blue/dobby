@@ -20,8 +20,8 @@ func (r *indexRouter) ToIndex(c *gin.Context) {
 
 }
 
-func (r *indexRouter) ToVoiceChannel(c *gin.Context) {
+func (r *indexRouter) ToWsP(c *gin.Context) {
 
-	c.HTML(http.StatusOK, "voice_channel.html", nil)
+	c.HTML(http.StatusOK, "wsp.html", nil)
 
 }

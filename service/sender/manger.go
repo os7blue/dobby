@@ -6,5 +6,5 @@ type sender struct {
 	WebhookSender webhookSender
 	MailSender    mailSender
 	WxMpSender    wxMpSender
-	WebSocket     webSocketSender
+	WsSender      wsSender
 }

@@ -7,10 +7,12 @@ import (
 	"dobby/service"
 	"encoding/json"
 	"fmt"
+	"regexp"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"regexp"
 )
 
 type channelInfoApi struct {
@@ -35,6 +37,13 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
+	}
+
+	if createVm.ChannelType == constant.WS {
+		createVm.OptionJsonStr = fmt.Sprintf(
+			`{"key":"%s"}`,
+			uuid.New().String(),
+		)
 	}
 
 	var info = model.ChannelInfo{}
@@ -127,6 +136,10 @@ func checkOption(channelType int, jsonStr string) error {
 		if err != nil {
 			return err
 		}
+		break
+
+	case constant.WS:
+
 		break
 
 	}

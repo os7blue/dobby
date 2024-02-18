@@ -9,6 +9,10 @@
     <script src="/static/js/layui-vue.js"></script>
     <script src="/static/js/axios.min.js"></script>
     <script src="/static/js/config.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js" integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4" crossorigin="anonymous"></script>
+
+
+
 
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 
@@ -62,6 +66,23 @@
 
         </lay-card>
 
+        <lay-layer title="授权" :shade="true" :shade-close="false" :shade-opacity="1" style="text-align: center;" area="40%" resize
+                   move v-model="action.openPwd">
+
+            <lay-form :model="loginForm" ref="lf" required initValidate style="text-align: center;padding: 10px 10px 10px 10px">
+                <lay-form-item label="访问密码：" prop="key" :rules="{  type :  'string',min : 1,message:'访问密码不能为空'}">
+                    <lay-input v-model="loginForm.key" prefix-icon="layui-icon-password" size="lg"></lay-input>
+                </lay-form-item>
+                <lay-ripple>
+                    <lay-button type="warm" @click="login" :loading="loginLoading" :disabled="loginLoading">验证</lay-button>
+
+
+                </lay-ripple>
+            </lay-form>
+
+        </lay-layer>
+
+
 
     </div>
 
@@ -72,16 +93,22 @@
         const App = {
             data() {
                 return {
-                    channelId: null,
                     clientId: null,
                     list: [],
                     time: "",
                     status: 1,
-                    info: {}
+                    info: {},
+                    k:"",
+                    t:"",
+                    loginLoading:false,
+                    loginForm: {
+                        key: ""
+                    },
+                    action:{
+                        openPwd:false
+                    }
                 }
             },
-
-
             mounted() {
 
 
@@ -90,9 +117,22 @@
                 if (paths.length !== 3 || paths[2] === null || paths[2] === '') {
                     this.closeThis()
                 } else {
-                    let k = paths[2]
-                    this.connect(k)
-                    this.initInfo(k)
+
+                    this.k = paths[2]
+                    this.t = sessionStorage.getItem("t")
+
+                    if (!this.k || this.k===""){
+                        this.closeThis()
+                        return
+                    }
+                    if (!this.t||this.t===""){
+                        this.action.openPwd=true;
+                        return;
+                    }
+
+
+                    this.connect()
+                    this.initInfo(this.k)
 
 
                 }
@@ -105,8 +145,66 @@
 
 
             },
+            watch: {
+                'sendCodeStatus.status'(next, _) {
+                    //监听授权码发送倒计时变化
+                    if (next) {
+
+                        this.sendCodeStatus.timer=setInterval(()=>{
+
+                            if (this.sendCodeStatus.second===0){
+                                this.sendCodeStatus.status=false
+                                this.sendCodeStatus.second=60
+                                if (this.sendCodeStatus.timer!=null){
+                                    clearInterval(this.sendCodeStatus.timer)
+                                }
+                            }
+
+                            this.sendCodeStatus.second--;
+
+
+                        },1000)
+
+                    }
+                },
+
+            },
 
             methods: {
+                login() {
+
+                    this.$refs.lf.validate((isValidate, model, errors) => {
+                        if (!isValidate){
+                            return false
+                        }else {
+
+                            this.loginLoading=true
+
+                            this.$request.post("/ws/login", {...this.loginForm}).then(res => {
+                                if (res.code == 1) {
+
+                                    LayuiVue.layer.msg("验证成功", { icon : 1, time: 1000,})
+                                    window.location.href="/admin"
+
+                                } else {
+                                    LayuiVue.layer.msg(`${res.msg},验证失败`, { icon : 2, time: 1000})
+
+                                }
+                            }).catch((res) => {
+                                LayuiVue.layer.msg("网络错误，请稍后再试", { icon : 2, time: 1000})
+                            }).finally(()=>{
+                                this.loginLoading=false
+                            })
+
+                        }
+
+
+
+                    })
+
+
+                },
+
                 initInfo(k) {
 
 
@@ -124,35 +222,13 @@
 
                 },
 
-                connect(k) {
-                    console.log(window.location.domain)
-                    const socket = new WebSocket("ws://os7blue.com/ws/" + k)
-                    socket.onopen = () => {
-                        console.log('WebSocket connected')
-                    }
-                    socket.onmessage = (event) => {
-                        console.log(event.data)
-                        if (event.data === '404') {
-                            this.closeThis()
-                        } else {
+                connect() {
+                    let domain = window.location.hostname;
+                    let port = window.location.port;
+                    let fullDomain = domain + (port ? ':' + port : '');
+                    const socket = new WebSocket(`ws://${fullDomain}/ws/${this.k}/${this.t}"`)
 
 
-                            var colors = this.getRandomBackgroundColor()
-                            this.list.unshift({
-                                msg: event.data,
-                                color: colors[1],
-                                bgcolor: colors[0]
-                            })
-                            this.voice(event.data)
-                        }
-                        this.message = event.data
-                    }
-                    socket.onerror = (error) => {
-                        console.error('WebSocket error:', error)
-                    }
-                    socket.onclose = () => {
-                        console.log('WebSocket closed')
-                    }
 
                 },
                 closeThis() {

@@ -7,4 +7,5 @@ type apiGroup struct {
 	ChannelInfoApi channelInfoApi
 	ChannelPlanApi channelPlanApi
 	PushApi        pushApi
+	WsApi          wsApi
 }

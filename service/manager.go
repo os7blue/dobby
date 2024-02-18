@@ -7,4 +7,5 @@ type serviceGroup struct {
 	ChannelInfoService channelInfoService
 	ChannelPlanService channelPlanService
 	SendService        sendService
+	WsService          wsService
 }
