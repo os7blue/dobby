@@ -2,6 +2,7 @@ package api
 
 import (
 	"dobby/common"
+	"dobby/model"
 	"dobby/service"
 	"github.com/gin-gonic/gin"
 )
@@ -9,27 +10,19 @@ import (
 type wsApi struct {
 }
 
-func (a wsApi) conn(c *gin.Context) {
-
-}
-
 func (a wsApi) Conn(c *gin.Context) {
 
-	m := map[string]string{}
-	err := c.BindUri(&m)
+	m := model.WsConnView{}
+	err := c.ShouldBindUri(&m)
 	if err != nil {
-		return
-	}
-	if m["key"] == "" {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
 
-	if m["token"] == "" {
+	_, err = service.WsService.Conn(m.ID, m.Key, c)
+	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-
-	service.Services.WsService.Conn(m["key"], m["token"], c)
 
 }

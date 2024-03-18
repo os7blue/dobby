@@ -45,7 +45,7 @@ var Option *option
 
 func init() {
 
-	cfg, err := ini.Load("/Users/codecv/data/code/workplace/go/dobby/dev.ini")
+	cfg, err := ini.Load("dev.ini")
 	if err != nil {
 		fmt.Println("config file load failed")
 		os.Exit(1)

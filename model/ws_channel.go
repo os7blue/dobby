@@ -1,6 +1,15 @@
 package model
 
-// 只需要一个key
-type WebSocketChannel struct {
+type WsChannel struct {
 	Key string `json:"key" validate:"required,min=2"`
+}
+
+type WsConnView struct {
+	ID  uint   `validate:"required"`
+	Key string `validate:"required,min=2"`
+}
+
+type PushWs struct {
+	ID      uint   `json:"id" validate:"required"`
+	Content string `json:"content" validate:"required"`
 }

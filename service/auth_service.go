@@ -23,7 +23,7 @@ func (a *authService) SendCode(email string) error {
 	}
 
 	code := common.GlobalUtil.RandCodeString(6)
-	err := sender.Senders.MailSender.Send(
+	err := sender.MailSender.Send(
 		common.Option.Email.Host,
 		common.Option.Email.Port,
 		common.Option.Email.Username,

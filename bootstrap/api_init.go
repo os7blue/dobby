@@ -11,61 +11,34 @@ func apiInit(g *gin.Engine) {
 
 	//login , push
 	loginGroup := rootGroup.Group("/login")
-	loginGroup.POST("/send_code", api.Apis.AuthApi.SendCode)
-	loginGroup.POST("/login", api.Apis.AuthApi.Login)
-	loginGroup.POST("/logOut", api.Apis.AuthApi.LogOut)
+	loginGroup.POST("/send_code", api.AuthApi.SendCode)
+	loginGroup.POST("/login", api.AuthApi.Login)
+	loginGroup.POST("/logOut", api.AuthApi.LogOut)
 
 	//channel
 	channelGroup := rootGroup.Group("/admin/channel")
 
 	//channel info
 	channelInfoGroup := channelGroup.Group("/info")
-	channelInfoGroup.POST("/create", api.Apis.ChannelInfoApi.Create)
-	channelInfoGroup.POST("/load", api.Apis.ChannelInfoApi.Load)
-	channelInfoGroup.POST("/update", api.Apis.ChannelInfoApi.Update)
-	channelInfoGroup.POST("/del", api.Apis.ChannelInfoApi.Delete)
+	channelInfoGroup.POST("/create", api.ChannelInfoApi.Create)
+	channelInfoGroup.POST("/load", api.ChannelInfoApi.Load)
+	channelInfoGroup.POST("/update", api.ChannelInfoApi.Update)
+	channelInfoGroup.POST("/del", api.ChannelInfoApi.Delete)
+	channelInfoGroup.POST("/push_ws", api.ChannelInfoApi.PushWS)
 
 	//channel plan
 	channelPlanGroup := channelGroup.Group("/plan")
-	channelPlanGroup.POST("/create", api.Apis.ChannelPlanApi.Create)
-	channelPlanGroup.POST("/load", api.Apis.ChannelPlanApi.Load)
-	channelPlanGroup.POST("/update", api.Apis.ChannelPlanApi.Update)
-	channelPlanGroup.POST("/change_status", api.Apis.ChannelPlanApi.ChangeStatus)
-	channelPlanGroup.POST("/del", api.Apis.ChannelPlanApi.Delete)
-	channelPlanGroup.POST("/refresh_key", api.Apis.ChannelPlanApi.RefreshKey)
+	channelPlanGroup.POST("/create", api.ChannelPlanApi.Create)
+	channelPlanGroup.POST("/load", api.ChannelPlanApi.Load)
+	channelPlanGroup.POST("/update", api.ChannelPlanApi.Update)
+	channelPlanGroup.POST("/change_status", api.ChannelPlanApi.ChangeStatus)
+	channelPlanGroup.POST("/del", api.ChannelPlanApi.Delete)
+	channelPlanGroup.POST("/refresh_key", api.ChannelPlanApi.RefreshKey)
 
 	//push
-	g.POST("/push", api.Apis.PushApi.Push)
-
-	//g.GET("/ws/send/:key/:id/:msg", func(c *gin.Context) {
-	//	m := map[string]string{}
-	//	c.BindUri(&m)
-	//	first := wss[m["key"]]
-	//	if first == nil {
-	//		common.R.FailWithMsg(c, "不存在 key")
-	//		return
-	//	}
-	//
-	//	second := *first
-	//	if m["id"] == "0" {
-	//
-	//		for _, value := range second {
-	//			_ = value.WriteMessage(websocket.TextMessage, []byte(m["msg"]))
-	//
-	//		}
-	//	} else {
-	//
-	//		if second[m["id"]] != nil {
-	//			second[m["id"]].WriteMessage(websocket.TextMessage, []byte(m["msg"]))
-	//		}
-	//
-	//	}
-	//
-	//	common.R.Success(c)
-	//
-	//})
+	g.POST("/push", api.PushApi.Push)
 
 	//ws
-	g.GET("/ws/:key/:token", api.Apis.WsApi.Conn)
+	g.GET("/ws/:ID/:Key", api.WsApi.Conn)
 
 }

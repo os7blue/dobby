@@ -2,15 +2,13 @@ package service
 
 import (
 	"dobby/common"
+	"dobby/model"
 	"dobby/service/sender"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/tidwall/gjson"
 	"net/http"
-	"strings"
-	"time"
 )
 
 type wsService struct {
@@ -24,48 +22,46 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (wss wsService) Conn(key string, token string, c *gin.Context) {
+func (wss wsService) Conn(ID uint, key string, c *gin.Context) (string, error) {
 
-	//ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	//if err != nil {
-	//	common.R.FailWithMsg(c, err.Error())
-	//	return
-	//}
-
-}
-
-func (wss wsService) SendCode(email string, key string) error {
-
-	emails := common.Option.Email.Admin
-	emails = fmt.Sprintf("%s,%s", emails, common.Option.Email.Username)
-
-	if !strings.Contains(emails, email) {
-		return errors.New("email地址不存在")
+	channel := model.ChannelInfo{}
+	db := common.DB.First(&channel, ID)
+	if db.Error != nil {
+		return "", db.Error
 	}
 
-	code := uuid.New().String()
-	err := sender.Senders.MailSender.Send(
-		common.Option.Email.Host,
-		common.Option.Email.Port,
-		common.Option.Email.Username,
-		common.Option.Email.Password,
-		[]string{email}, fmt.Sprintf("ws通道%s授权码", key),
-		code,
-	)
+	r := gjson.Get(channel.OptionJsonStr, "key").Str
+	if r != key {
+		return "", errors.New("key错误")
+	}
+
+	upgrade, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		return "", err
+	}
+
+	clientId := sender.WsSender.Conn(ID, upgrade)
+
+	err = upgrade.WriteJSON(model.Result{
+		Code:  1,
+		Msg:   "链接成功",
+		Data:  clientId,
+		Count: 0,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return clientId, nil
+}
+
+func (wss wsService) Send(id uint, content string) error {
+
+	err := sender.WsSender.Send(id, "", content)
 	if err != nil {
 		return err
 	}
 
-	m := map[string]string{
-		"key": key,
-	}
-	common.LocalCache.SetWithTTL(
-		fmt.Sprintf("wscode-%s", code),
-		m,
-		1,
-		time.Hour*24,
-	)
-
 	return nil
-
 }

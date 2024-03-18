@@ -12,6 +12,6 @@ func routerInit(g *gin.Engine) {
 	g.GET("/admin/channel/info", router.Routers.AdminRouter.ToChannelInfo)
 	g.GET("/admin/channel/plan", router.Routers.AdminRouter.ToChannelPlan)
 
-	g.GET("/wsp/:id", router.Routers.IndexRouter.ToWsP)
+	g.GET("/wsp/:id/:key", router.Routers.IndexRouter.ToWsP)
 
 }

@@ -16,7 +16,7 @@ type sendService struct {
 
 func (s *sendService) Send(key string, title string, content string, ip string) (string, error) {
 
-	plan, err := Services.ChannelPlanService.getOneByKey(key)
+	plan, err := ChannelPlanService.getOneByKey(key)
 	if err != nil {
 		return "", err
 	}
@@ -63,7 +63,7 @@ func (s *sendService) Send(key string, title string, content string, ip string) 
 					wait.Done()
 					return
 				}
-				err = sender.Senders.WebhookSender.Send(c.Url, title, content, c.HookType)
+				err = sender.WebhookSender.Send(c.Url, title, content, c.HookType)
 				if err != nil {
 					msgs = fmt.Sprintf("%s [通道：%s，推送失败，失败原因：%s]", msgs, channel.Name, err.Error())
 
@@ -83,7 +83,7 @@ func (s *sendService) Send(key string, title string, content string, ip string) 
 
 					return
 				}
-				err = sender.Senders.MailSender.Send(
+				err = sender.MailSender.Send(
 					c.Host,
 					c.Port,
 					c.Username,
@@ -111,7 +111,7 @@ func (s *sendService) Send(key string, title string, content string, ip string) 
 
 					return
 				}
-				err = sender.Senders.WxMpSender.Send(
+				err = sender.WxMpSender.Send(
 					c.AppId,
 					c.AppSecret,
 					c.TemplateId,
@@ -127,6 +127,18 @@ func (s *sendService) Send(key string, title string, content string, ip string) 
 			}(channel, title, content)
 
 			break
+
+		case constant.WS:
+
+			go func(channel model.ChannelInfo, title string, content string) {
+
+				err := sender.WsSender.Send(channel.ID, title, content)
+				if err != nil {
+					msgs = fmt.Sprintf("%s [通道:%s，推送失败，原因：%s]", msgs, channel.Name, err.Error())
+
+				}
+				wait.Done()
+			}(channel, title, content)
 
 		}
 

@@ -2,16 +2,17 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/static/css/index.css" />
+    <meta charset="UTF-8"/>
+    <link rel="shortcut  icon" href="/static/img/dobby.png"/>
+    <link rel="stylesheet" href="/static/css/index.css"/>
     <link rel="stylesheet" href="/static/css/global.css">
     <script src="/static/js/vue.js"></script>
     <script src="/static/js/layui-vue.js"></script>
     <script src="/static/js/axios.min.js"></script>
     <script src="/static/js/config.js"></script>
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js" integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4" crossorigin="anonymous"></script>
-
-
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"
+            integrity="sha384-Gr6Lu2Ajx28mzwyVR8CFkULdCU7kMlZ9UthllibdOSo6qAiN+yXNHqtgdTvFXMT4"
+            crossorigin="anonymous"></script>
 
 
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
@@ -20,306 +21,462 @@
 </head>
 
 <body>
-    <div id="app" style="padding:  10px 10px 10px 10px;background: #f4f4f4">
+<div id="app" style="padding:  10px 10px 10px 10px;background: #f4f4f4">
 
-        <lay-panel shadow="always">
+    <lay-panel shadow="always">
 
 
-            <lay-row space="10">
-                <lay-col md="12" sm="12" xs="24">
-                    <lay-space>
+        <lay-row space="10">
+            <lay-col md="12" sm="12" xs="24">
+                <lay-space>
                         <span>
+                               <span style="color: red" v-show="status==0">
+                                <lay-icon type="layui-icon-close" color="red"></lay-icon>&nbsp;未连接
+                            </span>
                             <span style="color: green" v-show="status==1">
-                                <lay-icon type="layui-icon-ok"  color="green"></lay-icon>&nbsp;{{info.clientId}}已连接
+                                <lay-icon type="layui-icon-ok" color="green"></lay-icon>已连接
                             </span>
-                            <span style="color: red" v-show="status==0">
-                                <lay-icon type="layui-icon-close" color="red" ></lay-icon>&nbsp;未连接                    
-                            </span>
+
                             <span style="color: orange" v-show="status==2">
-                                <lay-icon type="layui-icon-loading" class="layui-anim-rotate layui-anim-loop layui-anim-fadein" color="orange" ></lay-icon>&nbsp;连接中
+                                <lay-icon type="layui-icon-loading"
+                                          class="layui-anim-rotate layui-anim-loop layui-anim-fadein"
+                                          color="orange"></lay-icon>&nbsp;连接中
                             </span>
                         </span>
-                        <span style="font-weight: bold">
+                    <span style="font-weight: bold">
                             |
                         </span>
-                        <span style="font-weight: bolder;font-size: large">
+                    <span style="font-weight: bolder;font-size: large">
                             {{ info.title }}
                         </span>
-                    </lay-space>
+                </lay-space>
 
-                </lay-col>
+            </lay-col>
 
-                <lay-col md="12" sm="12" xs="24">
-                    <span style="font-size: large;float: right;clear: right">
+            <lay-col md="12" sm="12" xs="24">
+                    <span style="font-size: large;float: right;">
                         {{ time }}
+                        <lay-icon type="layui-icon-more-vertical" @click="this.openSetting=true"></lay-icon>
+
                     </span>
 
-                </lay-col>
-            </lay-row>
+            </lay-col>
+        </lay-row>
 
-        </lay-panel>
+    </lay-panel>
 
-        <lay-card shadow="always" v-for="item in list" class="layui-anim layui-anim-up">
+    <lay-card shadow="always" v-for="item in list" class="layui-anim layui-anim-up">
 
-            <lay-notice-bar :background="item.bgcolor" :color="item.color" left-icon="layui-icon-mute"
-                right-icon="layui-icon-close" :text="item.msg" mode="closeable"></lay-notice-bar>
+        <lay-notice-bar :background="item.bgcolor" :color="item.color" left-icon="layui-icon-speaker" :text="item.msg" ></lay-notice-bar>
 
-        </lay-card>
+    </lay-card>
 
-        <lay-layer title="授权" :shade="true" :shade-close="false" :shade-opacity="1" style="text-align: center;" area="40%" resize
-                   move v-model="action.openPwd">
+    <lay-layer type="drawer" v-model="openSetting" title="页面设置">
 
-            <lay-form :model="loginForm" ref="lf" required initValidate style="text-align: center;padding: 10px 10px 10px 10px">
-                <lay-form-item label="访问密码：" prop="key" :rules="{  type :  'string',min : 1,message:'访问密码不能为空'}">
-                    <lay-input v-model="loginForm.key" prefix-icon="layui-icon-password" size="lg"></lay-input>
+        <div style="padding: 10px 10px 10px 10px;margin: 0 auto">
+            <lay-form>
+                <lay-form-item label="客户端id" prop="clientId">
+                    <lay-input disabled v-model="info.clientId"></lay-input>
                 </lay-form-item>
-                <lay-ripple>
-                    <lay-button type="warm" @click="login" :loading="loginLoading" :disabled="loginLoading">验证</lay-button>
+
+                <lay-form-item label="标题" prop="title">
+                    <lay-tooltip content="顶部标题内容，默认为clientId">
+                        <lay-input v-model="info.title"></lay-input>
+                    </lay-tooltip>
+
+                </lay-form-item>
 
 
-                </lay-ripple>
+                <lay-form-item label="随机颜色" prop="randomColor" mode="inline">
+                    <lay-tooltip content="是否开启随机渐变色，默认开">
+                        <lay-switch v-model="info.randomColor"></lay-switch>
+                    </lay-tooltip>
+                </lay-form-item>
+                <lay-form-item label="自动重连" prop="tts" mode="inline">
+                    <lay-tooltip content="连接断开自动重连，默认开">
+                        <lay-switch v-model="info.reconnect"></lay-switch>
+                    </lay-tooltip>
+                </lay-form-item>
+                <lay-form-item label="时间后缀" prop="time" mode="inline">
+                    <lay-tooltip content="是否显示通知时间后缀，默认开">
+                        <lay-switch v-model="info.time"></lay-switch>
+                    </lay-tooltip>
+                </lay-form-item>
+                <lay-form-item label="语音播报" prop="tts" mode="inline">
+                    <lay-tooltip content="=是否开启语音播报，默认开">
+                        <lay-switch v-model="info.tts"></lay-switch>
+                    </lay-tooltip>
+                </lay-form-item>
+
+
+                <lay-form-item label="播报语言" prop="lang" mode="inline">
+                    <lay-tooltip content="选择播报使用的语言，默认中文">
+                        <lay-select v-model="info.ttsOption.lang">
+                            <lay-select-option value="zh-CN" label="zh-CN"></lay-select-option>
+                            <lay-select-option value="en-US" label="en-US"></lay-select-option>
+                        </lay-select>
+                    </lay-tooltip>
+                </lay-form-item>
+                <lay-form-item label="播报音量" prop="volume" mode="inline">
+                    <lay-tooltip content="播报音量，范围0-1，默认1">
+                        <lay-slider v-model="info.ttsOption.volume" :min="0" :max="1" step="0.1">
+                            <template #thumb>
+                                <lay-icon type="layui-icon-speaker" color="green"></lay-icon>
+                            </template>
+                        </lay-slider>
+
+                    </lay-tooltip>
+                </lay-form-item>
+                <lay-form-item label="播报语速" prop="rate" mode="inline">
+                    <lay-tooltip content="播报音高，范围0.1-10，默认1">
+                        <lay-slider v-model="info.ttsOption.rate" :min="0.1" :max="10" step="0.1">
+                            <template #thumb>
+                                <lay-icon type="layui-icon-console" color="green"></lay-icon>
+                            </template>
+                        </lay-slider>
+                    </lay-tooltip>
+                </lay-form-item>
+                <lay-form-item label="播报音高" prop="pitch" mode="inline">
+                    <lay-tooltip content="播报音高，范围0-2，默认1">
+                        <lay-slider v-model="info.ttsOption.pitch" :min="0" :max="2" step="0.1">
+                            <template #thumb>
+                                <lay-icon type="layui-icon-chart" color="green"></lay-icon>
+                            </template>
+                        </lay-slider>
+                    </lay-tooltip>
+                </lay-form-item>
+                <lay-form-item label="播报次数" prop="ttsNum" mode="inline">
+                    <lay-tooltip content="播报重复次数，范围1-∞，默认3">
+                        <lay-input-number v-model="info.ttsNum" :min="1"></lay-input-number>
+                    </lay-tooltip>
+                </lay-form-item>
+                <lay-form-item label="历史记录" prop="total" mode="inline">
+                    <lay-tooltip content="页面保留推送数目，范围1-∞，默认10">
+                        <lay-input-number v-model="info.total" :min="1"></lay-input-number>
+                    </lay-tooltip>
+                </lay-form-item>
+
+
+                <lay-form-item style="text-align: center">
+                    <lay-button type="default" @click="resetDefault()">重置</lay-button>
+                </lay-form-item>
             </lay-form>
+        </div>
 
-        </lay-layer>
-
-
-
-    </div>
+    </lay-layer>
 
 
-    <script>
+</div>
 
 
-        const App = {
-            data() {
-                return {
+<script>
+
+
+    const defaultTTS = {
+        lang: "zh-CN",  // 使用的语言:中文
+        volume: 1,      // 声音音量：0-1
+        rate: 1,      // 语速：0-10
+        pitch: 1
+    }
+    const defaultInfo = {
+        tts: true,
+        ttsOst: "",
+        ttsNum: 1,
+        total: 100,
+        randomColor: true,
+        reconnect: true,
+        time: true,
+
+    }
+
+
+    const App = {
+        data() {
+            return {
+                list: [],
+                time: "",
+                status: 0,
+                info: {
+                    channelId: null,
                     clientId: null,
-                    list: [],
-                    time: "",
-                    status: 1,
-                    info: {},
-                    k:"",
-                    t:"",
-                    loginLoading:false,
-                    loginForm: {
-                        key: ""
+                    key: null,
+                    title: "",
+                    tts: true,
+                    ttsOst: "",
+                    ttsNum: 1,
+                    total: 100,
+                    randomColor: true,
+                    ttsOption: {
+                        lang: "zh-CN",  // 使用的语言:中文
+                        volume: 1,      // 声音音量：0-1
+                        rate: 1,      // 语速：0-10
+                        pitch: 1
                     },
-                    action:{
-                        openPwd:false
-                    }
+                    reconnect: true,
+                    time: true
+                },
+                openSetting: false
+            }
+        },
+        mounted() {
+
+
+            let paths = window.location.pathname.split("/")
+            console.log(paths)
+            if (
+                paths.length !== 4
+                || paths[2] === null
+                || paths[2] === ''
+                || paths[3] === null
+                || paths[3] === ''
+            ) {
+                this.closeThis()
+            }
+
+
+            this.info.channelId = paths[2]
+            this.info.key = paths[3]
+            this.connect()
+
+            let that = this;
+            setInterval(function () {
+                that.time = that.$util.longTimeWeekFormat(new Date().getTime())
+            }, 1000)
+
+
+        },
+        watch: {
+            'info.ttsOption.volume': function (next, last) {
+                console.log(next)
+                console.log(last)
+            }
+        },
+
+        methods: {
+            resetDefault() {
+                for (let key in defaultInfo) {
+                    this.info[key] = defaultInfo[key]
                 }
+
+                this.info.ttsOption = {
+                    ...defaultTTS
+                }
+
+                this.info.title = this.info.clientId
+
             },
-            mounted() {
+            async connect() {
 
+                LayuiVue.layer.closeAll();
 
-                let paths = window.location.pathname.split("/")
-                console.log(paths)
-                if (paths.length !== 3 || paths[2] === null || paths[2] === '') {
-                    this.closeThis()
-                } else {
-
-                    this.k = paths[2]
-                    this.t = sessionStorage.getItem("t")
-
-                    if (!this.k || this.k===""){
-                        this.closeThis()
-                        return
-                    }
-                    if (!this.t||this.t===""){
-                        this.action.openPwd=true;
-                        return;
-                    }
-
-
-                    this.connect()
-                    this.initInfo(this.k)
-
-
-                }
+                this.status = 2
+                const protocol = window.location.protocol.indexOf("s") !== -1 ? "wss" : "ws";
+                const domain = window.location.hostname;
+                const port = window.location.port ? ":" + window.location.port : "";
+                let socket = new WebSocket(`${protocol}://${domain}${port}/ws/${this.info.channelId}/${this.info.key}`);
 
 
                 let that = this;
-                setInterval(function () {
-                    that.time = that.$util.longTimeWeekFormat(new Date().getTime())
-                }, 1000)
+
+                socket.onopen = function (event) {
+                    console.log("ws连接成功");
+                    that.status = 1;
+                };
 
 
-            },
-            watch: {
-                'sendCodeStatus.status'(next, _) {
-                    //监听授权码发送倒计时变化
-                    if (next) {
-
-                        this.sendCodeStatus.timer=setInterval(()=>{
-
-                            if (this.sendCodeStatus.second===0){
-                                this.sendCodeStatus.status=false
-                                this.sendCodeStatus.second=60
-                                if (this.sendCodeStatus.timer!=null){
-                                    clearInterval(this.sendCodeStatus.timer)
+                socket.onmessage = function (event) {
+                    let data = event.data
+                    let json = JSON.parse(data)
+                    console.log(json)
+                    if (json) {
+                        switch (json.code) {
+                            case 1:
+                                that.info.title = json.data
+                                if (that.info.title !== "") {
+                                    that.info.title = json.data
                                 }
-                            }
 
-                            this.sendCodeStatus.second--;
+                                that.info.clientId = json.data
 
 
-                        },1000)
-
-                    }
-                },
-
-            },
-
-            methods: {
-                login() {
-
-                    this.$refs.lf.validate((isValidate, model, errors) => {
-                        if (!isValidate){
-                            return false
-                        }else {
-
-                            this.loginLoading=true
-
-                            this.$request.post("/ws/login", {...this.loginForm}).then(res => {
-                                if (res.code == 1) {
-
-                                    LayuiVue.layer.msg("验证成功", { icon : 1, time: 1000,})
-                                    window.location.href="/admin"
-
-                                } else {
-                                    LayuiVue.layer.msg(`${res.msg},验证失败`, { icon : 2, time: 1000})
-
-                                }
-                            }).catch((res) => {
-                                LayuiVue.layer.msg("网络错误，请稍后再试", { icon : 2, time: 1000})
-                            }).finally(()=>{
-                                this.loginLoading=false
-                            })
-
+                                break
+                            case 2:
+                                that.notice(json.data)
+                                that.voice(json.data)
+                                break
                         }
 
 
-
-                    })
-
-
-                },
-
-                initInfo(k) {
-
-
-                    const storedData = localStorage.getItem(k);
-                    this.info = storedData ? JSON.parse(storedData) : {
-                        title: `通道${k}`,
-                        bgColor: '',
-                        ifTTS: 1,
-                        maxHistory: 10
-                    };
-
-                    this.$watch("info", (newValue) => {
-                        localStorage.setItem(k, JSON.stringify(newValue));
-                    });
-
-                },
-
-                connect() {
-                    let domain = window.location.hostname;
-                    let port = window.location.port;
-                    let fullDomain = domain + (port ? ':' + port : '');
-                    const socket = new WebSocket(`ws://${fullDomain}/ws/${this.k}/${this.t}"`)
-
-
-
-                },
-                closeThis() {
-                    let index = LayuiVue.layer.confirm(`非法访问，已记录信息`, {
-                        icon: 2,
-                        title: false,
-                        closeBtn: false,
-                        shadeOpacity: 1,
-                        yes: () => {
-
-                            if (typeof window.chrome !== "undefined") {
-                                // Chrome 浏览器
-                                window.location.href = "about:blank";
-                                window.close();
-                            } else if (typeof window.navigator.userAgent.indexOf("Firefox") !== -1 ||
-                                typeof window.navigator.userAgent.indexOf("Opera") !== -1) {
-                                // Firefox 或 Opera 浏览器
-                                window.location.href = "about:blank";
-                                window.close();
-                            } else {
-                                // 其他浏览器
-                                window.opener = null;
-                                window.open("", "_self");
-                                window.close();
-                            }
-                        }
-                    })
-                },
-                voice(value) {
-                    const synth = window.speechSynthesis;
-                    const msg = new SpeechSynthesisUtterance();
-                    msg.text = value;     // 文字内容
-                    msg.lang = "zh-CN";  // 使用的语言:中文
-                    msg.volume = 1;      // 声音音量：0-1
-                    msg.rate = 0.9;        // 语速：0-10
-                    msg.pitch = 1;       // 音高：0-1
-                    synth.speak(msg);    // 播放
-                },
-                getRandomColor() {
-                    var letters = "0123456789ABCDEF";
-                    var color = "#";
-                    for (var i = 0; i < 6; i++) {
-                        color += letters[Math.floor(Math.random() * 16)];
                     }
-                    return color;
-                },
-                getRandomBackgroundColor() {
-                    var color1 = this.getRandomColor();
-                    var color2 = this.getRandomColor();
-                    var brightness1 = this.getBrightness(color1);
-                    var brightness2 = this.getBrightness(color2);
-                    var textColor = "#000";
-                    if (brightness1 > brightness2) {
-                        textColor = this.getContrastYIQ(color1);
+
+
+                };
+
+                socket.onclose = function (event) {
+                    socket.close()
+                    socket=null
+                    that.status = 0
+                    if (that.info.reconnect) {
+                        that.connect()
                     } else {
-                        textColor = this.getContrastYIQ(color2);
+                        that.ReConn()
                     }
-                    var gradient = "linear-gradient(to right, " + color1 + ", " + color2 + ")";
-                    return [gradient, textColor];
-                },
-                getBrightness(color) {
-                    var r = parseInt(color.substring(1, 3), 16);
-                    var g = parseInt(color.substring(3, 5), 16);
-                    var b = parseInt(color.substring(5, 7), 16);
-                    return (r * 299 + g * 587 + b * 114) / 1000;
-                },
-                getContrastYIQ(color) {
-                    var r = parseInt(color.substring(1, 3), 16);
-                    var g = parseInt(color.substring(3, 5), 16);
-                    var b = parseInt(color.substring(5, 7), 16);
-                    var yiq = (r * 299 + g * 587 + b * 114) / 1000;
-                    return yiq >= 128 ? "#000" : "#fff";
+
+                };
+                socket.onerror = function (error) {
+                    socket.close()
+                    socket=null
+                    that.status = 0
+                    console.error("WebSocket 错误: " + error);
+                    if (that.info.reconnect) {
+                        that.connect()
+                    } else {
+                        that.ReConn()
+                    }
+
+                };
+
+
+            },
+            ReConn() {
+
+                LayuiVue.layer.confirm(`连接已断开，尝试重新连接？`, {
+                    icon: 2,
+                    title: false,
+                    shade: false,
+                    closeBtn: false,
+                    yes: () => {
+                        this.connect()
+                    }
+                })
+
+            },
+            closeThis() {
+                let index = LayuiVue.layer.confirm(`非法访问，已记录信息`, {
+                    icon: 2,
+                    title: false,
+                    closeBtn: false,
+                    shadeOpacity: 1,
+                    yes: () => {
+
+                        if (typeof window.chrome !== "undefined") {
+                            // Chrome 浏览器
+                            window.location.href = "about:blank";
+                            window.close();
+                        } else if (typeof window.navigator.userAgent.indexOf("Firefox") !== -1 ||
+                            typeof window.navigator.userAgent.indexOf("Opera") !== -1) {
+                            // Firefox 或 Opera 浏览器
+                            window.location.href = "about:blank";
+                            window.close();
+                        } else {
+                            // 其他浏览器
+                            window.opener = null;
+                            window.open("", "_self");
+                            window.close();
+                        }
+                    }
+                })
+            },
+            formatDecimal(number) {
+                // 如果是数字，则保留一位小数
+                if (typeof number === 'number' && !isNaN(number)) {
+                    // 将数字转换为字符串
+                    const numberString = number.toString();
+                    // 查找小数点的位置
+                    const decimalIndex = numberString.indexOf('.');
+                    // 如果找到小数点且后面还有数字，则截取到小数点后一位
+                    if (decimalIndex !== -1 && decimalIndex < numberString.length - 2) {
+                        return parseFloat(numberString.slice(0, decimalIndex + 2));
+                    } else {
+                        // 否则返回原值
+                        return number;
+                    }
+                }
+                // 如果不是数字，则直接返回原值
+                return number;
+            },
+            notice(value) {
+
+
+                let item = {}
+                if (this.info.randomColor) {
+
+                    let color = this.generateRandomColor()
+
+                    item.bgcolor = color.bgColor
+                    item.color = color.textColor
+
                 }
 
+                if (this.info.time) {
+                    item.msg = `${value}          ${this.time}`
+                }
+                this.list.unshift(item)
+                if (this.list.length > this.info.total) {
+                    this.list.pop()
+                }
+
+
+            },
+
+
+            voice(value) {
+                const synth = window.speechSynthesis;
+                const msg = new SpeechSynthesisUtterance();
+                msg.text = value;     // 文字内容
+                msg.lang = this.info.ttsOption.lang;  // 使用的语言:中文
+                msg.volume = this.formatDecimal(this.info.ttsOption.volume);      // 声音音量：0-1
+                msg.rate = this.formatDecimal(this.info.ttsOption.volume);        // 语速：0-10
+                msg.pitch = this.formatDecimal(this.info.ttsOption.volume);       // 音高：0-1
+                for (let i = 0; i < this.info.ttsNum; i++) {
+                    synth.speak(msg);    // 播放
+                }
+
+            },
+            generateRandomColor() {
+                // 生成随机的红、绿、蓝三个通道的颜色值
+                const randomRed = Math.floor(Math.random() * 256);
+                const randomGreen = Math.floor(Math.random() * 256);
+                const randomBlue = Math.floor(Math.random() * 256);
+
+                // 将颜色值转换为十六进制表示
+                const textColor = "#" + this.rgbToHex(randomRed, randomGreen, randomBlue);
+
+                // 选择深色作为背景色
+                const bgColor = this.getRandomDarkColor();
+
+                return {textColor, bgColor};
+            },
+
+            // 获取随机深色背景色
+            getRandomDarkColor() {
+                const randomRed = Math.floor(Math.random() * 128);
+                const randomGreen = Math.floor(Math.random() * 128);
+                const randomBlue = Math.floor(Math.random() * 128);
+                return "#" + this.rgbToHex(randomRed, randomGreen, randomBlue);
+            },
+
+            // 将 RGB 颜色值转换为十六进制表示
+            rgbToHex(red, green, blue) {
+                return ((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1);
             }
+        }
 
-        };
-        const app = Vue.createApp(App);
-
-
-        app.use(LayuiVue);
-        app.use(http)
-        app.use(util)
-
-        app.mount("#app");
-    </script>
-
-    <style>
+    };
+    const app = Vue.createApp(App);
 
 
-    </style>
+    app.use(LayuiVue);
+    app.use(http)
+    app.use(util)
+
+    app.mount("#app");
+</script>
+
+<style>
+
+
+</style>
 </body>
 
 </html>

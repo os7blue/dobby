@@ -74,6 +74,7 @@
                         </lay-space>
                         <lay-space v-if="data.channelType===40">
                             <span>key：{{JSON.parse(data.optionJsonStr).key}}</span>
+                            <span>在线客户端数量：{{JSON.parse(data.optionJsonStr).clientNum?JSON.parse(data.optionJsonStr).clientNum:0}}</span>
                         </lay-space>
                     </lay-panel>
 
@@ -289,7 +290,7 @@
             </lay-layer>
 
 
-            <lay-layer title="推送消息" :shade="true" :shade-close="false" style="text-align: center;" area="60%" resize
+            <lay-layer :title="'推送消息至通道'+this.piForm.id" :shade="true" :shade-close="false" style="text-align: center;" area="60%" resize
                        move v-model="action.openPushInfo">
 
                 <lay-form :model="piForm" v-if="action.openPushInfo" ref="pif" initValidate
@@ -349,6 +350,7 @@
                         key: ''
                     },
                     piForm:{
+                        id:null,
                       content:""
                     },
                     action: {
@@ -494,6 +496,13 @@
 
                         }
 
+                    }
+                },
+                "action.openPushInfo":{
+                    handler(next,_){
+                        if (!next){
+                            this.$refs.pif.reset()
+                        }
                     }
                 }
 
@@ -681,10 +690,12 @@
                     this.loadInfoPage()
                 },
                 toPage(data) {
-                    window.open("/wsp/" + data.id, "_blank")
+
+                    window.open(`/wsp/${data.id}/${JSON.parse(data.optionJsonStr).key}`,"_blank")
                 },
                 pushInfo(data) {
 
+                    this.piForm.id=data.id
                     this.action.openPushInfo = true
 
                 },
@@ -841,7 +852,6 @@
 
 
                 },
-
                 submitInfoCreate() {
 
                     this.$refs.icf.validate((isValidate, model, errors) => {
@@ -893,6 +903,42 @@
 
 
                 },
+                submitPushInfo(){
+                    this.$refs.pif.validate((isValidate, model, errors) => {
+                        if (!isValidate) {
+                            return false
+                        } else {
+                            let loadIndex = LayuiVue.layer.msg(`正在推送`, {
+                                icon: 16,
+                                time: 0,
+                                shade: true
+                            })
+                            this.$request.post("/api/admin/channel/info/push_ws", {
+                                ...this.piForm,
+
+                            }).then(res => {
+                                if (res.code === 1) {
+
+                                    LayuiVue.layer.msg("推送成功", { icon: 1, time: 1000, })
+
+
+                                } else {
+                                    LayuiVue.layer.msg(`${res.msg},推送失败`, { icon: 2, time: 1000 })
+
+                                }
+                            }).catch((res) => {
+                                LayuiVue.layer.msg("网络错误，请稍后再试", { icon: 2, time: 1000 })
+                            }).finally(() => {
+                                LayuiVue.layer.close(loadIndex)
+
+                            })
+
+                            return false
+                        }
+                    })
+
+                    return false
+                }
             }
         };
         const app = Vue.createApp(App);

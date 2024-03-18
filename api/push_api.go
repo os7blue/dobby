@@ -32,7 +32,7 @@ func (p *pushApi) Push(c *gin.Context) {
 
 	ip := c.ClientIP()
 
-	msg, err := service.Services.SendService.Send(pushInfoVm.Key, pushInfoVm.Title, pushInfoVm.Content, ip)
+	msg, err := service.SendService.Send(pushInfoVm.Key, pushInfoVm.Title, pushInfoVm.Content, ip)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return

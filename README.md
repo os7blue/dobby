@@ -1,12 +1,10 @@
 
-![logo](./view/static/img/dobby.jpeg)
+![logo](./view/static/img/dobby.png)
 
 # dobby 多通道消息推送服务
 
 
-待修复bug：
-    
-~~通道方案管理前端多选列表bug，可能会产生选择冲突选择错位等情况（重新选择一次就好）。~~
+
 
 界面：
 ![截图1](./doc/1.png)
@@ -19,6 +17,7 @@
 
 支持推送通道：
 
+    - websocket
     - 微信公众号/测试号
     - 企业微信webhook机器人
     - 钉钉webhook机器人

@@ -1,10 +1,8 @@
 package sender
 
-var Senders = new(sender)
-
-type sender struct {
+var (
 	WebhookSender webhookSender
 	MailSender    mailSender
 	WxMpSender    wxMpSender
 	WsSender      wsSender
-}
+)

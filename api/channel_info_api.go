@@ -48,7 +48,7 @@ func (i *channelInfoApi) Create(c *gin.Context) {
 
 	var info = model.ChannelInfo{}
 	err = common.StructConvert[model.ChannelInfoCreateValidator, model.ChannelInfo](createVm, &info)
-	err = service.Services.ChannelInfoService.CreateOne(info)
+	err = service.ChannelInfoService.CreateOne(info)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -73,7 +73,7 @@ func (i *channelInfoApi) Update(c *gin.Context) {
 	}
 
 	//check channel type
-	existInfo, err := service.Services.ChannelInfoService.GetOne(updateVm.ID)
+	existInfo, err := service.ChannelInfoService.GetOne(updateVm.ID)
 	if err != nil {
 		common.R.FailWithMsg(c, fmt.Sprintf("未找到id为 %d 的通道信息", updateVm.ID))
 	}
@@ -86,7 +86,7 @@ func (i *channelInfoApi) Update(c *gin.Context) {
 
 	var info = model.ChannelInfo{}
 	err = common.StructConvert[model.ChannelInfoUpdateValidator, model.ChannelInfo](updateVm, &info)
-	err = service.Services.ChannelInfoService.Update(info)
+	err = service.ChannelInfoService.Update(info)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -156,7 +156,7 @@ func (i *channelInfoApi) Load(c *gin.Context) {
 		return
 	}
 
-	result, count, err := service.Services.ChannelInfoService.LoadPage(loadVm.Page, loadVm.Limit, loadVm.Param)
+	result, count, err := service.ChannelInfoService.LoadPage(loadVm.Page, loadVm.Limit, loadVm.Param)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -175,12 +175,29 @@ func (i *channelInfoApi) Delete(c *gin.Context) {
 		return
 	}
 
-	err = service.Services.ChannelInfoService.Delete(updateVm.ID)
+	err = service.ChannelInfoService.Delete(updateVm.ID)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
 
+	common.R.Success(c)
+
+}
+
+func (i *channelInfoApi) PushWS(c *gin.Context) {
+	var vm model.PushWs
+	err := c.ShouldBindJSON(&vm)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
+
+	err = service.WsService.Send(vm.ID, vm.Content)
+	if err != nil {
+		common.R.FailWithMsg(c, err.Error())
+		return
+	}
 	common.R.Success(c)
 
 }
