@@ -19,3 +19,9 @@ func (r *indexRouter) ToIndex(c *gin.Context) {
 	}
 
 }
+
+func (r *indexRouter) ToWsP(c *gin.Context) {
+
+	c.HTML(http.StatusOK, "wsp.html", nil)
+
+}

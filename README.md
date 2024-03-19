@@ -3,13 +3,8 @@
 
 # dobby 多通道消息推送服务
 
-2.x版本feature：
-- 各个自建应用
-- 日志内容支持
-- pushbeer支持
-- 短信支持
-- 复杂内容支持md/html/text
-- 高频调用优化
+
+
 
 界面：
 ![截图1](./doc/1.png)
@@ -22,6 +17,7 @@
 
 支持推送通道：
 
+    - websocket
     - 微信公众号/测试号
     - 企业微信webhook机器人
     - 钉钉webhook机器人

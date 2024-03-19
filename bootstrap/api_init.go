@@ -11,31 +11,34 @@ func apiInit(g *gin.Engine) {
 
 	//login , push
 	loginGroup := rootGroup.Group("/login")
-	loginGroup.POST("/send_code", api.Apis.AuthApi.SendCode)
-	loginGroup.POST("/login", api.Apis.AuthApi.Login)
-	loginGroup.POST("/logOut", api.Apis.AuthApi.LogOut)
+	loginGroup.POST("/send_code", api.AuthApi.SendCode)
+	loginGroup.POST("/login", api.AuthApi.Login)
+	loginGroup.POST("/logOut", api.AuthApi.LogOut)
 
 	//channel
 	channelGroup := rootGroup.Group("/admin/channel")
 
 	//channel info
 	channelInfoGroup := channelGroup.Group("/info")
-	channelInfoGroup.POST("/create", api.Apis.ChannelInfoApi.Create)
-	channelInfoGroup.POST("/load", api.Apis.ChannelInfoApi.Load)
-	channelInfoGroup.POST("/update", api.Apis.ChannelInfoApi.Update)
-	channelInfoGroup.POST("/del", api.Apis.ChannelInfoApi.Delete)
+	channelInfoGroup.POST("/create", api.ChannelInfoApi.Create)
+	channelInfoGroup.POST("/load", api.ChannelInfoApi.Load)
+	channelInfoGroup.POST("/update", api.ChannelInfoApi.Update)
+	channelInfoGroup.POST("/del", api.ChannelInfoApi.Delete)
+	channelInfoGroup.POST("/push_ws", api.ChannelInfoApi.PushWS)
 
 	//channel plan
 	channelPlanGroup := channelGroup.Group("/plan")
-	channelPlanGroup.POST("/create", api.Apis.ChannelPlanApi.Create)
-	channelPlanGroup.POST("/load", api.Apis.ChannelPlanApi.Load)
-	channelPlanGroup.POST("/update", api.Apis.ChannelPlanApi.Update)
-	channelPlanGroup.POST("/change_status", api.Apis.ChannelPlanApi.ChangeStatus)
-	channelPlanGroup.POST("/del", api.Apis.ChannelPlanApi.Delete)
-	channelPlanGroup.POST("/refresh_key", api.Apis.ChannelPlanApi.RefreshKey)
+	channelPlanGroup.POST("/create", api.ChannelPlanApi.Create)
+	channelPlanGroup.POST("/load", api.ChannelPlanApi.Load)
+	channelPlanGroup.POST("/update", api.ChannelPlanApi.Update)
+	channelPlanGroup.POST("/change_status", api.ChannelPlanApi.ChangeStatus)
+	channelPlanGroup.POST("/del", api.ChannelPlanApi.Delete)
+	channelPlanGroup.POST("/refresh_key", api.ChannelPlanApi.RefreshKey)
 
 	//push
+	g.POST("/push", api.PushApi.Push)
 
-	g.POST("/push", api.Apis.PushApi.Push)
+	//ws
+	g.GET("/ws/:ID/:Key", api.WsApi.Conn)
 
 }

@@ -67,7 +67,7 @@ const util = {
 
             /*这个方法用来随机一个十六进制颜色代码，让每一次点击浮动文字的杨色不同*/
             randomHexColor: () => {
-                const colorArr= ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f']
+                const colorArr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
 
                 let color = "#";
                 for (let i = 0; i < 6; i++) {
@@ -75,12 +75,12 @@ const util = {
                 }
                 return color;
             },
-            arrayItemParamToArray:(key ='',data=[])=>{
+            arrayItemParamToArray: (key = '', data = []) => {
                 let arr = []
                 for (let i = 0; i < data.length; i++) {
-                    if (key===''){
+                    if (key === '') {
                         arr.push(data[i])
-                    }else {
+                    } else {
                         arr.push(data[i][key])
                     }
                 }
@@ -103,8 +103,7 @@ const util = {
                 }
                 const time = new Date(Number(longTime))
                 const weeks = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-                return `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()} ${time.getHours()}:${time
-                    .getMinutes()}:${time.getSeconds()} ${weeks[time.getDay()]}`
+                return `${time.getFullYear()}-${pushZero(time.getMonth() + 1)}-${pushZero(time.getDate())} ${pushZero(time.getHours())}:${pushZero(time.getMinutes())}:${pushZero(time.getSeconds())} ${weeks[time.getDay()]}`
             },
             arrayParamToStr: (key = '', data = []) => {
 

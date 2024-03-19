@@ -47,7 +47,7 @@ func (p *channelPlanApi) Create(c *gin.Context) {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-	err = service.Services.ChannelPlanService.Create(plan)
+	err = service.ChannelPlanService.Create(plan)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -65,7 +65,7 @@ func (p *channelPlanApi) Load(c *gin.Context) {
 		return
 	}
 
-	result, count, err := service.Services.ChannelPlanService.LoadPage(loadVm.Page, loadVm.Limit, loadVm.Param.Name)
+	result, count, err := service.ChannelPlanService.LoadPage(loadVm.Page, loadVm.Limit, loadVm.Param.Name)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -111,7 +111,7 @@ func (p *channelPlanApi) Update(c *gin.Context) {
 		common.R.FailWithMsg(c, err.Error())
 		return
 	}
-	err = service.Services.ChannelPlanService.Update(plan)
+	err = service.ChannelPlanService.Update(plan)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -131,13 +131,13 @@ func (p *channelPlanApi) ChangeStatus(c *gin.Context) {
 		return
 	}
 
-	_, err = service.Services.ChannelPlanService.GetOne(updateVm.ID)
+	_, err = service.ChannelPlanService.GetOne(updateVm.ID)
 	if err != nil {
 		common.R.FailWithMsg(c, fmt.Sprintf("id为 %d 的通道方案可能不存在", updateVm.ID))
 		return
 	}
 
-	err = service.Services.ChannelPlanService.Update(model.ChannelPlan{
+	err = service.ChannelPlanService.Update(model.ChannelPlan{
 		ID:     updateVm.ID,
 		Status: updateVm.Status,
 	})
@@ -159,7 +159,7 @@ func (p *channelPlanApi) Delete(c *gin.Context) {
 		return
 	}
 
-	err = service.Services.ChannelPlanService.Delete(updateVm.ID)
+	err = service.ChannelPlanService.Delete(updateVm.ID)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return
@@ -178,7 +178,7 @@ func (p *channelPlanApi) RefreshKey(c *gin.Context) {
 		return
 	}
 
-	key, err := service.Services.ChannelPlanService.RefreshKey(updateVm.ID)
+	key, err := service.ChannelPlanService.RefreshKey(updateVm.ID)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return

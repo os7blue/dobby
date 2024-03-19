@@ -22,7 +22,7 @@ func (a *authApi) Login(c *gin.Context) {
 		return
 	}
 
-	tokenCode, err := service.Services.AuthService.Login(loginVm.Email, loginVm.Code)
+	tokenCode, err := service.AuthService.Login(loginVm.Email, loginVm.Code)
 
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
@@ -43,7 +43,7 @@ func (a *authApi) SendCode(c *gin.Context) {
 		return
 	}
 
-	err = service.Services.AuthService.SendCode(codeVm.Email)
+	err = service.AuthService.SendCode(codeVm.Email)
 	if err != nil {
 		common.R.FailWithMsg(c, err.Error())
 		return

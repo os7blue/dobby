@@ -1,10 +1,9 @@
 package service
 
-var Services = new(serviceGroup)
-
-type serviceGroup struct {
+var (
 	AuthService        authService
 	ChannelInfoService channelInfoService
 	ChannelPlanService channelPlanService
 	SendService        sendService
-}
+	WsService          wsService
+)

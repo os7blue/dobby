@@ -3,6 +3,9 @@ package service
 import (
 	"dobby/common"
 	"dobby/model"
+	"dobby/model/constant"
+	"dobby/service/sender"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -30,6 +33,28 @@ func (s *channelInfoService) LoadPage(page int, limit int, channelInfo model.Cha
 	}
 	var count int64
 	c.Count(&count)
+
+	if results != nil && len(results) > 0 {
+
+		for index, v := range results {
+			if v.ChannelType == constant.WS {
+				num := sender.WsSender.ClientNum(v.ID)
+				m := map[string]any{}
+				err := json.Unmarshal([]byte(v.OptionJsonStr), &m)
+				if err != nil {
+					continue
+				}
+				m["clientNum"] = num
+				marshal, err := json.Marshal(m)
+				if err != nil {
+					continue
+				}
+				results[index].OptionJsonStr = string(marshal)
+
+			}
+		}
+
+	}
 
 	return results, count, nil
 }
