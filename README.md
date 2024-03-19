@@ -1,5 +1,5 @@
 
-![logo](./view/static/img/dobby.jpeg)
+![logo](./view/static/img/dobby.png)
 
 # dobby 多通道消息推送服务
 
