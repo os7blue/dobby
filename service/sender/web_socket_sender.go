@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
+	"log"
 	"sync"
 	"time"
 )
@@ -62,31 +63,41 @@ func (w wsSender) Conn(channelId uint, conn *websocket.Conn) string {
 }
 
 func (w wsSender) Send(channelId uint, title string, content string) error {
-
+	mu.Lock()
 	group, exist := webSocketGroup[channelId]
 	if !exist {
+		mu.Unlock()
 		return errors.New(fmt.Sprintf("通道%d没有客户端在线", channelId))
 	}
 
 	wait := sync.WaitGroup{}
 	wait.Add(len(*group))
+	maxConcurrency := 100
+	concurrencyChan := make(chan struct{}, maxConcurrency)
 
 	for _, v := range *group {
-
+		concurrencyChan <- struct{}{}
 		go func(title string, content string, v *websocket.Conn) {
-			defer wait.Done()
-			_ = v.WriteJSON(
-				model.Result{
-					Code:  2,
-					Msg:   "",
-					Data:  fmt.Sprintf("%s%s", title, content),
-					Count: 0,
-				},
-			)
+			defer func() {
+				<-concurrencyChan
+				wait.Done()
+				if r := recover(); r != nil {
+					log.Printf("Recovered in goroutine: %v", r)
+				}
+			}()
 
+			if err := v.WriteJSON(model.Result{
+				Code:  2,
+				Msg:   "",
+				Data:  fmt.Sprintf("%s%s", title, content),
+				Count: 0,
+			}); err != nil {
+				log.Printf("Error sending message to client: %v", err)
+			}
 		}(title, content, v)
-
 	}
+
+	mu.Unlock()
 
 	wait.Wait()
 
