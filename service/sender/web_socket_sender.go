@@ -21,30 +21,6 @@ var (
 	checkPeriod    = 60 * time.Second // 检查连接状态的时间间隔
 )
 
-func init() {
-	// 启动定时任务来检查连接状态
-	go checkConnections()
-}
-
-func checkConnections() {
-
-	for {
-
-		for channelId, group := range webSocketGroup {
-			for clientId, conn := range *group {
-				// 尝试从连接中读取数据，如果失败说明连接已断开
-				_, _, err := conn.ReadMessage()
-				if err != nil {
-					// 从group中删除已断开的连接
-					delete(*group, clientId)
-					fmt.Printf("连接已断开：通道%d 客户端%s\n", channelId, clientId)
-				}
-			}
-		}
-		time.Sleep(60 * time.Second)
-
-	}
-}
 func (w wsSender) Conn(channelId uint, conn *websocket.Conn) string {
 
 	group, ext := webSocketGroup[channelId]
@@ -75,8 +51,9 @@ func (w wsSender) Send(channelId uint, title string, content string) error {
 	maxConcurrency := 100
 	concurrencyChan := make(chan struct{}, maxConcurrency)
 
-	for _, v := range *group {
+	for clientId, v := range *group {
 		concurrencyChan <- struct{}{}
+		clientId := clientId
 		go func(title string, content string, v *websocket.Conn) {
 			defer func() {
 				<-concurrencyChan
@@ -92,6 +69,7 @@ func (w wsSender) Send(channelId uint, title string, content string) error {
 				Data:  fmt.Sprintf("%s%s", title, content),
 				Count: 0,
 			}); err != nil {
+				delete(*group, clientId)
 				log.Printf("Error sending message to client: %v", err)
 			}
 		}(title, content, v)

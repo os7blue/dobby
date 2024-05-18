@@ -1,7 +1,16 @@
-FROM debian:11
-CMD ['mkdir /data','mkdir /data/file']
-COPY dobby '/data'
-COPY ./view '/data/file'
-COPY ./push.db '/data/file'
+FROM alpine:latest
+
+RUN mkdir /app
+RUN mkdir /app/resource
+WORKDIR /app
 
 
+COPY ./dobby /app
+COPY ./push.db /app/resource/push.db
+COPY ./view /app/resource/view
+
+
+ENV PORT=8702
+EXPOSE $PORT
+
+CMD ["./dobby"]
