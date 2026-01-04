@@ -2,13 +2,14 @@ package common
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/dgraph-io/ristretto"
 	"gopkg.in/ini.v1"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"os"
 )
 
 type email struct {
@@ -45,7 +46,7 @@ var Option *option
 
 func init() {
 
-	cfg, err := ini.Load("dev.ini")
+	cfg, err := ini.Load("/workspaces/dobby/dev.ini")
 	if err != nil {
 		fmt.Println("config file load failed")
 		os.Exit(1)

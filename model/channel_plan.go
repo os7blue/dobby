@@ -21,6 +21,7 @@ type ChannelPlanView struct {
 	WhiteListStr           string        `json:"whiteListStr"`
 	ChannelIdListStr       string        `json:"ChannelIdListStr"`
 	ChannelInfoListJsonStr string        `json:"channelInfoListJsonStr"`
+	ChannelModel int `json:"channelModel"`
 	ChannelInfoList        []ChannelInfo `gorm:"-"`
 }
 
